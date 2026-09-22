@@ -6,12 +6,17 @@ codebase -- reached purely over HTTP.
 from __future__ import annotations
 
 import os
-from collections.abc import Sequence
+from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import httpx
 
-from ..types import TurnContext
+from ..tools import Tool
+from ..types import Message, TurnContext
+
+if TYPE_CHECKING:
+    from ..agent import LiteAgentClient
 
 
 class JevClassificationError(Exception):
@@ -117,3 +122,66 @@ class JevModelRouter:
 
         self._turn_cache[context.turn] = model
         return model
+
+
+class JevAgent:
+    """An agent that always uses JEV to pick the best model per turn.
+
+    This is `LiteAgentClient` pre-wired with a `JevModelRouter` -- for
+    callers who just want "an agent that routes with JEV" without assembling
+    `LiteAgentOptions(model_router=JevModelRouter(...))` themselves. Reach
+    for `JevModelRouter` directly if you need to combine JEV with other
+    `LiteAgentOptions` (custom tool_choice, fusion, etc.) that this
+    convenience wrapper doesn't expose.
+    """
+
+    def __init__(
+        self,
+        *,
+        tiers: Sequence[JevTier],
+        fallback_model: str,
+        api_key: str | None = None,
+        base_url: str = "https://api.typesafe.ai/v1",
+        timeout: float = 5.0,
+        tools: list[Tool] | None = None,
+        system: str | None = None,
+        max_tokens: int = 4096,
+        max_turns: int = 20,
+    ) -> None:
+        # Imported here, not at module level, to avoid a circular import:
+        # agent.py -> loop.py -> routers (package init) -> this module.
+        from ..agent import LiteAgentOptions
+
+        router = JevModelRouter(
+            tiers=tiers, fallback_model=fallback_model, api_key=api_key, base_url=base_url, timeout=timeout
+        )
+        self._options = LiteAgentOptions(
+            model_router=router,
+            tools=tools or [],
+            system=system,
+            max_tokens=max_tokens,
+            max_turns=max_turns,
+        )
+        self._client: LiteAgentClient | None = None
+
+    async def __aenter__(self) -> JevAgent:
+        from ..agent import LiteAgentClient
+
+        self._client = await LiteAgentClient(options=self._options).__aenter__()
+        return self
+
+    async def __aexit__(self, *exc_info: object) -> None:
+        if self._client is not None:
+            await self._client.__aexit__(*exc_info)
+
+    async def query(self, prompt: str) -> AsyncIterator[Message]:
+        if self._client is None:
+            raise RuntimeError("JevAgent must be used as an async context manager: 'async with JevAgent(...) as agent'")
+        async for message in self._client.query(prompt):
+            yield message
+
+    @property
+    def history(self) -> list[Message]:
+        if self._client is None:
+            return []
+        return self._client.history
