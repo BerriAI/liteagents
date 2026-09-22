@@ -1,10 +1,10 @@
-# LiteAgents SDK for Python
+# liteagents
 
-a provider-independent agent SDK built on LiteLLM. same `query()` interface as the Claude Agent SDK, but any turn can run on any provider.
+A provider-independent agent SDK with the same query() interface as the Claude Agent SDK, **allowing you to use the right model for every turn**. Auto-routing automatically selects the best-fit model for each step across providers, balancing quality, speed, and cost. Use OpenAI, Anthropic, Deepseek, Gemini, xAI all within one agent run.
 
 ## Features
 
-- cross-provider: mix OpenAI, Anthropic, Gemini, Bedrock, Azure, and LiteLLM proxy aliases in one agent
+- cross-provider: mix OpenAI, Anthropic, Gemini, Bedrock, Azure in one agent run
 - JEV-native routing: auto-pick the cheapest model tier per turn
 - fusion mode: a frontier model plus a cheap sidekick, running in parallel
 - write your own router instead, no classifier required
