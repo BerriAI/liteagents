@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+
+# Rust build artifacts -- Cargo.lock is kept for reproducible builds,
+# but the target/ directory is regenerated locally and in CI.
+src/liteagents/_native/target/
