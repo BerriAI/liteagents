@@ -1,8 +1,6 @@
 # LiteAgents SDK for Python
 
-Agent SDK for using 100+ providers. Its core loop follows the Claude Agent SDK pattern: configure options, call `query()`, and consume an async message stream.
-
-Python SDK for building provider-independent agents with LiteLLM, while letting every turn run on the model best suited to the task.
+a provider-independent agent SDK built on LiteLLM. same `query()` interface as the Claude Agent SDK, but any turn can run on any provider.
 
 ## Features
 
