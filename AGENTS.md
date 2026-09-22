@@ -37,23 +37,6 @@ letting it absorb more concerns. Example: if `loop.py` grows past budget
 because of tool-dispatch logic, extract a `dispatch.py` rather than keep
 adding to `loop.py`.
 
-## The Rust extension (`_native/`)
-
-`_native/` is scoped only to synchronous, CPU-bound helpers with no I/O:
-
-- the history buffer
-- response content-block parsing/validation
-- tool input-schema validation
-
-It must never contain anything that awaits network I/O or runs user tool
-code. The async tool-calling loop stays pure Python — bridging async Rust
-into asyncio for I/O-bound work has real cost and no benefit here.
-
-`_native/__init__.py` must fall back to a pure-Python implementation when the
-compiled extension isn't available. The package always installs and works
-without a Rust toolchain; `_native/` is a pure accelerator, never a
-dependency.
-
 ## Where new code goes
 
 - New routing strategy -> new file in `routers/`.

@@ -26,10 +26,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/liteagents"]
 
-# NOTE: src/liteagents/_native/ is an optional Rust (PyO3) extension. It is
-# built and distributed separately via maturin, not as part of this
-# hatchling build. The package must install and work without it.
-
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
