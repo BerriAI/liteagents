@@ -9,7 +9,7 @@ from __future__ import annotations
 from .agent import LiteAgentClient, LiteAgentOptions, query
 from .fusion import FusionOptions
 from .pr_risk_agent import PRRiskAgent, PullRequest, RiskAssessment
-from .routers import JevModelRouter, JevTier, ModelRouter, StaticRouter
+from .routers import JevAgent, JevModelRouter, JevTier, ModelRouter, StaticRouter
 from .tools import Tool
 from .types import (
     AssistantMessage,
@@ -26,6 +26,7 @@ __all__ = [
     "AssistantMessage",
     "ContentBlock",
     "FusionOptions",
+    "JevAgent",
     "JevModelRouter",
     "JevTier",
     "LiteAgentClient",

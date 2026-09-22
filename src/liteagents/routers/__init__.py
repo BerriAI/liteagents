@@ -1,7 +1,8 @@
 from .base import ModelRouter, StaticRouter
-from .jev import JevClassificationError, JevModelRouter, JevTier
+from .jev import JevAgent, JevClassificationError, JevModelRouter, JevTier
 
 __all__ = [
+    "JevAgent",
     "JevClassificationError",
     "JevModelRouter",
     "JevTier",

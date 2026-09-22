@@ -43,31 +43,43 @@ async with LiteAgentClient(options=options) as agent:
 
 history stays intact across the switch. `AssistantMessage.model` records which model handled each turn.
 
-## JEV picks the best model for every turn
+## JevAgent picks the best model for every turn
 
 ```python
-from liteagents import JevModelRouter, JevTier, LiteAgentOptions, query
+from liteagents import JevAgent, JevTier
 
-router = JevModelRouter(
+async with JevAgent(
     tiers=(
         JevTier(name="FAST", model="openai/gpt-5.4-mini", description="Routine edits and extraction"),
         JevTier(name="BALANCED", model="anthropic/claude-sonnet-4-6", description="Everyday coding"),
         JevTier(name="REASONING", model="anthropic/claude-opus-4-8", description="Architecture, hard debugging"),
     ),
     fallback_model="anthropic/claude-opus-4-8",
-)
-
-options = LiteAgentOptions(model_router=router)
-
-async for message in query(prompt="Review this pull request", options=options):
-    print(message)
+) as agent:
+    async for message in agent.query("Review this pull request"):
+        print(message)
 ```
 
 ```shell
 export TYPESAFE_API_KEY="..."
 ```
 
-[JEV](https://docs.typesafe.ai/models) classifies each turn against your tiers before it runs. a tier can be a direct provider model, a LiteLLM proxy alias, or a Router model group.
+`JevAgent` is a `LiteAgentClient` pre-wired with [JEV](https://docs.typesafe.ai/models) routing: it classifies each turn against your tiers before running it. A tier can be a direct provider model, a LiteLLM proxy alias, or a Router model group.
+
+Need JEV routing alongside other `LiteAgentOptions` (fusion, a custom `tool_choice`, etc.)? Use `JevModelRouter` directly as a `model_router`:
+
+```python
+from liteagents import JevModelRouter, JevTier, LiteAgentOptions, query
+
+router = JevModelRouter(
+    tiers=(JevTier(name="FAST", model="openai/gpt-5.4-mini", description="Routine edits and extraction"),),
+    fallback_model="anthropic/claude-opus-4-8",
+)
+options = LiteAgentOptions(model_router=router)
+
+async for message in query(prompt="Review this pull request", options=options):
+    print(message)
+```
 
 ## Fusion: a frontier main agent with a cheap sidekick
 

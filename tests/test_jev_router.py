@@ -3,8 +3,10 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from liteagents import JevModelRouter, JevTier, TurnContext
+from liteagents import AssistantMessage, JevAgent, JevModelRouter, JevTier, TurnContext
 from liteagents.routers.jev import JevClassificationError, _classify
+
+from .conftest import text_response
 
 
 async def test_falls_back_when_no_api_key():
@@ -67,3 +69,23 @@ async def test_classify_raises_on_http_error(monkeypatch: pytest.MonkeyPatch):
         await _classify(
             prompt="hi", tiers=(), api_key="k", base_url="https://api.typesafe.ai/v1", timeout=1.0
         )
+
+
+async def test_jev_agent_routes_and_queries(mock_anthropic_messages):
+    mock_anthropic_messages.push(text_response("hi there", model="anthropic/claude-opus-4-8"))
+
+    async with JevAgent(
+        tiers=(JevTier(name="FAST", model="openai/gpt-5.4-mini", description="fast"),),
+        fallback_model="anthropic/claude-opus-4-8",
+        api_key=None,  # no key -> falls back, exercising the same path as JevModelRouter directly
+    ) as agent:
+        messages = [m async for m in agent.query("hello")]
+
+    assert len(messages) == 1
+    assert isinstance(messages[0], AssistantMessage)
+    # no api_key means the router always resolves to fallback_model -- confirm
+    # that's what actually got sent to anthropic_messages, not just what the
+    # (mocked) response happened to report back.
+    assert mock_anthropic_messages.calls[0]["model"] == "anthropic/claude-opus-4-8"
+    assert messages[0].model == "anthropic/claude-opus-4-8"
+    assert agent.history[-1] is messages[0]
