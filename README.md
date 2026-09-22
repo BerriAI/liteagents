@@ -7,6 +7,7 @@ a provider-independent agent SDK built on LiteLLM. same `query()` interface as t
 - cross-provider by design: mix OpenAI, Anthropic, Gemini, Bedrock, Azure, and LiteLLM proxy aliases in one conversation, one client
 - JEV-native routing: classify each turn and route it to the cheapest model tier predicted to handle it well
 - deterministic routing is a first-class option: write your own router, no classifier required
+- fusion mode (opt-in): run a frontier model and a cheaper sidekick in parallel, each with its own cached context, and let the frontier model delegate
 - same `query()` / `AssistantMessage` / `TextBlock` shapes as the Claude Agent SDK, so migration is mostly an import change
 
 ## Installation
@@ -98,6 +99,33 @@ total turn cost = JEV classification cost + selected model cost
 routing pays for itself when the savings from skipping an unnecessarily expensive model exceed the classification cost. this is workload-dependent: measure cost, latency, and answer quality on your own traffic before trusting it in production.
 
 **when JEV picks wrong.** a misclassified turn falls through to `fallback_model`, and every routed call still goes through the same LiteLLM request path, so you can log, cache, and rate-limit it exactly like a direct call. tier descriptions and thresholds are plain arguments you set and can change, not a hidden hosted policy.
+
+## Fusion: a frontier main agent with a cheap sidekick
+
+a single frontier model on every turn pays that model's price and latency for greetings, lookups, extraction, and small edits, not just the hard turns. `model_router` and JEV both solve this by picking one model per turn. fusion is a different, opt-in mode: run a frontier model and a cheaper sidekick model side by side, each with its own persistent, cached context, and let the frontier model decide what to hand off.
+
+```python
+from liteagents import FusionOptions, LiteAgentClient, LiteAgentOptions
+
+options = LiteAgentOptions(
+    model="anthropic/claude-opus-4-8",
+    fusion=FusionOptions(
+        sidekick_model="openai/gpt-5.4-mini",
+        # the main agent decides what to delegate; it plans, resolves
+        # ambiguity, and does final review, the sidekick executes.
+    ),
+)
+
+async with LiteAgentClient(options=options) as agent:
+    async for message in agent.query("Modernize search.js to ES6 and verify with the full test suite"):
+        print(message)  # diff from the main model, test run delegated to the sidekick
+```
+
+fusion is not the same as calling a second model as a tool. a "smart friend" or "advisor" tool call re-sends the task context on every call, so you pay full, uncached input cost each time. in fusion, both models keep their own context warm across the session, so delegating a subtask does not cost a cache miss.
+
+**why this beats picking one model per turn.** the main model stays fully capable, it is not "benchmark-score" intelligence swapped out for a cheaper model on hard-looking turns. it also generalizes past single-prompt classification: a task can start simple and grow a hard follow-up mid-session, and the main model can pull work back from the sidekick or hand off more as it learns the task, without committing to a model up front.
+
+**when to delegate and when not to.** mechanical, well-scoped work (a rewrite with a slow test suite, a deprecation removal, boilerplate across many files) delegates cleanly: same or better quality, meaningfully lower cost. work where the judgment call is the deliverable (an ambiguous product decision, a subtle intent behind a feature request) does not: handing that to the sidekick can silently lose the point of the task even while looking done. fusion helps most when your main model is disciplined about which bucket a subtask falls into.
 
 ## Basic usage: `query()`
 
