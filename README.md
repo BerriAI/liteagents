@@ -1,7 +1,15 @@
-# LiteLLM Agent SDK
+# LiteAgents SDK for Python
 
-Agent SDK for using 100+ providers.  Its core loop follows the Claude Agent SDK pattern: configure options, call `query()`, and consume an async message stream
-Python SDK for building provider-independent agents with LiteLLM, while letting every turn run on the model best suited to the task. 
+Agent SDK for using 100+ providers. Its core loop follows the Claude Agent SDK pattern: configure options, call `query()`, and consume an async message stream.
+
+Python SDK for building provider-independent agents with LiteLLM, while letting every turn run on the model best suited to the task.
+
+## Features
+
+- cross-provider by design: mix OpenAI, Anthropic, Gemini, Bedrock, Azure, and LiteLLM proxy aliases in one conversation, one client
+- JEV-native routing: classify each turn and route it to the cheapest model tier predicted to handle it well
+- deterministic routing is a first-class option: write your own router, no classifier required
+- same `query()` / `AssistantMessage` / `TextBlock` shapes as the Claude Agent SDK, so migration is mostly an import change
 
 ## Installation
 
@@ -9,63 +17,12 @@ Python SDK for building provider-independent agents with LiteLLM, while letting 
 pip install liteagents
 ```
 
-## Quick start
+requires Python 3.10+, credentials for at least one [LiteLLM-supported provider](https://docs.litellm.ai/docs/providers), and `TYPESAFE_API_KEY` if you use JEV routing.
 
-```python
-from litellm.agent_sdk import AgentOptions, AssistantMessage, TextBlock, query
-import anyio
+## One agent, any provider, per turn
 
-options = AgentOptions(
-    model="openai/gpt-5.4-mini",
-    system_prompt="Review code changes concisely",
-)
-from liteagents import LiteAgentOptions, query
+route different turns to different providers mid-conversation. history stays intact across the switch.
 
-async for message in query(prompt="Review this diff", options=options):
-
-async def main():
-    options = LiteAgentOptions(model="openai/gpt-5.4-mini")
-    async for message in query(prompt="What is 2 + 2?", options=options):
-        print(message)
-
-
-anyio.run(main)
-```
-
-## Basic usage: `query()`
-
-`query()` is an async function that returns an `AsyncIterator` of response messages. The interface is intentionally familiar to Claude Agent SDK users, but the model is a standard LiteLLM model string. LiteAgents does not hard-code a default provider, so the first query names a model or a router
-
-```python
-from liteagents import AssistantMessage, LiteAgentOptions, TextBlock, query
-
-
-options = LiteAgentOptions(model="openai/gpt-5.4-mini")
-
-async for message in query(prompt="Hello", options=options):
-    if isinstance(message, AssistantMessage):
-        for block in message.content:
-            if isinstance(block, TextBlock):
-                print(block.text)
-
-
-options = LiteAgentOptions(
-    model="anthropic/claude-sonnet-4-6",
-    system_prompt="You are a helpful assistant",
-    max_turns=1,
-)
-
-async for message in query(prompt="Tell me a joke", options=options):
-    print(message)
-```
-
-Model names use LiteLLM's `provider/model` format, so the same code works with OpenAI, Anthropic, Gemini, Bedrock, Azure, hosted models, and LiteLLM proxy model aliases. Set `model_router` on `AgentOptions` to choose a model before every turn
-## Mix models in one agent
-
-## PR risk agent
-A model router runs before every turn. It receives the current prompt, conversation history, and turn number, then returns any LiteLLM model string
-
-`PRRiskAgent` classifies a pull request as low, medium, or high risk. It routes routine changes to a fast model and large or security-sensitive changes to a stronger model
 ```python
 from liteagents import LiteAgentClient, LiteAgentOptions, TurnContext
 
@@ -84,25 +41,22 @@ options = LiteAgentOptions(
 
 async with LiteAgentClient(options=options) as agent:
     async for message in agent.query("Rename this function"):
-        print(message)
+        print(message)  # handled by openai/gpt-5.4-mini
 
     async for message in agent.query("Now review the architecture"):
-        print(message)
+        print(message)  # handled by anthropic/claude-opus-4-8
 ```
 
-Conversation history stays intact when the selected provider changes. `AssistantMessage.model` records which model handled each turn
+`AssistantMessage.model` records which model handled each turn. model names use LiteLLM's `provider/model` format, so the same code works with OpenAI, Anthropic, Gemini, Bedrock, Azure, hosted models, and LiteLLM proxy model aliases.
 
-## Automatic routing with JEV
+routing is code you write and can read. `CodeRouter` above is the whole implementation, no external classifier call, no black box.
 
-Manual rules work when the split is obvious. JEV handles the broader case: it evaluates the actual request against your model tiers and chooses the cheapest tier it predicts can answer correctly
+## JEV picks the best model for every turn
+
+manual rules work when the split is obvious. [JEV](https://docs.typesafe.ai/models) handles the broader case: before every turn it classifies the request against your tiers and picks the cheapest one predicted to answer it correctly.
 
 ```python
-from litellm.agent_sdk import PRRiskAgent, PullRequest
 from liteagents import JevModelRouter, JevTier, LiteAgentOptions, query
-
-agent = PRRiskAgent(
-    routine_model="openai/gpt-5.4-mini",
-    complex_model="anthropic/claude-opus-4-8",
 
 router = JevModelRouter(
     tiers=(
@@ -131,35 +85,44 @@ async for message in query(prompt="Review this pull request", options=options):
     print(message)
 ```
 
-Set JEV credentials once in the environment
-
 ```shell
 export TYPESAFE_API_KEY="..."
 ```
 
-JEV routing is provider-independent. A tier can point to a direct provider model, a LiteLLM proxy model alias, or a model group managed by LiteLLM Router
+a tier can point to a direct provider model, a LiteLLM proxy model alias, or a model group managed by LiteLLM Router. JEV routing is provider-independent.
 
-## Why this can be cheaper and faster
-
-Most agent turns do not need the most capable model. A fixed-model agent pays the strongest model's price and latency for every greeting, lookup, extraction, and small edit
-
-JEV changes the cost shape
+**cost math, not vibes.**
 
 ```text
 total turn cost = JEV classification cost + selected model cost
 ```
 
-The routing decision pays for itself when the savings from avoiding an unnecessarily expensive model exceed the classification cost. Routine turns can also finish faster when JEV selects a lower-latency model
+routing pays for itself when the savings from skipping an unnecessarily expensive model exceed the classification cost. this is workload-dependent: measure cost, latency, and answer quality on your own traffic before trusting it in production.
 
-This is workload-dependent. JEV adds a routing hop, so LiteAgents does not claim that every individual turn is cheaper or faster. Measure end-to-end cost, latency, and answer quality on your traffic, then tune the tier descriptions and fallback model
+**when JEV picks wrong.** a misclassified turn falls through to `fallback_model`, and every routed call still goes through the same LiteLLM request path, so you can log, cache, and rate-limit it exactly like a direct call. tier descriptions and thresholds are plain arguments you set and can change, not a hidden hosted policy.
+
+## Basic usage: `query()`
+
+```python
+from liteagents import AssistantMessage, LiteAgentOptions, TextBlock, query
+
+options = LiteAgentOptions(model="openai/gpt-5.4-mini")
+
+async for message in query(prompt="Hello", options=options):
+    if isinstance(message, AssistantMessage):
+        for block in message.content:
+            if isinstance(block, TextBlock):
+                print(block.text)
+```
+
+LiteAgents does not hard-code a default provider. the first query names a model or a router.
 
 ## PR risk agent
 
-The included PR reviewer classifies deployment risk as `low`, `medium`, or `high`. JEV can use a fast model for routine changes and reserve a stronger model for security, migrations, broad behavior changes, and difficult-to-reverse work
+classifies a pull request as `low`, `medium`, or `high` risk. JEV can send routine changes to a fast model and reserve a stronger model for security, migrations, and hard-to-reverse work.
 
 ```python
 from liteagents import PRRiskAgent, PullRequest
-
 
 agent = PRRiskAgent(model_router=router)
 
@@ -179,8 +142,7 @@ print(assessment.reasons)
 print(assessment.recommended_checks)
 ```
 
-The included command accepts a PR diff on standard input, which makes it usable from a GitHub Actions job or a local checkout
-## Migrating from the Claude Agent SDK
+takes a PR diff on stdin, so it drops straight into a GitHub Actions job or a local checkout:
 
 ```shell
 gh pr diff 123 | python -m cookbook.agent_sdk.pr_risk_agent \
@@ -189,7 +151,8 @@ gh pr diff 123 | python -m cookbook.agent_sdk.pr_risk_agent \
   --additions 120 \
   --deletions 35
 ```
-The core concepts map directly
+
+## Migrating from the Claude Agent SDK
 
 | Claude Agent SDK | LiteAgents SDK |
 | --- | --- |
@@ -198,6 +161,6 @@ The core concepts map directly
 | `ClaudeSDKClient` | `LiteAgentClient` |
 | `AssistantMessage` | `AssistantMessage` |
 | `TextBlock` | `TextBlock` |
-| One model family | Any LiteLLM model or JEV router |
+| one model family | any LiteLLM model or JEV router |
 
-The main migration change is the import and model configuration. Your async iteration and message handling stay the same
+mostly an import and model-config change. async iteration and message handling stay the same.
