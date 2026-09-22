@@ -1,26 +1,13 @@
 # LiteLLM Agent SDK
-# LiteAgents SDK for Python
 
-This is a minimal provider-independent agent interface. Its core loop follows the Claude Agent SDK pattern: configure options, call `query()`, and consume an async message stream
-Python SDK for building provider-independent agents with LiteLLM. LiteAgents follows the familiar [`query()` interface from the Claude Agent SDK](https://platform.claude.com/docs/en/agent-sdk/python), while letting every turn run on the model best suited to the task
-
-**The first interoperable agent SDK with JEV-native routing**
-
-Before every turn, [JEV](https://docs.typesafe.ai/models) can classify the request and select the cheapest model tier predicted to handle it well. Your agent can mix OpenAI, Anthropic, Gemini, Bedrock, Azure, hosted models, and LiteLLM proxy aliases inside one conversation
+Agent SDK for using 100+ providers.  Its core loop follows the Claude Agent SDK pattern: configure options, call `query()`, and consume an async message stream
+Python SDK for building provider-independent agents with LiteLLM, while letting every turn run on the model best suited to the task. 
 
 ## Installation
 
 ```shell
 pip install liteagents
 ```
-
-**Prerequisites**
-
-- Python 3.10+
-- Credentials for at least one [LiteLLM-supported provider](https://docs.litellm.ai/docs/providers)
-- `TYPESAFE_API_KEY` when using automatic JEV routing
-
-LiteAgents uses the LiteLLM Python SDK directly. It does not require a provider-specific CLI or lock the agent loop to one model family
 
 ## Quick start
 
