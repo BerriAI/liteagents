@@ -10,11 +10,14 @@ from .base import (
 )
 from .options import CompactionOptions
 from .retention import RecentTokens
-from .strategies import PruneToolResults, Summarize
+from .strategies import Cascade, PruneToolResults, Summarize, cascade
 from .tokens import TokenCounter, TokenEstimate, context_window, estimate_tokens
-from .triggers import TokenThreshold
+from .triggers import AllOf, AnyOf, TokenThreshold, TurnThreshold, all_of, any_of
 
 __all__ = [
+    "AllOf",
+    "AnyOf",
+    "Cascade",
     "CompactionContext",
     "CompactionError",
     "CompactionOptions",
@@ -28,6 +31,10 @@ __all__ = [
     "TokenCounter",
     "TokenEstimate",
     "TokenThreshold",
+    "TurnThreshold",
+    "all_of",
+    "any_of",
+    "cascade",
     "context_window",
     "estimate_tokens",
 ]

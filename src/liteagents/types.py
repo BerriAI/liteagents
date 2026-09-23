@@ -84,11 +84,16 @@ class ReplaceToolResult:
 
 @dataclass(frozen=True)
 class CompactionUpdate:
-    """Replayable edits against a history with `message_count` messages."""
+    """Replayable edits against a history with `message_count` messages.
+
+    A batch contains only `steps`; each step addresses the preceding candidate,
+    not the original history. The entire batch is validated before committing.
+    """
 
     message_count: int
     prefix: ReplacePrefix | None = None
     tool_results: tuple[ReplaceToolResult, ...] = ()
+    steps: tuple[CompactionUpdate, ...] = ()
 
 
 CompactionReason: TypeAlias = Literal["manual", "threshold", "budget"]

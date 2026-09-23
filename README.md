@@ -257,8 +257,9 @@ Automatic checks run **after routing, before every model request**, including
 requests within one tool loop. A known input-budget overflow triggers reduction
 even if an automatic threshold has not been reached. Manual-only configuration
 instead raises `ContextBudgetExceeded`. Compaction calls do not consume
-`max_turns` and do not execute tools. Each attempt makes at most one summary call;
-provider errors propagate without internal tool replay or compaction retry.
+`max_turns` and do not execute tools. Each `Summarize` invocation makes at most
+one summary call; provider errors propagate without internal tool replay or
+compaction retry.
 
 The three budgets are independent: `trigger` determines when to compact, `keep`
 targets recent history to retain, and `max_tokens` caps summary output. Cuts
@@ -301,6 +302,54 @@ compaction = CompactionOptions(
 Pruning replaces older result contents with a marker, preserving calls, IDs,
 error flags, and other provider metadata. Already-pruned or shorter results are
 left alone. It does not archive the removed contents or make them retrievable.
+
+Compose triggers and strategies with small factories:
+
+```python
+from liteagents import TurnThreshold, all_of, any_of, cascade
+
+compaction = CompactionOptions(
+    trigger=any_of([
+        TokenThreshold(fraction=0.8),
+        TurnThreshold(turns=20),
+    ]),
+    strategy=cascade([
+        PruneToolResults(keep=3),
+        Summarize(keep=RecentTokens(8_000)),
+    ]),
+    target_tokens=32_000,
+)
+```
+
+`any_of` and `all_of` return ordinary `CompactionTrigger` implementations. They
+evaluate children in order and short-circuit; each child receives a detached
+context. `TurnThreshold` counts retained human requests, including the current
+request, excluding generated summaries and tool-result-only messages. It does
+not count elapsed turns since the last compaction. Empty compositions are errors.
+
+`cascade` returns an ordinary `CompactionStrategy`: it implements the same
+`async compact(context) -> CompactionResult | None` protocol, including for custom
+children and nested cascades. Each stage previews validated edits against a
+detached candidate, recounts the complete request, and passes successful
+reductions to the next stage. It stops once `target_tokens` is met. No-op or
+non-shrinking proposals are skipped; errors propagate without running later
+stages. History is committed only once, after the entire result is validated.
+
+`target_tokens` is a positive, optional reduction goal, required by `cascade`.
+It is independent of the activation trigger, includes system/tool overhead, and
+is capped at the selected model's usable input budget. It is a **soft target**:
+if all stages finish above it, a smaller result can still be committed provided
+it fits the hard model budget. A cascade already at its target does no work,
+even when called manually. Individual strategies can inspect the target but
+need not achieve it. The SDK always enforces the hard model budget.
+
+Cascade configuration copies the child sequence. Per-conversation state is
+stored separately for each child's position, including nested cascades; it
+commits with history and rolls back on failure. Treat stage order as fixed for
+a client session. Usage includes summed reported token fields and a `stages`
+list retaining each returned usage record, including non-shrinking proposals.
+Nested cascade usage retains its nested records. More than one stage can incur
+model costs; a later failure still reports earlier stages' returned usage.
 
 The event stream can include `CompactionStarted`, `CompactionCompleted`,
 `CompactionSkipped`, and `CompactionFailed`. Summary text is context, not an
@@ -346,11 +395,17 @@ a detached typed snapshot, valid cut boundaries, per-message estimates, selected
 model, input budget, reason, instructions, and optional state. A custom trigger
 implements `should_compact(context) -> bool`. `CompactionUpdate` accepts a prefix
 replacement and/or `ReplaceToolResult` edits indexed against the original
-snapshot. The SDK validates and atomically applies them, retaining original raw
-entries outside the edit. Keep conversation-specific bookkeeping in the result's
+snapshot, or a `steps` tuple of sequential updates. Each step's indices and
+`message_count` refer to the preceding candidate. Batch steps cannot be mixed
+with direct edits; `apply_compaction` replays either form. Strategies can use
+`context.preview(update)` to validate and recount a detached candidate, including
+retained raw provider blocks. This method never commits history and is available
+on runtime-provided contexts. The SDK validates and atomically applies the final
+result, retaining original raw entries outside edits. Keep bookkeeping in the result's
 `state`, not on shared strategy/trigger instances; state is copied and committed
 only with a successful update. Custom strategies own their additional model calls
-and should return their usage with the result.
+and should return their usage with the result (or on `CompactionError` when a call
+fails). Triggers should be stateless; mutating their context does not persist state.
 
 Fusion has independent opt-in `FusionOptions.sidekick_compaction` configuration
 and runtime state. Main-agent policy is not implicitly applied to the sidekick;

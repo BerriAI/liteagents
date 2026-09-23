@@ -64,18 +64,26 @@ class CompactionRuntime:
                 return
             if not manual and over_budget:
                 reason = "budget"
-            context = CompactionContext(
-                messages=tuple(deepcopy(snapshot.messages)), model=model,
-                tokens=before, input_budget=budget,
-                message_tokens=tuple(options.token_counter(
-                    model, json.dumps(message, ensure_ascii=False)
-                ).tokens for message in snapshot.raw()),
-                boundaries=safe_boundaries(snapshot.messages), reason=reason,
-                system=system, instructions=instructions, state=deepcopy(self.state),
-                model_kwargs=deepcopy(model_kwargs or {}),
-                context_windows=dict(options.context_windows), token_counter=options.token_counter,
-                safety_margin=options.safety_margin,
-            )
+            target = options.target_tokens
+            if target is not None and budget is not None:
+                target = min(target, budget)
+
+            def make_context(candidate: ConversationHistory) -> CompactionContext:
+                return CompactionContext(
+                    messages=tuple(deepcopy(candidate.messages)), model=model,
+                    tokens=count(candidate), input_budget=budget,
+                    message_tokens=tuple(options.token_counter(
+                        model, json.dumps(message, ensure_ascii=False)
+                    ).tokens for message in candidate.raw()),
+                    boundaries=safe_boundaries(candidate.messages), reason=reason,
+                    system=system, instructions=instructions, state=deepcopy(self.state),
+                    model_kwargs=deepcopy(model_kwargs or {}),
+                    context_windows=dict(options.context_windows), token_counter=options.token_counter,
+                    safety_margin=options.safety_margin, target_tokens=target,
+                    _preview=lambda update: make_context(candidate.compacted(update)),
+                )
+
+            context = make_context(snapshot)
             if not manual and not over_budget:
                 assert options.trigger is not None
                 # Triggers receive their own detached state/history, just like strategies.

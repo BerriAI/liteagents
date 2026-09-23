@@ -95,6 +95,13 @@ class ConversationHistory:
         """Validate an edit proposal and build a candidate without changing this history."""
         if update.message_count != len(self.messages):
             raise ValueError("Compaction update does not match the history length")
+        if update.steps:
+            if update.prefix is not None or update.tool_results:
+                raise ValueError("Batch steps cannot be combined with direct edits")
+            candidate = self.snapshot()
+            for step in update.steps:
+                candidate = candidate.compacted(step)
+            return candidate
         boundaries = safe_boundaries(self.messages)
         stop = update.prefix.stop if update.prefix is not None else 0
         if update.prefix is not None and (

@@ -8,6 +8,9 @@ from __future__ import annotations
 
 from .agent import LiteAgentClient, LiteAgentOptions, query
 from .compaction import (
+    AllOf,
+    AnyOf,
+    Cascade,
     CompactionContext,
     CompactionError,
     CompactionOptions,
@@ -21,6 +24,10 @@ from .compaction import (
     TokenCounter,
     TokenEstimate,
     TokenThreshold,
+    TurnThreshold,
+    all_of,
+    any_of,
+    cascade,
 )
 from .fusion import FusionOptions
 from .history import apply_compaction
@@ -52,7 +59,10 @@ from .types import (
 
 __all__ = [
     "AgentEvent",
+    "AllOf",
+    "AnyOf",
     "AssistantMessage",
+    "Cascade",
     "CompactionCompleted",
     "CompactionContext",
     "CompactionError",
@@ -95,7 +105,11 @@ __all__ = [
     "ToolResultBlock",
     "ToolUseBlock",
     "TurnContext",
+    "TurnThreshold",
     "UserMessage",
+    "all_of",
+    "any_of",
     "apply_compaction",
+    "cascade",
     "query",
 ]

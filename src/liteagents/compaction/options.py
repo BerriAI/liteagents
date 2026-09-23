@@ -18,7 +18,10 @@ class CompactionOptions:
     context_windows: Mapping[str, int] = field(default_factory=dict)
     token_counter: TokenCounter = estimate_tokens
     safety_margin: int = 1024
+    target_tokens: int | None = None
 
     def __post_init__(self) -> None:
         if self.safety_margin < 0 or any(window < 1 for window in self.context_windows.values()):
             raise ValueError("Context windows must be positive and safety_margin nonnegative")
+        if self.target_tokens is not None and self.target_tokens < 1:
+            raise ValueError("target_tokens must be positive")
