@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import hashlib
 import json
-import statistics
 import time
 from contextlib import aclosing
 from pathlib import Path
 
 import litellm
 from gateway import MAIN, MEMORY, Gateway
+from journal import append_event, finalize, provenance, utc_now
 from policies import JSON_STATE, TERSE_STATE, delta_observer, eager_input_scheduler
 from scenarios import SetStatus, scenarios
 
@@ -22,6 +21,7 @@ from liteagents import (
     CompactionCompleted,
     CompactionFailed,
     CompactionOptions,
+    ContextBudgetExceeded,
     LiteAgentClient,
     LiteAgentOptions,
     RecentTokens,
@@ -46,7 +46,7 @@ def parsed_json(text):
         return {}
 
 
-async def run_case(gateway, scenario, mode, args):
+async def run_case(gateway, scenario, mode, args, source):
     gateway.fail_memory = False
     windows = {MAIN: 922_000, MEMORY: 922_000}
     policy = None
@@ -67,12 +67,10 @@ async def run_case(gateway, scenario, mode, args):
     result = {"label": gateway.label, "mode": mode, "scenario": scenario.name,
               "checks": [], "turns": [], "compactions": [], "failures": [],
               "configuration": {k: v for k, v in vars(args).items() if k != "private_dir"},
-              "source_digest": hashlib.sha256(b"".join(
-                  p.read_bytes() for p in sorted(Path("src/liteagents").rglob("*.py"))
-              )).hexdigest()}
-    result["research_digest"] = hashlib.sha256(b"".join(
-        p.read_bytes() for p in sorted(Path("research/background_memory").glob("*.py"))
-    )).hexdigest()
+              "started_at": utc_now(), **source}
+    artifact = Path(args.output) / f"{args.version}-{mode}-{scenario.name}.json"
+    append_event(Path(args.output), "started", result, artifact)
+    artifact.with_suffix(".partial.json").write_text(json.dumps(result, indent=2))
     offset = len(gateway.ledger)
     selected_main = MEMORY if args.main_model == "luna" else MAIN
     options = LiteAgentOptions(model=selected_main, system=SYSTEM, tools=scenario.tools,
@@ -103,6 +101,25 @@ async def run_case(gateway, scenario, mode, args):
                         result.setdefault("interruptions", []).append(index)
                     else:
                         raise
+                except ContextBudgetExceeded as exc:
+                    if not args.recover_context:
+                        raise
+                    # Explicit application recovery, not a hidden SDK retry or a
+                    # benchmark-specific hint. Never replay the original action.
+                    result.setdefault("context_recoveries", []).append({
+                        "turn": index, "error": str(exc), "policy": "compact_then_continue_once"})
+                    await agent.compact()
+                    async with aclosing(agent.query(
+                        "Continue the pending request. Inspect state before retrying any action "
+                        "whose outcome is unknown."
+                    )) as events:
+                        async for event in events:
+                            if isinstance(event, AssistantMessage):
+                                answers.append("\n".join(b.text for b in event.content if isinstance(b, TextBlock)))
+                            elif isinstance(event, CompactionCompleted):
+                                result["compactions"].append({"before": event.before.tokens, "after": event.after.tokens})
+                            elif isinstance(event, CompactionFailed):
+                                result["failures"].append(event.error)
                 answer = answers[-1] if answers else ""
                 elapsed = time.monotonic() - started
                 result["turns"].append({"index": index, "seconds": elapsed, "answer": answer,
@@ -137,30 +154,27 @@ async def run_case(gateway, scenario, mode, args):
                     "all_reviewed": all(r["status"] == "reviewed" for r in tool.records.values()),
                     "writes": len(tool.writes), "expected_writes": len(tool.records),
                 }
-    calls = gateway.ledger[offset:]
-    result["calls"] = calls
-    result["known_cost"] = sum(c.get("estimated_cost", 0) for c in calls)
-    result["charged_or_reserved"] = sum(c["charged_or_reserved"] for c in calls)
-    result["main_peak_input_tokens"] = max((
-        c.get("usage", {}).get("input_tokens", 0) + c.get("usage", {}).get("cache_read_input_tokens", 0)
-        + c.get("usage", {}).get("cache_creation_input_tokens", 0)
-        for c in calls if c.get("role", "observer" if c["model"] == MEMORY else "main") == "main"), default=0)
-    latencies = [t["seconds"] for t in result["turns"]]
-    result["median_turn_seconds"] = statistics.median(latencies) if latencies else None
-    result["passed"] = bool(result["checks"]) and all(c["passed"] for c in result["checks"]) and not result.get("error")
-    if "action_check" in result:
-        result["passed"] &= result["action_check"]["all_reviewed"] and (
-            result["action_check"]["writes"] == result["action_check"]["expected_writes"])
-    if "workflow_check" in result:
-        result["passed"] &= all(result["workflow_check"].values())
-    return result
+    return finalize(result, gateway.ledger[offset:])
 
 
 async def main(args):
+    # Freeze once per process, matching the imported SDK. Reject edits between
+    # cases rather than falsely attributing already-loaded code to a new digest.
+    source = provenance()
     root = Path(args.private_dir)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     gateway = Gateway(root)
+    planned = [(mode, scenario) for mode in args.modes.split(",")
+               for scenario in scenarios(args.seed, args.scenario, args.heldout, args.scale)]
+    past_labels = {c["label"] for c in gateway.ledger}
+    for mode, scenario in planned:
+        path = output / f"{args.version}-{mode}-{scenario.name}.json"
+        if path.exists() or path.with_suffix(".partial.json").exists() or (
+            f"{args.version}/{mode}/{scenario.name}" in past_labels
+        ):
+            await gateway.close()
+            raise ValueError("Trial already exists; use a new --version to preserve history")
     gateway.layout, gateway.stable_notes = args.layout, args.stable_notes
     from liteagents._internal import memory_runtime
     original_observer = memory_runtime.observe
@@ -172,18 +186,33 @@ async def main(args):
     original = litellm.anthropic_messages
     litellm.anthropic_messages = gateway
     try:
-        for mode in args.modes.split(","):
-            for scenario in scenarios(args.seed, args.scenario, args.heldout, args.scale):
-                result = await run_case(gateway, scenario, mode, args)
-                path = output / f"{args.version}-{mode}-{scenario.name}.json"
-                path.write_text(json.dumps(result, indent=2))
-                path.with_suffix(".partial.json").unlink(missing_ok=True)
-                print(json.dumps({"label": result["label"], "passed": result["passed"],
-                                  "cost": round(result["charged_or_reserved"], 4),
-                                  "peak_input": result["main_peak_input_tokens"],
-                                  "median_seconds": result["median_turn_seconds"],
-                                  "error": result.get("error"),
-                                  "total_spend_bound": round(gateway.committed, 4)}), flush=True)
+        for mode, scenario in planned:
+            if provenance() != source:
+                raise RuntimeError("Source changed during the run; start a fresh process/version")
+            path = output / f"{args.version}-{mode}-{scenario.name}.json"
+            offset = len(gateway.ledger)
+            try:
+                result = await run_case(gateway, scenario, mode, args, source)
+            except BaseException as exc:
+                checkpoint = path.with_suffix(".partial.json")
+                if checkpoint.exists():
+                    result = json.loads(checkpoint.read_text())
+                    result["abort_reason"] = type(exc).__name__ + ": research process interrupted"
+                    finalize(result, gateway.ledger[offset:], aborted=True)
+                    with path.open("x") as stream:
+                        stream.write(json.dumps(result, indent=2))
+                    append_event(output, "aborted", result, path)
+                raise
+            with path.open("x") as stream:
+                stream.write(json.dumps(result, indent=2))
+            path.with_suffix(".partial.json").unlink(missing_ok=True)
+            append_event(output, "completed", result, path)
+            print(json.dumps({"label": result["label"], "passed": result["passed"],
+                              "cost": round(result["charged_or_reserved"], 4),
+                              "peak_input": result["main_peak_input_tokens"],
+                              "median_seconds": result["median_turn_seconds"],
+                              "error": result.get("error"),
+                              "total_spend_bound": round(gateway.committed, 4)}), flush=True)
     finally:
         litellm.anthropic_messages = original
         memory_runtime.observe = original_observer
@@ -200,6 +229,7 @@ if __name__ == "__main__":
     parser.add_argument("--scenario", default="all")
     parser.add_argument("--seed", type=int, default=719)
     parser.add_argument("--heldout", action="store_true")
+    parser.add_argument("--recover-context", action="store_true", help="Measure one explicit application-level recovery per blocked turn")
     parser.add_argument("--turns", type=int, default=0, help="Optional raw-turn cap; 0 uses token limits only")
     parser.add_argument("--context", type=int, default=6000)
     parser.add_argument("--memory", type=int, default=1200)

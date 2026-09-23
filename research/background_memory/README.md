@@ -5,6 +5,12 @@ an unprocessed recent tail, and tools that recover exact original messages. A
 second model prepares the notes while the main model works. It is an optional
 `BackgroundMemoryOptions` policy in Liteagents' existing compaction slot.
 
+The [historical experiment log](EXPERIMENT_LOG.md) records hypotheses, failures,
+changes and decisions. [Run events](results/events.jsonl) are append-only and
+include source digests, configurations, timestamps and outcomes. Early events
+are explicitly reconstructed; interrupted trials retain all reserved costs and
+are labeled separately from completed quality failures.
+
 ## Design and boundaries
 
 1. Append every original typed message to a client-local archive. Message IDs are
@@ -109,13 +115,22 @@ eligibility, reset semantics, read-only history, search behavior and exact limit
 The code is passed as review evidence and is never executed.
 
 Serial matrices are available through `sweep.py --phase explore|pipeline|holdout|scale`.
-Use a fresh `--seed` for holdouts and the same private ledger directory across
+Use a fresh `--version-prefix` for repeat sweeps, a fresh `--seed` for holdouts,
+and the same private ledger directory across
 phases. The report explains why the exploratory versions are not all directly
 comparable. Complete local JSON files can be packaged with:
 
 ```sh
 python research/background_memory/analyze.py
 ```
+
+Run one paid process at a time; the shared ledger lock is process-local. Do not
+edit SDK or harness Python files during a run: code is imported once, digests are
+frozen at process start, and edits between cases cause a stop. Reusing a result
+label is rejected instead of overwriting an earlier trial. Checkpoints survive
+interruption. `--recover-context` explicitly tests one application-level
+`compact()` then continuation per blocked turn; recovery events and their costs
+are reported and must not be described as uninterrupted success.
 
 To read the committed complete traces without running any models:
 

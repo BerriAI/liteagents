@@ -17,6 +17,8 @@ def summary(result):
     total_input = sum(sum(c.get("usage", {}).get(k, 0) for k in (
         "input_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")) for c in main)
     return {"label": result["label"], "passed": result["passed"],
+            "outcome": result.get("outcome", "passed" if result["passed"] else "failed"),
+            "context_recoveries": result.get("context_recoveries", []),
             "cost": result["charged_or_reserved"], "peak_main_input": result["main_peak_input_tokens"],
             "main_cache_read_fraction": cache / total_input if total_input else 0,
             "median_turn_seconds": result["median_turn_seconds"],

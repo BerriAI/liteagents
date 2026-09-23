@@ -5,6 +5,11 @@ cheaper or more accurate than cached full history. The intended benefit is that
 model input stops growing with the conversation, while exact original evidence
 remains recoverable. The archive itself still grows in process memory.
 
+The [historical log](EXPERIMENT_LOG.md) preserves the development sequence and
+decisions, including failed versions and interrupted validation. Machine-readable
+[run events](results/events.jsonl) are append-only; reconstructed early entries
+are labeled rather than assigned invented trial timestamps.
+
 ## Method
 
 Astra (`openai/gpt-6-astra`) handles the task; Luna (`openai/gpt-5.6-luna`)

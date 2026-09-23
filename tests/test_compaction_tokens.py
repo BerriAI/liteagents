@@ -1,5 +1,6 @@
 """Token accounting scenarios: measured input, local deltas, and invalidation."""
 
+import json
 from copy import deepcopy
 from dataclasses import replace
 
@@ -175,6 +176,46 @@ def test_real_litellm_counter_accounts_for_tools_results_and_unicode():
         {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "a", "content": "detailed results " * 100}]},
     ))
     assert estimate_tokens("gpt-4o", tool_round).tokens > estimate_tokens("gpt-4o", with_tools).tokens
+
+
+def test_opaque_blocks_get_explicit_conservative_count_without_mutating_wire():
+    block = {"type": "redacted_thinking", "data": "opaque-世界-" * 100}
+    request = TokenCountRequest(({"role": "assistant", "content": [
+        block, {"type": "text", "text": "answer"},
+    ]},))
+    original = deepcopy(request)
+    ordinary = replace(request, messages=({"role": "assistant", "content": [
+        {"type": "text", "text": ""}, {"type": "text", "text": "answer"},
+    ]},))
+    count = estimate_tokens("gpt-4o", request)
+    assert count.source == "litellm.token_counter+opaque_utf8_bytes"
+    assert count.tokens == estimate_tokens("gpt-4o", ordinary).tokens + len(
+        json.dumps(block, ensure_ascii=False).encode("utf-8"))
+    assert request == original
+
+
+async def test_short_background_conversation_replays_opaque_provider_blocks(monkeypatch):
+    from liteagents import BackgroundMemoryOptions
+
+    block = {"type": "redacted_thinking", "data": "opaque-provider-payload"}
+    calls = []
+
+    async def provider(**kwargs):
+        calls.append(deepcopy(kwargs))
+        response = text_response("answer", model="gpt-4o")
+        response["content"].insert(0, deepcopy(block))
+        return response
+
+    monkeypatch.setattr(litellm, "anthropic_messages", provider)
+    async with LiteAgentClient(options=LiteAgentOptions(
+        model="gpt-4o", compaction=BackgroundMemoryOptions(model="gpt-4o"),
+    )) as agent:
+        _ = [event async for event in agent.query("hello")]
+        _ = [event async for event in agent.query("continue")]
+        assert calls[1]["messages"][1]["content"][0] == block
+        assert agent._compaction.archive.raw()[1]["content"][0] == block
+        assert agent.memory.version == 0
+    assert len(calls) == 2  # no observer overhead for this small conversation
 
 
 @pytest.mark.parametrize("streaming", [False, True], ids=["buffered", "streamed"])

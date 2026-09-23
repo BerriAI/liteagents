@@ -459,9 +459,9 @@ Fusion has independent opt-in `FusionOptions.sidekick_compaction` configuration
 and runtime state. Main-agent policy is not implicitly applied to the sidekick;
 sidekick events remain inside the delegated loop, like its other messages.
 
-This implementation provides portable client-side reduction. Provider-native
-compaction blocks, background scheduling, and durable observational memory are
-not included.
+Ordinary compaction provides portable client-side reduction. The experimental
+background policy below adds concurrent observation. Provider-native compaction
+blocks and durable memory storage are not included.
 
 
 ### Experimental background working memory
@@ -496,6 +496,8 @@ tail. The main input budget includes system instructions and tool schemas. When
 there is insufficient room, the main loop waits for the observer; a failed or
 oversized observation raises rather than silently losing evidence. Optional
 `max_recent_turns` adds a human-turn limit, but token limits work on their own.
+The example explicitly uses the research profile; API defaults are 24,000 main
+input tokens, 2,000 note tokens and a 1,024-token observation threshold.
 
 After eviction, the main model gets `memory_search_history` and
 `memory_read_history` to recover exact original details. Large completed tool
@@ -511,8 +513,15 @@ the same structured interfaces as ordinary compaction. Closing the client or
 interrupting a query cancels its pending observer. Use the async context manager
 and close query iterators when stopping early.
 
+The default counter uses LiteLLM for ordinary content and reserves serialized
+UTF-8 bytes for known opaque `redacted_thinking` blocks. This conservative
+estimate changes only a counting copy; provider replay data stays intact. Other
+unsupported token-counter errors still propagate.
+
 This is an experiment, with no universal cost or quality claim. Frequent note
 updates can invalidate prompt caches, and very tight limits can increase recovery
 calls and latency. The archive grows in RAM for this client's lifetime; it is not
 persistent storage or resume support. See the [research design and commands](research/background_memory/README.md)
-and [measured results](research/background_memory/REPORT.md).
+and [measured results](research/background_memory/REPORT.md). The
+[historical log](research/background_memory/EXPERIMENT_LOG.md) retains failed
+trials and records why the implementation changed.

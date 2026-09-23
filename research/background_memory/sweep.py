@@ -45,9 +45,15 @@ def main():
     parser.add_argument("--private-dir", required=True)
     parser.add_argument("--phase", choices=["explore", "pipeline", "holdout", "scale"], required=True)
     parser.add_argument("--seed", type=int, default=901)
+    parser.add_argument("--version-prefix", help="Fresh prefix for this sweep, preserving earlier trials")
+    parser.add_argument("--recover-context", action="store_true")
     parser.add_argument("--output", default="research/background_memory/results")
     args = parser.parse_args()
     for version, modes, scenario, extra in matrix(args.phase):
+        if args.version_prefix:
+            version = args.version_prefix + "-" + version.split("-", 1)[1]
+        if args.recover_context:
+            extra = [*extra, "--recover-context"]
         subprocess.run([sys.executable, str(Path(__file__).with_name("run.py")),
                         "--private-dir", args.private_dir, "--output", args.output,
                         "--version", version, "--modes", modes, "--scenario", scenario,
