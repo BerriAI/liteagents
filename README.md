@@ -268,14 +268,39 @@ human request also survives verbatim, including when older tool rounds within
 that same request are summarized. Previous summaries feed into the next summary.
 System instructions and tool definitions remain outside the replaced history.
 
-Token counts are **estimates**, not billing totals. The default offline counter
-uses serialized request UTF-8 bytes divided by three; it includes messages,
-system instructions, tool schemas, and retained provider blocks. Multimodal and
-provider-specific token accounting can differ. `token_source` identifies the
-counter in events. Inject `token_counter(model, text) -> TokenEstimate` for a
-custom tokenizer; `text` is serialized request/message content, without connection
-credentials. The usable input budget is the model's LiteLLM input limit minus
-`LiteAgentOptions.max_tokens` and `safety_margin` (default 1,024).
+Context size uses **reported input usage plus estimated new content**. After a
+completed model response, LiteAgents retains that request's `input_tokens` plus
+`cache_read_input_tokens` and `cache_creation_input_tokens`. It estimates the
+replayed assistant response and subsequent messages separately; billed output
+can include reasoning that will not be sent again. Usage comes from the current
+client's actual requests, never from unverified usage attached to imported history.
+
+The default estimator is `litellm.token_counter`, receiving structured messages,
+system instructions, and tool schemas. Fresh requests, summary requests, individual
+messages, and compaction previews use this estimator. Successful compaction or
+changes to the model, system, tools, request settings, or measured history invalidate
+the usage baseline. Each client and sidekick owns its own baseline.
+
+These are **context estimates**, not exact billing totals. LiteLLM can use a fallback
+tokenizer for unknown models, and image counts use default dimensions without
+fetching image URLs. Unsupported content/counting errors propagate. To explicitly
+use the old byte heuristic, set `CompactionOptions(token_counter=heuristic_tokens)`
+(import `heuristic_tokens` from `liteagents`). It is unsuitable for accurate
+multimodal counting; there is no automatic byte fallback.
+
+Custom counters now implement
+`token_counter(model, request: TokenCountRequest) -> TokenEstimate`. The detached
+request exposes `messages` and `tools` as tuples of Anthropic-format dictionaries,
+plus `system`; connection credentials are excluded. This replaces the previous
+serialized-text callback. Counters must be deterministic. `token_source` identifies
+the pre-compaction estimate; completed events also expose `token_source_after`
+because edited context is counted afresh. Reduction checks compare both histories
+using the same local estimator, so changing counting methods cannot make a no-op
+look like a reduction.
+
+The usable input budget is the model's LiteLLM input limit minus
+`LiteAgentOptions.max_tokens` and `safety_margin` (default 1,024). LiteLLM >=1.102.0
+is required for the structured Anthropic-content counter used here.
 
 For gateway aliases or custom limits, set
 `context_windows={"litellm_proxy/agent": 128_000, "litellm_proxy/summary": 128_000}`

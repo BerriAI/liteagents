@@ -97,8 +97,12 @@ def conversation_provider(monkeypatch):
         assert request["system"] == CONVERSATION_SYSTEM
         answer = DEPLOYMENT_FACT + " diagnostic detail" * 100
         if request.get("stream"):
-            return Stream(response_events(text=answer))
-        return text_response(answer, model="main")
+            events = response_events(text=answer)
+            events[0]["message"]["usage"]["input_tokens"] = size
+            return Stream(events)
+        response = text_response(answer, model="main")
+        response["usage"]["input_tokens"] = size
+        return response
 
     monkeypatch.setattr("litellm.anthropic_messages", provider)
     return main_sizes, summary_inputs
@@ -180,9 +184,12 @@ def lookup_provider(monkeypatch):
             step = int(re.match(r"step=(\d+);", result["content"])[1])
             assert result["tool_use_id"] == f"lookup-{step}"
         if step == LOOKUP_STEPS:
-            return text_response("All eight lookups complete", model="main")
-        return tool_use_response(tool_use_id=f"lookup-{step + 1}", name="echo",
-                                 input={"text": str(step + 1)}, model="main")
+            response = text_response("All eight lookups complete", model="main")
+        else:
+            response = tool_use_response(tool_use_id=f"lookup-{step + 1}", name="echo",
+                                         input={"text": str(step + 1)}, model="main")
+        response["usage"]["input_tokens"] = sizes[-1]
+        return response
 
     monkeypatch.setattr("litellm.anthropic_messages", provider)
     return LookupTool(), executed, sizes

@@ -12,6 +12,7 @@ import litellm
 from ._internal.adapter import extract_response_fields, tool_result_block
 from ._internal.compaction_runtime import CompactionRuntime
 from ._internal.streaming import stream_response
+from .compaction.tokens import TokenCountRequest
 from .history import ConversationHistory
 from .routers.base import ModelRouter
 from .tools import Tool, find_tool
@@ -58,7 +59,7 @@ async def run_tool_loop(
         if compaction is not None:
             async with aclosing(compaction.run(
                 history=history, model=model, system=system, tools=tools, max_tokens=max_tokens,
-                model_kwargs=model_kwargs,
+                model_kwargs=model_kwargs, tool_choice=tool_choice,
             )) as compaction_events:
                 async for compaction_event in compaction_events:
                     yield compaction_event
@@ -66,6 +67,9 @@ async def run_tool_loop(
         request_kwargs = dict(model_kwargs or {})
         if stream:
             request_kwargs["stream"] = True
+        counted_request = (TokenCountRequest(tuple(deepcopy(history.raw())), system,
+                                             tuple(deepcopy(anthropic_tools or [])))
+                           if compaction is not None else None)
         response = await litellm.anthropic_messages(
             model=model,
             messages=list(history.raw()),
@@ -85,6 +89,11 @@ async def run_tool_loop(
                         response = event
 
         content_dicts, stop_reason, response_model, usage = extract_response_fields(response)
+        if compaction is not None and counted_request is not None:
+            compaction.context_tokens.observe(
+                model, counted_request, {"tool_choice": tool_choice, **(model_kwargs or {})},
+                usage, stop_reason,
+            )
         assistant_message = history.add_assistant_response(content_dicts, model=response_model or model)
         assistant_message.stop_reason = stop_reason
         assistant_message.usage = usage

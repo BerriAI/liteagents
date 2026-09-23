@@ -59,7 +59,10 @@ class Cascade:
                 if result.usage is not None:
                     usages.append(deepcopy(result.usage))
                 preview = candidate.preview(result.update)
-                if preview.tokens.tokens >= candidate.tokens.tokens:
+                # Compare both histories with the same local counter. Initial
+                # context.tokens may use a differently calibrated usage anchor.
+                local_before = candidate.preview(CompactionUpdate(len(candidate.messages)))
+                if preview.tokens.tokens >= local_before.tokens.tokens:
                     continue
                 candidate = preview
                 updates.append(deepcopy(result.update))

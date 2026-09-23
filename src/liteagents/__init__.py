@@ -22,12 +22,14 @@ from .compaction import (
     RecentTokens,
     Summarize,
     TokenCounter,
+    TokenCountRequest,
     TokenEstimate,
     TokenThreshold,
     TurnThreshold,
     all_of,
     any_of,
     cascade,
+    heuristic_tokens,
 )
 from .fusion import FusionOptions
 from .history import apply_compaction
@@ -98,6 +100,7 @@ __all__ = [
     "SummaryMessage",
     "TextBlock",
     "TextDelta",
+    "TokenCountRequest",
     "TokenCounter",
     "TokenEstimate",
     "TokenThreshold",
@@ -111,5 +114,6 @@ __all__ = [
     "any_of",
     "apply_compaction",
     "cascade",
+    "heuristic_tokens",
     "query",
 ]

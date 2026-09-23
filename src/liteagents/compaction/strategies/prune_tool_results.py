@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 
 from ...types import CompactionUpdate, ReplaceToolResult, ToolResultBlock, UserMessage
 from ..base import CompactionContext, CompactionResult
+from ..tokens import TokenCountRequest
 
 
 @dataclass(frozen=True)
@@ -29,9 +29,9 @@ class PruneToolResults:
             ReplaceToolResult(index, block.tool_use_id, self.placeholder)
             for index, block in eligible
             if block.content != self.placeholder and context.token_counter(
-                context.model, json.dumps(block.content, ensure_ascii=False)
+                context.model, TokenCountRequest(({"role": "user", "content": block.content or ""},))
             ).tokens > context.token_counter(
-                context.model, json.dumps(self.placeholder, ensure_ascii=False)
+                context.model, TokenCountRequest(({"role": "user", "content": self.placeholder},))
             ).tokens
         )
         if not edits:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from contextlib import aclosing
 from copy import deepcopy
 
@@ -270,7 +269,7 @@ async def test_system_and_tool_schemas_are_in_counter_input(mock_anthropic_messa
     texts = []
 
     def counter(model, text):
-        texts.append(json.loads(text))
+        texts.append({"messages": text.messages, "system": text.system, "tools": text.tools})
         return count_chars(model, text)
 
     mock_anthropic_messages.push(text_response("done", model="main"))

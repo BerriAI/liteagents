@@ -1,5 +1,7 @@
 """Small data builders shared by the compaction tests; no scenario runner."""
 
+import json
+
 from liteagents import (
     AssistantMessage,
     CompactionCompleted,
@@ -16,7 +18,9 @@ from liteagents import (
 )
 
 
-def count_chars(model, text):
+def count_chars(model, request):
+    text = json.dumps({"messages": request.messages, "system": request.system,
+                       "tools": request.tools or None}, ensure_ascii=False)
     return TokenEstimate(len(text), "test_chars")
 
 

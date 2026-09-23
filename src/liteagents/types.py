@@ -1,9 +1,8 @@
 """Public message and content-block types.
 
 Plain dataclasses, mirroring claude_agent_sdk's public types field-for-field
-where the concepts overlap. These are the only shapes a caller of liteagents
-ever needs to import — raw Anthropic-wire dicts stay internal to
-ConversationHistory (see history.py) and never appear in a public signature.
+where the concepts overlap. ConversationHistory owns the raw Anthropic-wire
+history; custom token counters receive detached wire content in TokenCountRequest.
 """
 
 from __future__ import annotations
@@ -116,6 +115,7 @@ class CompactionCompleted:
     token_source: str
     update: CompactionUpdate
     usage: dict[str, Any] | None = None
+    token_source_after: str | None = None
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,6 @@
 """Cascades use the same strategy protocol, with one final atomic history edit."""
 
 import asyncio
-import json
 from copy import deepcopy
 
 import pytest
@@ -22,6 +21,7 @@ from liteagents import (
     ReplaceToolResult,
     Summarize,
     SummaryMessage,
+    TokenCountRequest,
     TurnThreshold,
     UserMessage,
     any_of,
@@ -204,12 +204,12 @@ async def test_preview_counts_raw_blocks_system_and_tools_without_modifying_hist
     events = [event async for event in runtime.run(
         history=history, model="main", system="system " * 100, tools=tools, max_tokens=100,
     )]
-    expected = count_chars("main", json.dumps({"messages": history.raw(), "system": "system " * 100,
-                                               "tools": [tool.to_anthropic_tool() for tool in tools]}))
+    expected = count_chars("main", TokenCountRequest(tuple(history.raw()), "system " * 100,
+                                                       tuple(tool.to_anthropic_tool() for tool in tools)))
     assert observed[0].tokens == expected
     assert events[-1].tokens_after == expected.tokens
     assert history.raw()[1]["content"] == raw
-    assert observed[0].message_tokens[1] == len(json.dumps(history.raw()[1]))
+    assert observed[0].message_tokens[1] == count_chars("main", TokenCountRequest((history.raw()[1],))).tokens
 
 
 async def test_cancellation_after_first_reduction_discards_candidate():

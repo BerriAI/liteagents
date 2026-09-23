@@ -13,7 +13,7 @@ from ..._internal.adapter import extract_response_fields
 from ...types import AssistantMessage, CompactionUpdate, ReplacePrefix
 from ..base import CompactionContext, CompactionError, CompactionResult, ContextBudgetExceeded
 from ..retention import RecentTokens
-from ..tokens import context_window
+from ..tokens import TokenCountRequest, context_window
 
 _SUMMARY_SYSTEM = (
     "Summarize the supplied conversation for an agent that will continue the work. "
@@ -61,9 +61,9 @@ class Summarize:
                 f"Unknown summary model context window for {model!r}; "
                 "set compaction.context_windows"
             )
-        request_text = json.dumps({"system": system, "messages": [{"role": "user", "content": text}]},
-                                  ensure_ascii=False)
-        estimate = context.token_counter(model, request_text)
+        estimate = context.token_counter(model, TokenCountRequest(
+            ({"role": "user", "content": text},), system=system,
+        ))
         if estimate.tokens + self.max_tokens + context.safety_margin > window:
             raise ContextBudgetExceeded(
                 f"Summary input does not fit {model!r}; choose a larger summary model "

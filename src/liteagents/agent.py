@@ -129,7 +129,7 @@ class LiteAgentClient:
             async with aclosing(self._compaction.run(
                 history=self._history, model=target, system=self._options.system, tools=tools,
                 max_tokens=self._options.max_tokens, model_kwargs=self._options.model_kwargs,
-                manual=True, instructions=instructions,
+                manual=True, instructions=instructions, tool_choice=self._options.tool_choice,
             )) as events:
                 async for event in events:
                     if isinstance(event, (CompactionCompleted, CompactionSkipped)):
