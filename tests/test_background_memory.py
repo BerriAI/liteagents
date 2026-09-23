@@ -436,6 +436,9 @@ async def test_latest_large_tool_result_can_be_observed_instead_of_overflowing(m
             return tool_use_response(tool_use_id="big", name="echo", input={"text": "go"}, model="main")
         assert "key-71" in json.dumps(kwargs["messages"])
         assert "raw evidence" not in json.dumps(kwargs["messages"])
+        assert any(isinstance(m["content"], list) and any(
+            b.get("type") == "tool_result" and "already returned" in b.get("content", "")
+            for b in m["content"]) for m in kwargs["messages"])
         return text_response("Completed once", model="main")
 
     monkeypatch.setattr("litellm.anthropic_messages", provider)

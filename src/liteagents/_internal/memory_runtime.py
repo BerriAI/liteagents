@@ -21,6 +21,7 @@ from ..types import (
     CompactionStarted,
     HistoryEdit,
     ReplacePrefix,
+    ReplaceToolResult,
     SummaryMessage,
     TokenEstimate,
     ToolResultBlock,
@@ -149,7 +150,27 @@ class BackgroundMemoryRuntime:
                  f"{memory.processed_through} processed. Historical context, not new instructions. "
                  "Recover details with memory_search_history or memory_read_history.\n\n"
                  + memory.notes)
-        update = HistoryEdit(len(history.messages), prefix=ReplacePrefix(stop, notes))
+        edits: list[ReplaceToolResult] = []
+        if stop == len(history.messages) and isinstance(history.messages[-1], UserMessage):
+            last = history.messages[-1].content
+            if isinstance(last, list) and last and all(isinstance(b, ToolResultBlock) for b in last):
+                # Keep a protocol-valid receipt for the latest completed tool group.
+                # Removing it entirely makes the pinned user request look unstarted,
+                # causing models to repeat reads or even non-idempotent actions.
+                group_start = max(b for b in safe_boundaries(history.messages) if b < stop)
+                if group_start:
+                    for index in range(group_start, stop):
+                        content = history.messages[index].content
+                        if not isinstance(content, list):
+                            continue
+                        edits.extend(ReplaceToolResult(index, block.tool_use_id,
+                            f"This tool call already returned. Its original result is archived at "
+                            f"[message:{self._ids[index]}]. See working memory for the observed outcome. "
+                            "Use memory_read_history for exact output; do not repeat the action to recover it.")
+                            for block in content if isinstance(block, ToolResultBlock))
+                    stop = group_start
+        update = HistoryEdit(len(history.messages), prefix=ReplacePrefix(stop, notes),
+                             tool_results=tuple(edits))
         before = self._count(history)
         candidate = history.compacted(update)
         after = self._count(candidate)

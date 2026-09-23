@@ -16,7 +16,7 @@ import litellm
 from liteagents import (
     AssistantMessage, BackgroundMemoryOptions, CompactionCompleted, CompactionFailed,
     CompactionOptions, LiteAgentClient, LiteAgentOptions, RecentTokens, Summarize,
-    TextBlock, TokenThreshold,
+    TextBlock, TokenThreshold, ToolUseBlock,
 )
 
 from gateway import Gateway, MAIN, MEMORY
@@ -61,6 +61,9 @@ async def run_case(gateway, scenario, mode, args):
               "source_digest": hashlib.sha256(b"".join(
                   p.read_bytes() for p in sorted(Path("src/liteagents").rglob("*.py"))
               )).hexdigest()}
+    result["research_digest"] = hashlib.sha256(b"".join(
+        p.read_bytes() for p in sorted(Path("research/background_memory").glob("*.py"))
+    )).hexdigest()
     offset = len(gateway.ledger)
     selected_main = MEMORY if args.main_model == "luna" else MAIN
     options = LiteAgentOptions(model=selected_main, system=SYSTEM, tools=scenario.tools,
@@ -72,16 +75,24 @@ async def run_case(gateway, scenario, mode, args):
                     gateway.fail_memory = True
                 started = time.monotonic()
                 answers = []
-                async with aclosing(agent.query(step.prompt)) as events:
-                    async for event in events:
-                        if isinstance(event, AssistantMessage):
-                            answers.append("\n".join(b.text for b in event.content if isinstance(b, TextBlock)))
-                            if index == scenario.interrupted_step:
-                                break  # user stops this response; the next turn corrects course
-                        elif isinstance(event, CompactionCompleted):
-                            result["compactions"].append({"before": event.before.tokens, "after": event.after.tokens})
-                        elif isinstance(event, CompactionFailed):
-                            result["failures"].append(event.error)
+                try:
+                    async with aclosing(agent.query(step.prompt)) as events:
+                        async for event in events:
+                            if isinstance(event, AssistantMessage):
+                                answers.append("\n".join(b.text for b in event.content if isinstance(b, TextBlock)))
+                                if index == scenario.interrupted_step:
+                                    break  # user stops this response; the next turn corrects course
+                            elif isinstance(event, CompactionCompleted):
+                                result["compactions"].append({"before": event.before.tokens, "after": event.after.tokens})
+                            elif isinstance(event, CompactionFailed):
+                                result["failures"].append(event.error)
+                except asyncio.CancelledError:
+                    if scenario.name.startswith("workflow_") and any(
+                        getattr(tool, "interrupted", False) for tool in scenario.tools
+                    ):
+                        result.setdefault("interruptions", []).append(index)
+                    else:
+                        raise
                 answer = answers[-1] if answers else ""
                 elapsed = time.monotonic() - started
                 result["turns"].append({"index": index, "seconds": elapsed, "answer": answer,
@@ -92,6 +103,13 @@ async def run_case(gateway, scenario, mode, args):
                     checks = {key: actual.get(key) == value for key, value in step.expected.items()}
                     result["checks"].append({"turn": index, "expected": step.expected,
                                              "actual": actual, "fields": checks, "passed": all(checks.values())})
+                result["final_memory"] = agent.memory.notes if agent.memory else None
+                result["calls"] = gateway.ledger[offset:]
+                result["tool_calls"] = [{"name": b.name, "input": b.input}
+                    for m in agent.transcript if isinstance(m, AssistantMessage)
+                    for b in m.content if isinstance(b, ToolUseBlock)]
+                checkpoint = Path(args.output) / f"{args.version}-{mode}-{scenario.name}.partial.json"
+                checkpoint.write_text(json.dumps(result, indent=2))
                 # Give the observer the realistic option of finishing while the user
                 # reads the answer. Zero by default; time is reported transparently.
                 if args.user_pause:
@@ -102,6 +120,8 @@ async def run_case(gateway, scenario, mode, args):
             result["error"] = type(exc).__name__ + ": " + str(exc)
         result["final_memory"] = agent.memory.notes if agent.memory else None
         for tool in scenario.tools:
+            if hasattr(tool, "check"):
+                result["workflow_check"] = tool.check()
             if isinstance(tool, SetStatus):
                 result["action_check"] = {
                     "all_reviewed": all(r["status"] == "reviewed" for r in tool.records.values()),
@@ -121,6 +141,8 @@ async def run_case(gateway, scenario, mode, args):
     if "action_check" in result:
         result["passed"] &= result["action_check"]["all_reviewed"] and (
             result["action_check"]["writes"] == result["action_check"]["expected_writes"])
+    if "workflow_check" in result:
+        result["passed"] &= all(result["workflow_check"].values())
     return result
 
 
@@ -142,6 +164,7 @@ async def main(args):
                 result = await run_case(gateway, scenario, mode, args)
                 path = output / f"{args.version}-{mode}-{scenario.name}.json"
                 path.write_text(json.dumps(result, indent=2))
+                path.with_suffix(".partial.json").unlink(missing_ok=True)
                 print(json.dumps({"label": result["label"], "passed": result["passed"],
                                   "cost": round(result["charged_or_reserved"], 4),
                                   "peak_input": result["main_peak_input_tokens"],

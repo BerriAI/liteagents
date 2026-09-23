@@ -462,3 +462,57 @@ sidekick events remain inside the delegated loop, like its other messages.
 This implementation provides portable client-side reduction. Provider-native
 compaction blocks, background scheduling, and durable observational memory are
 not included.
+
+
+### Experimental background working memory
+
+A cheaper model can maintain working notes while the main model continues. Use
+`BackgroundMemoryOptions` in the same `compaction` slot:
+
+```python
+from liteagents import BackgroundMemoryOptions, LiteAgentClient, LiteAgentOptions
+
+options = LiteAgentOptions(
+    model="openai/gpt-6-astra",
+    compaction=BackgroundMemoryOptions(
+        model="openai/gpt-5.6-luna",
+        max_context_tokens=8_000,
+        max_memory_tokens=1_000,
+        min_observation_tokens=4_000,
+    ),
+)
+
+async with LiteAgentClient(options=options) as agent:
+    async for event in agent.query("Help me work through this multi-step task."):
+        print(event)
+    # Continue calling agent.query(...) on this same client.
+    original_messages = agent.transcript  # detached, original typed messages
+    published_notes = agent.memory       # immutable snapshot with coverage cursor
+```
+
+The observer sees prior notes and only new transcript events. Finished notes are
+published before model requests; every unprocessed message stays in the recent
+tail. The main input budget includes system instructions and tool schemas. When
+there is insufficient room, the main loop waits for the observer; a failed or
+oversized observation raises rather than silently losing evidence. Optional
+`max_recent_turns` adds a human-turn limit, but token limits work on their own.
+
+After eviction, the main model gets `memory_search_history` and
+`memory_read_history` to recover exact original details. Large completed tool
+results can become small receipts pointing to the archive, preserving the fact
+that the action already returned. The current user request stays verbatim.
+Small conversations below the observation threshold incur no observer calls or
+recovery-tool schema overhead. Use unique tool names; these two names are reserved
+when background memory is configured.
+
+`instructions` guides the observer's note format. `model_kwargs` can override its
+provider settings independently. Token counters and context-window overrides use
+the same structured interfaces as ordinary compaction. Closing the client or
+interrupting a query cancels its pending observer. Use the async context manager
+and close query iterators when stopping early.
+
+This is an experiment, with no universal cost or quality claim. Frequent note
+updates can invalidate prompt caches, and very tight limits can increase recovery
+calls and latency. The archive grows in RAM for this client's lifetime; it is not
+persistent storage or resume support. See the [research design and commands](research/background_memory/README.md)
+and [measured results](research/background_memory/REPORT.md).

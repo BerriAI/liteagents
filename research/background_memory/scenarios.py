@@ -162,11 +162,12 @@ def make_lookup(seed: int, long: bool, *, scale: int = 1) -> Scenario:
 
 
 def scenarios(seed: int, selected: str = "all", heldout: bool = False, scale: int = 1):
+    from workflows import make_workflow
     factories = {"release": make_release, "inventory": make_inventory,
-                 "incidents": make_incidents, "lookup": make_lookup}
+                 "incidents": make_incidents, "lookup": make_lookup, "workflow": make_workflow}
     for family, factory in factories.items():
         for long in [False, True]:
-            if selected != "all" and selected != f"{family}_{'long' if long else 'short'}":
+            if selected not in {"all", f"{family}_{'long' if long else 'short'}", "long" if long else "short"}:
                 continue
             extra = {"heldout": heldout} if family == "release" else {}
             yield factory(seed, long, scale=scale, **extra)

@@ -57,7 +57,7 @@ class Gateway:
         model = kwargs["model"].removeprefix("litellm_proxy/")
         if model not in RATES:
             raise ValueError("This experiment only authorizes Astra and Luna")
-        role = "observer" if (kwargs.get("system") or "").startswith("Maintain working notes") else "main"
+        role = "main" if (kwargs.get("system") or "").startswith("Complete the user's tasks") else "observer"
         if role == "observer" and self.fail_memory:
             self.fail_memory = False
             raise ConnectionError("Injected observer interruption; no paid request sent")
@@ -101,6 +101,8 @@ class Gateway:
                 record["error_type"] = detail.get("type") if isinstance(detail, dict) else "gateway_error"
                 raise RuntimeError(f"Gateway HTTP {response.status_code}: {record['error_type']}")
             data = response.json()
+            record["stop_reason"] = data.get("stop_reason")
+            record["tool_names"] = [b.get("name") for b in data.get("content", []) if b.get("type") == "tool_use"]
             usage = data.get("usage", {})
             record["usage"] = usage
             input_tokens = usage.get("input_tokens", 0)

@@ -1,0 +1,4255 @@
+{
+  "label": "v3/background/incidents_long_719",
+  "mode": "background",
+  "scenario": "incidents_long_719",
+  "checks": [],
+  "turns": [
+    {
+      "index": 0,
+      "seconds": 0.20484320807736367,
+      "answer": "INC-719-0: Read the record and diagnostic log, then changed status from open to reviewed. Owner: Sol; service: svc-0. Review sequence: 1.",
+      "active_messages": 6,
+      "transcript_messages": 6
+    },
+    {
+      "index": 1,
+      "seconds": 66.51931520900689,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 31
+    },
+    {
+      "index": 2,
+      "seconds": 74.32875208405312,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 56
+    },
+    {
+      "index": 3,
+      "seconds": 83.60122733400203,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 81
+    },
+    {
+      "index": 4,
+      "seconds": 80.47472141694743,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 106
+    },
+    {
+      "index": 5,
+      "seconds": 86.62888600002043,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 131
+    },
+    {
+      "index": 6,
+      "seconds": 87.70967566606123,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 156
+    },
+    {
+      "index": 7,
+      "seconds": 82.81676720792893,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 181
+    },
+    {
+      "index": 8,
+      "seconds": 80.88416991697159,
+      "answer": "",
+      "active_messages": 4,
+      "transcript_messages": 206
+    }
+  ],
+  "compactions": [
+    {
+      "before": 6856,
+      "after": 4470
+    },
+    {
+      "before": 4470,
+      "after": 1268
+    },
+    {
+      "before": 4378,
+      "after": 1268
+    },
+    {
+      "before": 4379,
+      "after": 1232
+    },
+    {
+      "before": 4343,
+      "after": 1222
+    },
+    {
+      "before": 4333,
+      "after": 1222
+    },
+    {
+      "before": 4333,
+      "after": 1232
+    },
+    {
+      "before": 4343,
+      "after": 1222
+    },
+    {
+      "before": 4333,
+      "after": 1222
+    },
+    {
+      "before": 4333,
+      "after": 1221
+    },
+    {
+      "before": 4331,
+      "after": 1224
+    },
+    {
+      "before": 4334,
+      "after": 1210
+    },
+    {
+      "before": 4383,
+      "after": 1210
+    },
+    {
+      "before": 4324,
+      "after": 1326
+    },
+    {
+      "before": 4440,
+      "after": 1353
+    },
+    {
+      "before": 4467,
+      "after": 1373
+    },
+    {
+      "before": 4486,
+      "after": 1368
+    },
+    {
+      "before": 4481,
+      "after": 1379
+    },
+    {
+      "before": 4492,
+      "after": 1364
+    },
+    {
+      "before": 4477,
+      "after": 1374
+    },
+    {
+      "before": 4488,
+      "after": 1374
+    },
+    {
+      "before": 4488,
+      "after": 1364
+    },
+    {
+      "before": 4478,
+      "after": 1413
+    },
+    {
+      "before": 4527,
+      "after": 1441
+    },
+    {
+      "before": 4617,
+      "after": 1441
+    },
+    {
+      "before": 4553,
+      "after": 1320
+    },
+    {
+      "before": 4432,
+      "after": 1327
+    },
+    {
+      "before": 4439,
+      "after": 1329
+    },
+    {
+      "before": 4440,
+      "after": 1334
+    },
+    {
+      "before": 4445,
+      "after": 1345
+    },
+    {
+      "before": 4456,
+      "after": 1348
+    },
+    {
+      "before": 4459,
+      "after": 1334
+    },
+    {
+      "before": 4446,
+      "after": 1342
+    },
+    {
+      "before": 4454,
+      "after": 1333
+    },
+    {
+      "before": 4444,
+      "after": 1333
+    },
+    {
+      "before": 4444,
+      "after": 1339
+    },
+    {
+      "before": 4512,
+      "after": 1331
+    },
+    {
+      "before": 4437,
+      "after": 1398
+    },
+    {
+      "before": 4505,
+      "after": 1397
+    },
+    {
+      "before": 4503,
+      "after": 1410
+    },
+    {
+      "before": 4516,
+      "after": 1409
+    },
+    {
+      "before": 4515,
+      "after": 1410
+    },
+    {
+      "before": 4516,
+      "after": 1402
+    },
+    {
+      "before": 4509,
+      "after": 1408
+    },
+    {
+      "before": 4514,
+      "after": 1392
+    },
+    {
+      "before": 4498,
+      "after": 1403
+    },
+    {
+      "before": 4509,
+      "after": 1407
+    },
+    {
+      "before": 4514,
+      "after": 1399
+    },
+    {
+      "before": 4568,
+      "after": 1399
+    },
+    {
+      "before": 4510,
+      "after": 1357
+    },
+    {
+      "before": 4467,
+      "after": 1353
+    },
+    {
+      "before": 4463,
+      "after": 1365
+    },
+    {
+      "before": 4475,
+      "after": 1355
+    },
+    {
+      "before": 4465,
+      "after": 1372
+    },
+    {
+      "before": 4482,
+      "after": 1372
+    },
+    {
+      "before": 4482,
+      "after": 1377
+    },
+    {
+      "before": 4488,
+      "after": 1371
+    },
+    {
+      "before": 4482,
+      "after": 1384
+    },
+    {
+      "before": 4495,
+      "after": 1397
+    },
+    {
+      "before": 4508,
+      "after": 1396
+    },
+    {
+      "before": 4569,
+      "after": 1427
+    },
+    {
+      "before": 4533,
+      "after": 1398
+    },
+    {
+      "before": 4504,
+      "after": 1440
+    },
+    {
+      "before": 4546,
+      "after": 1438
+    },
+    {
+      "before": 4543,
+      "after": 1427
+    },
+    {
+      "before": 4532,
+      "after": 1433
+    },
+    {
+      "before": 4539,
+      "after": 1441
+    },
+    {
+      "before": 4546,
+      "after": 1429
+    },
+    {
+      "before": 4535,
+      "after": 1420
+    },
+    {
+      "before": 4526,
+      "after": 1430
+    },
+    {
+      "before": 4536,
+      "after": 1436
+    },
+    {
+      "before": 4542,
+      "after": 1440
+    },
+    {
+      "before": 4608,
+      "after": 1433
+    },
+    {
+      "before": 4544,
+      "after": 1387
+    },
+    {
+      "before": 4497,
+      "after": 1399
+    },
+    {
+      "before": 4510,
+      "after": 1406
+    },
+    {
+      "before": 4516,
+      "after": 1412
+    },
+    {
+      "before": 4523,
+      "after": 1421
+    },
+    {
+      "before": 4531,
+      "after": 1408
+    },
+    {
+      "before": 4518,
+      "after": 1421
+    },
+    {
+      "before": 4531,
+      "after": 1430
+    },
+    {
+      "before": 4541,
+      "after": 1424
+    },
+    {
+      "before": 4535,
+      "after": 1392
+    },
+    {
+      "before": 4503,
+      "after": 1388
+    },
+    {
+      "before": 4561,
+      "after": 1395
+    },
+    {
+      "before": 4507,
+      "after": 1452
+    },
+    {
+      "before": 4564,
+      "after": 1384
+    },
+    {
+      "before": 4496,
+      "after": 1401
+    },
+    {
+      "before": 4513,
+      "after": 1406
+    },
+    {
+      "before": 4518,
+      "after": 1404
+    },
+    {
+      "before": 4516,
+      "after": 1413
+    },
+    {
+      "before": 4525,
+      "after": 1413
+    },
+    {
+      "before": 4525,
+      "after": 1402
+    },
+    {
+      "before": 4514,
+      "after": 1402
+    },
+    {
+      "before": 4514,
+      "after": 1399
+    },
+    {
+      "before": 4511,
+      "after": 1417
+    },
+    {
+      "before": 4591,
+      "after": 1408
+    }
+  ],
+  "failures": [
+    "Memory response was incomplete or empty"
+  ],
+  "configuration": {
+    "output": "research/background_memory/results",
+    "version": "v3",
+    "modes": "full,background",
+    "scenario": "incidents_long",
+    "seed": 719,
+    "heldout": false,
+    "turns": 0,
+    "context": 4000,
+    "memory": 640,
+    "observation": 12000,
+    "min_observation": 1024,
+    "user_pause": 0
+  },
+  "source_digest": "5c98df5c486b6152ceb15fabec288c0160097a37c62300af127f447a35318915",
+  "error": "ContextBudgetExceeded: Memory could not make room; original history is intact: Memory response was incomplete or empty",
+  "final_memory": "Objective:\n- Review incidents in sequence: read each record, then set status to `reviewed`; report completion and track review sequence/operational details. [message:7][message:32]\n- `INC-719-0` completed with review sequence 1. [message:6]\n\nConstraints:\n- Preserve exact identifiers and operational details; do not claim status changes without evidence.\n- Read each record before updating status. [message:7]\n\nDecisions and reasons:\n- `INC-719-1`\u2013`INC-719-8` have been read, but no status changes or review-sequence assignments are evidenced; all remain `open`. [message:30][message:55][message:80][message:105][message:130][message:156][message:181][message:206]\n\nVerified progress and evidence:\n- `INC-719-1`: Priya, `svc-1`, `key-91018267`, `open`. [message:30][message:31]\n- `INC-719-2`: Priya, `svc-2`, `key-68177954`, `open`. [message:55][message:56]\n- `INC-719-3`: Sol, `svc-3`, `key-83081920`, `open`. [message:80][message:81]\n- `INC-719-4`: Sol, `svc-0`, `key-90139960`, `open`. [message:105][message:106]\n- `INC-719-5`: Sol, `svc-1`, `key-87936997`, `open`. [message:122][message:130]\n- `INC-719-6`: Sol, `svc-2`, `key-93163238`, `open`; log entries show `status=sampled`. [message:156]\n- `INC-719-7`: Eli, `svc-3`, `key-73146881`, `open`; log includes trace/worker/queue/elapsed/artifact and `status=sampled`. [message:181]\n- `INC-719-8`: Eli, `svc-0`, `key-92368288`, `open`; read record confirms trace/worker/queue/elapsed/artifact fields, with entries marked `status=sampled`. [message:202][message:203][message:206]\n\nOpen work:\n- Set `INC-719-1` through `INC-719-8` to `reviewed` only after their reads, verify resulting statuses, and determine/report review sequence and operational details.",
+  "action_check": {
+    "all_reviewed": false,
+    "writes": 1,
+    "expected_writes": 12
+  },
+  "calls": [
+    {
+      "id": "61c7d523-8900-4359-8840-27c2a6017655",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0030600000000000002,
+      "reserve": 0.19684000000000001,
+      "status": "completed",
+      "request_bytes": 1246,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 196,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0030600000000000002,
+      "header_cost": null,
+      "seconds": 0.05742108297999948
+    },
+    {
+      "id": "73e82cef-eec7-485f-8a20-b90696088a42",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.037905,
+      "reserve": 0.38348000000000004,
+      "status": "completed",
+      "request_bytes": 10578,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 27,
+        "cache_creation_input_tokens": 2922
+      },
+      "estimated_cost": 0.037905,
+      "header_cost": null,
+      "seconds": 0.07018124999012798
+    },
+    {
+      "id": "73189f9f-b45f-4069-b329-5259a97bda81",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.005689499999999999,
+      "reserve": 0.39074000000000003,
+      "status": "completed",
+      "request_bytes": 10941,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 41,
+        "cache_creation_input_tokens": 55,
+        "cache_read_input_tokens": 2922
+      },
+      "estimated_cost": 0.005689499999999999,
+      "header_cost": null,
+      "seconds": 0.06474975007586181
+    },
+    {
+      "id": "727a5fc9-218b-4f95-8cbc-52abb87bf1b4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00110915,
+      "reserve": 0.0072784,
+      "status": "completed",
+      "request_bytes": 11220,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 259,
+        "cache_creation_input_tokens": 3191
+      },
+      "estimated_cost": 0.0011091500000000002,
+      "header_cost": "0.00110915",
+      "seconds": 3.5312045000027865
+    },
+    {
+      "id": "6314f7c9-1904-4776-bb04-d338ba09a469",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.005082000000000001,
+      "reserve": 0.39854000000000006,
+      "status": "completed",
+      "request_bytes": 11331,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 22,
+        "cache_creation_input_tokens": 78,
+        "cache_read_input_tokens": 2977
+      },
+      "estimated_cost": 0.005082000000000001,
+      "header_cost": "0.005082000000000001",
+      "seconds": 0.06212962500285357
+    },
+    {
+      "id": "d0947290-6055-4c1c-af13-3edab096bf2e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00141805,
+      "reserve": 0.007936799999999999,
+      "status": "completed",
+      "request_bytes": 12866,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 426,
+        "cache_creation_input_tokens": 3625
+      },
+      "estimated_cost": 0.00141805,
+      "header_cost": "0.00141805",
+      "seconds": 4.459532542037778
+    },
+    {
+      "id": "42db8df3-117e-4536-884f-f8c1c3e76894",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00848,
+      "reserve": 0.24992000000000003,
+      "status": "completed",
+      "request_bytes": 3900,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 738,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00848,
+      "header_cost": "0.00848",
+      "seconds": 2.181683750008233
+    },
+    {
+      "id": "a5d28d0a-f915-4895-994a-e331d7c0d606",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00128335,
+      "reserve": 0.0077312,
+      "status": "completed",
+      "request_bytes": 12352,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 345,
+        "cache_creation_input_tokens": 3475
+      },
+      "estimated_cost": 0.00128335,
+      "header_cost": "0.00128335",
+      "seconds": 3.7790395410265774
+    },
+    {
+      "id": "def87407-d356-4613-a535-e67dd379f82c",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.008490000000000001,
+      "reserve": 0.24994000000000005,
+      "status": "completed",
+      "request_bytes": 3901,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 739,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.008490000000000001,
+      "header_cost": "0.008490000000000001",
+      "seconds": 1.9430576669983566
+    },
+    {
+      "id": "527da9fd-4ca5-4f31-985b-fe321f219ce5",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012764,
+      "reserve": 0.0077312,
+      "status": "completed",
+      "request_bytes": 12352,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 339,
+        "cache_creation_input_tokens": 3476
+      },
+      "estimated_cost": 0.0012764,
+      "header_cost": "0.0012764",
+      "seconds": 3.492891791043803
+    },
+    {
+      "id": "384702aa-4f55-4007-bb10-75cf4ef20b3a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00816,
+      "reserve": 0.24780000000000002,
+      "status": "completed",
+      "request_bytes": 3794,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 706,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00816,
+      "header_cost": "0.00816",
+      "seconds": 1.5445683330763131
+    },
+    {
+      "id": "2e3f908c-443b-43b5-a7a3-bfd6fb9e0e61",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012269,
+      "reserve": 0.0076879999999999995,
+      "status": "completed",
+      "request_bytes": 12244,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 304,
+        "cache_creation_input_tokens": 3446
+      },
+      "estimated_cost": 0.0012269,
+      "header_cost": "0.0012269",
+      "seconds": 3.2442799160489812
+    },
+    {
+      "id": "beb0aaa6-a683-42e6-b6a8-28222f47a180",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0081,
+      "reserve": 0.24718,
+      "status": "completed",
+      "request_bytes": 3763,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 700,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0081,
+      "header_cost": "0.0081",
+      "seconds": 2.7945490840356797
+    },
+    {
+      "id": "bf57a83c-225c-4c22-9ce4-b1e66297c66a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012282999999999999,
+      "reserve": 0.0076756,
+      "status": "completed",
+      "request_bytes": 12213,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 306,
+        "cache_creation_input_tokens": 3442
+      },
+      "estimated_cost": 0.0012282999999999999,
+      "header_cost": "0.0012282999999999999",
+      "seconds": 3.2328170420369133
+    },
+    {
+      "id": "d3f671f7-17d4-4ef8-bd7f-ec919a7337ee",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0081,
+      "reserve": 0.24718,
+      "status": "completed",
+      "request_bytes": 3763,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 700,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0081,
+      "header_cost": "0.0081",
+      "seconds": 1.8303475840948522
+    },
+    {
+      "id": "6b7fb5a1-a61a-44f8-aaae-dc784b03fc57",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012422,
+      "reserve": 0.0076756,
+      "status": "completed",
+      "request_bytes": 12213,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 318,
+        "cache_creation_input_tokens": 3440
+      },
+      "estimated_cost": 0.0012422,
+      "header_cost": "0.0012422",
+      "seconds": 3.0685766249662265
+    },
+    {
+      "id": "7775b37a-a7a3-40bc-bc1d-1c24475f11a7",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0082,
+      "reserve": 0.24778,
+      "status": "completed",
+      "request_bytes": 3793,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 710,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0082,
+      "header_cost": "0.0082",
+      "seconds": 2.8206488749710843
+    },
+    {
+      "id": "e7c073ae-77fe-40f2-93ca-3788faef72ba",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012303,
+      "reserve": 0.0076876,
+      "status": "completed",
+      "request_bytes": 12243,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 306,
+        "cache_creation_input_tokens": 3450
+      },
+      "estimated_cost": 0.0012303,
+      "header_cost": "0.0012303",
+      "seconds": 3.247130792005919
+    },
+    {
+      "id": "af2f0c9b-3441-4f69-8d36-215b51a2ca2f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0081,
+      "reserve": 0.24718,
+      "status": "completed",
+      "request_bytes": 3763,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 700,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0081,
+      "header_cost": "0.0081",
+      "seconds": 2.0350777090061456
+    },
+    {
+      "id": "69039a56-a9e6-43ae-9342-bb3dbeb58878",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.001229,
+      "reserve": 0.0076756,
+      "status": "completed",
+      "request_bytes": 12213,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 307,
+        "cache_creation_input_tokens": 3440
+      },
+      "estimated_cost": 0.0012289999999999998,
+      "header_cost": "0.001229",
+      "seconds": 3.756350458948873
+    },
+    {
+      "id": "9b6dd2c8-6011-4ac3-94e3-9112db2bb636",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0081,
+      "reserve": 0.24718,
+      "status": "completed",
+      "request_bytes": 3763,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 700,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0081,
+      "header_cost": "0.0081",
+      "seconds": 2.808001209050417
+    },
+    {
+      "id": "377b6e00-5118-42d5-bf44-3167dac92b51",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012268,
+      "reserve": 0.0076756,
+      "status": "completed",
+      "request_bytes": 12213,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 306,
+        "cache_creation_input_tokens": 3436
+      },
+      "estimated_cost": 0.0012268,
+      "header_cost": "0.0012268",
+      "seconds": 3.3070845420006663
+    },
+    {
+      "id": "0b7ec7e9-a0d7-4b62-8b8d-95e61c0fbcdf",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00808,
+      "reserve": 0.24710000000000004,
+      "status": "completed",
+      "request_bytes": 3759,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 698,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00808,
+      "header_cost": "0.00808",
+      "seconds": 1.9191563749918714
+    },
+    {
+      "id": "ca8a3350-2cc8-4afa-bfbf-1362f6c255f7",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012379,
+      "reserve": 0.0076736,
+      "status": "completed",
+      "request_bytes": 12208,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 314,
+        "cache_creation_input_tokens": 3442
+      },
+      "estimated_cost": 0.0012379,
+      "header_cost": "0.0012379",
+      "seconds": 3.433631791966036
+    },
+    {
+      "id": "997d182d-7e43-400a-9050-d213be05a40d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0081,
+      "reserve": 0.24728,
+      "status": "completed",
+      "request_bytes": 3768,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 700,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0081,
+      "header_cost": "0.0081",
+      "seconds": 3.0430078750941902
+    },
+    {
+      "id": "0bd443bd-dee5-4482-9275-fbc9d9abd7b6",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012235,
+      "reserve": 0.0076772,
+      "status": "completed",
+      "request_bytes": 12217,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 302,
+        "cache_creation_input_tokens": 3442
+      },
+      "estimated_cost": 0.0012235,
+      "header_cost": "0.0012235",
+      "seconds": 3.1283985829213634
+    },
+    {
+      "id": "043d7279-86e4-4b86-b181-4c5b5920a580",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00803,
+      "reserve": 0.24646,
+      "status": "completed",
+      "request_bytes": 3727,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 693,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00803,
+      "header_cost": "0.00803",
+      "seconds": 1.8461629579542205
+    },
+    {
+      "id": "9489fee8-f8ee-4409-a372-93eaa64a1500",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012209999999999999,
+      "reserve": 0.0076604,
+      "status": "completed",
+      "request_bytes": 12175,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 302,
+        "cache_creation_input_tokens": 3432
+      },
+      "estimated_cost": 0.001221,
+      "header_cost": "0.0012209999999999999",
+      "seconds": 2.994753291946836
+    },
+    {
+      "id": "e89b0f04-81fe-4b93-a948-427353659207",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00803,
+      "reserve": 0.24646,
+      "status": "completed",
+      "request_bytes": 3727,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 693,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00803,
+      "header_cost": "0.00803",
+      "seconds": 1.8141167499125004
+    },
+    {
+      "id": "980c4400-b828-421c-a971-ede7774cc05f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00138985,
+      "reserve": 0.0077468,
+      "status": "completed",
+      "request_bytes": 12391,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 430,
+        "cache_creation_input_tokens": 3493
+      },
+      "estimated_cost": 0.0013898499999999998,
+      "header_cost": "0.00138985",
+      "seconds": 4.1072990000247955
+    },
+    {
+      "id": "a93dc99c-29c1-4618-8779-e0d6dbc8869e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00901,
+      "reserve": 0.25344,
+      "status": "completed",
+      "request_bytes": 4076,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 791,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00901,
+      "header_cost": "0.00901",
+      "seconds": 4.082659999956377
+    },
+    {
+      "id": "ea93a952-9a64-479b-8988-e6b617f7587e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014014,
+      "reserve": 0.0078036,
+      "status": "completed",
+      "request_bytes": 12533,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 429,
+        "cache_creation_input_tokens": 3544
+      },
+      "estimated_cost": 0.0014014,
+      "header_cost": "0.0014014",
+      "seconds": 4.097888916032389
+    },
+    {
+      "id": "e97a5a56-edb4-46bf-b6a7-32d32dd8959d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009210000000000001,
+      "reserve": 0.25506,
+      "status": "completed",
+      "request_bytes": 4157,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 811,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009210000000000001,
+      "header_cost": "0.009210000000000001",
+      "seconds": 2.5959071669494733
+    },
+    {
+      "id": "e4217c80-c7b9-4c25-a421-d1fad2b5ff42",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014191,
+      "reserve": 0.007836,
+      "status": "completed",
+      "request_bytes": 12614,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 440,
+        "cache_creation_input_tokens": 3562
+      },
+      "estimated_cost": 0.0014191,
+      "header_cost": "0.0014191",
+      "seconds": 3.7100644999882206
+    },
+    {
+      "id": "df6c459d-b835-4cef-bcd8-35d931906d9f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00936,
+      "reserve": 0.25622,
+      "status": "completed",
+      "request_bytes": 4215,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 826,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00936,
+      "header_cost": "0.00936",
+      "seconds": 2.179018000024371
+    },
+    {
+      "id": "83faff6b-bba2-4e8d-89df-3b4b98abf566",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00141325,
+      "reserve": 0.0078592,
+      "status": "completed",
+      "request_bytes": 12672,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 432,
+        "cache_creation_input_tokens": 3577
+      },
+      "estimated_cost": 0.00141325,
+      "header_cost": "0.00141325",
+      "seconds": 3.5170495830243453
+    },
+    {
+      "id": "b570cb9a-7160-473a-bc57-08c2adf1b96d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00927,
+      "reserve": 0.25592000000000004,
+      "status": "completed",
+      "request_bytes": 4200,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 817,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00927,
+      "header_cost": "0.00927",
+      "seconds": 2.1040101250400767
+    },
+    {
+      "id": "65462f0f-287f-452d-8c5d-b9bf2a4df8e8",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014146,
+      "reserve": 0.0078532,
+      "status": "completed",
+      "request_bytes": 12657,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 435,
+        "cache_creation_input_tokens": 3568
+      },
+      "estimated_cost": 0.0014146,
+      "header_cost": "0.0014146",
+      "seconds": 4.727719375048764
+    },
+    {
+      "id": "ced0f2b9-480e-4c85-bf7a-4903d8b20c30",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009370000000000002,
+      "reserve": 0.25658000000000003,
+      "status": "completed",
+      "request_bytes": 4233,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 827,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009370000000000002,
+      "header_cost": "0.009370000000000002",
+      "seconds": 1.8647575000068173
+    },
+    {
+      "id": "3230a695-0713-4b2d-b870-93f201df559e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014176,
+      "reserve": 0.007866399999999999,
+      "status": "completed",
+      "request_bytes": 12690,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 435,
+        "cache_creation_input_tokens": 3580
+      },
+      "estimated_cost": 0.0014176,
+      "header_cost": "0.0014176",
+      "seconds": 3.984714958933182
+    },
+    {
+      "id": "b854f986-d189-44b5-9951-2a6dc5e7d728",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00923,
+      "reserve": 0.25568,
+      "status": "completed",
+      "request_bytes": 4188,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 813,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00923,
+      "header_cost": "0.00923",
+      "seconds": 2.235920124920085
+    },
+    {
+      "id": "c36487a9-a9d2-4816-8837-3266facde247",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014244,
+      "reserve": 0.0078484,
+      "status": "completed",
+      "request_bytes": 12645,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 444,
+        "cache_creation_input_tokens": 3564
+      },
+      "estimated_cost": 0.0014244,
+      "header_cost": "0.0014244",
+      "seconds": 3.7068026659544557
+    },
+    {
+      "id": "6698ad4f-ba1f-4fc4-a6d1-9b25837c0853",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00932,
+      "reserve": 0.25630000000000003,
+      "status": "completed",
+      "request_bytes": 4219,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 822,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00932,
+      "header_cost": "0.00932",
+      "seconds": 2.121907207998447
+    },
+    {
+      "id": "6bf7f7b1-71d5-4019-92f9-f4c17b927ed7",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00140965,
+      "reserve": 0.0078608,
+      "status": "completed",
+      "request_bytes": 12676,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 429,
+        "cache_creation_input_tokens": 3577
+      },
+      "estimated_cost": 0.0014096499999999997,
+      "header_cost": "0.00140965",
+      "seconds": 3.9942945829825476
+    },
+    {
+      "id": "d2651a33-0bff-45a5-aef0-fe2f8170d967",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00932,
+      "reserve": 0.25630000000000003,
+      "status": "completed",
+      "request_bytes": 4219,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 822,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00932,
+      "header_cost": "0.00932",
+      "seconds": 2.024977167020552
+    },
+    {
+      "id": "9b4a22ee-8698-4b35-84c3-1a8fd9ad5f36",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00140915,
+      "reserve": 0.0078608,
+      "status": "completed",
+      "request_bytes": 12676,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 429,
+        "cache_creation_input_tokens": 3575
+      },
+      "estimated_cost": 0.0014091499999999999,
+      "header_cost": "0.00140915",
+      "seconds": 4.278496874962002
+    },
+    {
+      "id": "095717dd-7836-4f28-9426-ccf251bbf3a2",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00923,
+      "reserve": 0.25572,
+      "status": "completed",
+      "request_bytes": 4190,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 813,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00923,
+      "header_cost": "0.00923",
+      "seconds": 2.047289500012994
+    },
+    {
+      "id": "b50175a2-876a-42c7-881c-9397e80aaa74",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014648,
+      "reserve": 0.007849199999999999,
+      "status": "completed",
+      "request_bytes": 12647,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 476,
+        "cache_creation_input_tokens": 3572
+      },
+      "estimated_cost": 0.0014648,
+      "header_cost": "0.0014648",
+      "seconds": 4.091546250041574
+    },
+    {
+      "id": "a35159fc-9757-4c6d-a5d3-e22ccdabf2dc",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009640000000000001,
+      "reserve": 0.25864000000000004,
+      "status": "completed",
+      "request_bytes": 4336,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 854,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009640000000000001,
+      "header_cost": "0.009640000000000001",
+      "seconds": 2.325362917035818
+    },
+    {
+      "id": "9afc2ebd-6eee-45df-b8d3-5d143195b29a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014946999999999998,
+      "reserve": 0.007908,
+      "status": "completed",
+      "request_bytes": 12794,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 493,
+        "cache_creation_input_tokens": 3610
+      },
+      "estimated_cost": 0.0014946999999999998,
+      "header_cost": "0.0014946999999999998",
+      "seconds": 3.7549080409808084
+    },
+    {
+      "id": "fbde61a5-f188-483e-b0f7-daf6580d9bdf",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009840000000000002,
+      "reserve": 0.26034,
+      "status": "completed",
+      "request_bytes": 4421,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 874,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009840000000000002,
+      "header_cost": "0.009840000000000002",
+      "seconds": 1.8297999580390751
+    },
+    {
+      "id": "ed10de59-739d-46d5-8e25-a7215ae49b92",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015038,
+      "reserve": 0.007942,
+      "status": "completed",
+      "request_bytes": 12879,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 496,
+        "cache_creation_input_tokens": 3632
+      },
+      "estimated_cost": 0.0015038,
+      "header_cost": "0.0015038",
+      "seconds": 4.494178249966353
+    },
+    {
+      "id": "966ee944-9db5-4b9a-894c-95ab9ab717be",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009840000000000002,
+      "reserve": 0.26034,
+      "status": "completed",
+      "request_bytes": 4421,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 874,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009840000000000002,
+      "header_cost": "0.009840000000000002",
+      "seconds": 1.8826515839900821
+    },
+    {
+      "id": "1374f517-ea4b-4aa5-8778-71f6eedfd60a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00162825,
+      "reserve": 0.008022,
+      "status": "completed",
+      "request_bytes": 13079,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 592,
+        "cache_creation_input_tokens": 3669
+      },
+      "estimated_cost": 0.00162825,
+      "header_cost": "0.00162825",
+      "seconds": 4.738503082888201
+    },
+    {
+      "id": "de2702cb-2fa0-4887-98d4-9e4dbb0a3b33",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00144305,
+      "reserve": 0.008090799999999999,
+      "status": "completed",
+      "request_bytes": 13251,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 431,
+        "cache_creation_input_tokens": 3701
+      },
+      "estimated_cost": 0.00144305,
+      "header_cost": "0.00144305",
+      "seconds": 5.121438957983628
+    },
+    {
+      "id": "1c673375-d823-4ba5-9ef3-cbd3cfdd2514",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009170000000000001,
+      "reserve": 0.25308,
+      "status": "completed",
+      "request_bytes": 4058,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 807,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009170000000000001,
+      "header_cost": "0.009170000000000001",
+      "seconds": 2.015197708038613
+    },
+    {
+      "id": "bfd406b7-ce39-4c07-9179-12cf14863875",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014091999999999998,
+      "reserve": 0.0077932,
+      "status": "completed",
+      "request_bytes": 12507,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 433,
+        "cache_creation_input_tokens": 3556
+      },
+      "estimated_cost": 0.0014091999999999998,
+      "header_cost": "0.0014091999999999998",
+      "seconds": 3.8184216670924798
+    },
+    {
+      "id": "c8780cef-5384-4908-9090-aaa6496ef5b0",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00923,
+      "reserve": 0.2535,
+      "status": "completed",
+      "request_bytes": 4079,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 813,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00923,
+      "header_cost": "0.00923",
+      "seconds": 1.7875140000833198
+    },
+    {
+      "id": "7c76de00-a070-48be-a28d-6ea94fbf51aa",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014085,
+      "reserve": 0.0078016,
+      "status": "completed",
+      "request_bytes": 12528,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 432,
+        "cache_creation_input_tokens": 3558
+      },
+      "estimated_cost": 0.0014085,
+      "header_cost": "0.0014085",
+      "seconds": 3.7700904170051217
+    },
+    {
+      "id": "3206167e-6557-4822-a13e-72774c61482c",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009200000000000002,
+      "reserve": 0.25358,
+      "status": "completed",
+      "request_bytes": 4083,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 810,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009200000000000002,
+      "header_cost": "0.009200000000000002",
+      "seconds": 1.4760170419467613
+    },
+    {
+      "id": "f5932c8b-bfc2-47f6-ba1f-1e952adb19c2",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00142165,
+      "reserve": 0.0078032,
+      "status": "completed",
+      "request_bytes": 12532,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 444,
+        "cache_creation_input_tokens": 3553
+      },
+      "estimated_cost": 0.00142165,
+      "header_cost": "0.00142165",
+      "seconds": 4.158304541022517
+    },
+    {
+      "id": "ec7484b7-8f6b-4b35-a2d4-6797b6dc3015",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009200000000000002,
+      "reserve": 0.2539,
+      "status": "completed",
+      "request_bytes": 4099,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 810,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009200000000000002,
+      "header_cost": "0.009200000000000002",
+      "seconds": 3.5492263339692727
+    },
+    {
+      "id": "f483a963-367d-46f7-a22d-1c0086b25a23",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00140485,
+      "reserve": 0.0078096,
+      "status": "completed",
+      "request_bytes": 12548,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 430,
+        "cache_creation_input_tokens": 3553
+      },
+      "estimated_cost": 0.00140485,
+      "header_cost": "0.00140485",
+      "seconds": 3.6421825420111418
+    },
+    {
+      "id": "162bec9a-36ba-4951-96b8-9c1dfb86fab4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00931,
+      "reserve": 0.25454000000000004,
+      "status": "completed",
+      "request_bytes": 4131,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 821,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00931,
+      "header_cost": "0.00931",
+      "seconds": 1.7226938750827685
+    },
+    {
+      "id": "be323809-3498-40d9-bd58-69b36c7e08ea",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014177,
+      "reserve": 0.0078224,
+      "status": "completed",
+      "request_bytes": 12580,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 438,
+        "cache_creation_input_tokens": 3566
+      },
+      "estimated_cost": 0.0014177,
+      "header_cost": "0.0014177",
+      "seconds": 3.959273250075057
+    },
+    {
+      "id": "ec873c66-ce96-42fb-af09-1c8cfa6e42bd",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00935,
+      "reserve": 0.25474,
+      "status": "completed",
+      "request_bytes": 4141,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 825,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00935,
+      "header_cost": "0.00935",
+      "seconds": 1.685198458028026
+    },
+    {
+      "id": "deffb890-3353-4996-84d8-3cfedd04447a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014134999999999998,
+      "reserve": 0.007826399999999999,
+      "status": "completed",
+      "request_bytes": 12590,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 432,
+        "cache_creation_input_tokens": 3578
+      },
+      "estimated_cost": 0.0014134999999999998,
+      "header_cost": "0.0014134999999999998",
+      "seconds": 4.239434459013864
+    },
+    {
+      "id": "4f4384de-3bac-4fde-a336-b988a9ecc3bf",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009200000000000002,
+      "reserve": 0.25392000000000003,
+      "status": "completed",
+      "request_bytes": 4100,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 810,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009200000000000002,
+      "header_cost": "0.009200000000000002",
+      "seconds": 2.1525365830166265
+    },
+    {
+      "id": "810760cc-b7b9-43cc-8ee9-21ad2c541146",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00141135,
+      "reserve": 0.00781,
+      "status": "completed",
+      "request_bytes": 12549,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 435,
+        "cache_creation_input_tokens": 3555
+      },
+      "estimated_cost": 0.00141135,
+      "header_cost": "0.00141135",
+      "seconds": 3.843919500010088
+    },
+    {
+      "id": "e7b5ee21-53b7-4418-85c0-a324782e818d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009280000000000002,
+      "reserve": 0.2544,
+      "status": "completed",
+      "request_bytes": 4124,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009280000000000002,
+      "header_cost": "0.009280000000000002",
+      "seconds": 1.701006209012121
+    },
+    {
+      "id": "8a843bde-03c6-4c7a-9443-ebf06a2563af",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00139055,
+      "reserve": 0.0078196,
+      "status": "completed",
+      "request_bytes": 12573,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 416,
+        "cache_creation_input_tokens": 3563
+      },
+      "estimated_cost": 0.00139055,
+      "header_cost": "0.00139055",
+      "seconds": 4.578455499955453
+    },
+    {
+      "id": "21032b1b-4aed-4b4a-8bec-974b5963ee51",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00919,
+      "reserve": 0.25382000000000005,
+      "status": "completed",
+      "request_bytes": 4095,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 809,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00919,
+      "header_cost": "0.00919",
+      "seconds": 2.069188042078167
+    },
+    {
+      "id": "9501f446-5a15-4978-a029-f33b33ae3bf6",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014066,
+      "reserve": 0.007808,
+      "status": "completed",
+      "request_bytes": 12544,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 430,
+        "cache_creation_input_tokens": 3560
+      },
+      "estimated_cost": 0.0014066,
+      "header_cost": "0.0014066",
+      "seconds": 3.8119708329904824
+    },
+    {
+      "id": "2a95fe44-fd10-4726-9347-0ec194b3c8e8",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00919,
+      "reserve": 0.25382000000000005,
+      "status": "completed",
+      "request_bytes": 4095,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 809,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00919,
+      "header_cost": "0.00919",
+      "seconds": 2.32623295893427
+    },
+    {
+      "id": "b43a89f9-f2e3-4a13-a015-7737a8b3b2e6",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.001426,
+      "reserve": 0.007808,
+      "status": "completed",
+      "request_bytes": 12544,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 447,
+        "cache_creation_input_tokens": 3556
+      },
+      "estimated_cost": 0.001426,
+      "header_cost": "0.001426",
+      "seconds": 8.65659000002779
+    },
+    {
+      "id": "aa443ba5-1473-457b-859d-27dbced5278a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009250000000000001,
+      "reserve": 0.25424,
+      "status": "completed",
+      "request_bytes": 4116,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 815,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009250000000000001,
+      "header_cost": "0.009250000000000001",
+      "seconds": 2.255510124959983
+    },
+    {
+      "id": "c135b7e3-5a7c-403d-bbc1-bbe93e72b873",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0013984,
+      "reserve": 0.0078164,
+      "status": "completed",
+      "request_bytes": 12565,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 424,
+        "cache_creation_input_tokens": 3556
+      },
+      "estimated_cost": 0.0013984,
+      "header_cost": "0.0013984",
+      "seconds": 3.6756903750356287
+    },
+    {
+      "id": "0cdb0863-4999-47ab-9ec7-36fe217fc82b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009280000000000002,
+      "reserve": 0.25370000000000004,
+      "status": "completed",
+      "request_bytes": 4089,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009280000000000002,
+      "header_cost": "0.009280000000000002",
+      "seconds": 2.3900702920509502
+    },
+    {
+      "id": "48b5db1f-facc-4e02-bf59-0d696efad947",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.001499,
+      "reserve": 0.0078824,
+      "status": "completed",
+      "request_bytes": 12730,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 497,
+        "cache_creation_input_tokens": 3608
+      },
+      "estimated_cost": 0.001499,
+      "header_cost": "0.001499",
+      "seconds": 4.664024958037771
+    },
+    {
+      "id": "1856762d-7663-4766-aff1-964f50caa1bf",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009880000000000002,
+      "reserve": 0.25776000000000004,
+      "status": "completed",
+      "request_bytes": 4292,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 878,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009880000000000002,
+      "header_cost": "0.009880000000000002",
+      "seconds": 2.509048792067915
+    },
+    {
+      "id": "8876154b-62c9-4033-85b5-253e551b6c81",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00150845,
+      "reserve": 0.0078812,
+      "status": "completed",
+      "request_bytes": 12727,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 503,
+        "cache_creation_input_tokens": 3617
+      },
+      "estimated_cost": 0.00150845,
+      "header_cost": "0.00150845",
+      "seconds": 5.874576459056698
+    },
+    {
+      "id": "35f7cd8c-8da7-4e82-baaa-a7d95212a220",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009920000000000002,
+      "reserve": 0.25768,
+      "status": "completed",
+      "request_bytes": 4288,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 882,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009920000000000002,
+      "header_cost": "0.009920000000000002",
+      "seconds": 1.8403511249925941
+    },
+    {
+      "id": "3eebfd02-91dc-40db-8cea-a6298cce36e9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00150685,
+      "reserve": 0.007879599999999999,
+      "status": "completed",
+      "request_bytes": 12723,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 500,
+        "cache_creation_input_tokens": 3625
+      },
+      "estimated_cost": 0.00150685,
+      "header_cost": "0.00150685",
+      "seconds": 4.252603332977742
+    },
+    {
+      "id": "206a6da8-e051-493f-83b2-122bcbd14435",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01003,
+      "reserve": 0.25844,
+      "status": "completed",
+      "request_bytes": 4326,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 893,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01003,
+      "header_cost": "0.01003",
+      "seconds": 1.4773999160388485
+    },
+    {
+      "id": "55562d60-4dbe-4a17-a4c1-78c2d4cb58b6",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015069,
+      "reserve": 0.007894799999999999,
+      "status": "completed",
+      "request_bytes": 12761,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 499,
+        "cache_creation_input_tokens": 3630
+      },
+      "estimated_cost": 0.0015069,
+      "header_cost": "0.0015069",
+      "seconds": 3.8684393339790404
+    },
+    {
+      "id": "9b5935b9-a7e1-42fc-b170-e61f09eb566e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009970000000000001,
+      "reserve": 0.25838,
+      "status": "completed",
+      "request_bytes": 4323,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 887,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009970000000000001,
+      "header_cost": "0.009970000000000001",
+      "seconds": 2.0035668750060722
+    },
+    {
+      "id": "75cfead4-775e-4163-bb01-9ad624fc9c40",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015244,
+      "reserve": 0.007893599999999999,
+      "status": "completed",
+      "request_bytes": 12758,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 514,
+        "cache_creation_input_tokens": 3628
+      },
+      "estimated_cost": 0.0015244,
+      "header_cost": "0.0015244",
+      "seconds": 3.9337560000130907
+    },
+    {
+      "id": "c7bc4f44-e2a6-478f-a905-055f335e703d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009980000000000001,
+      "reserve": 0.25846,
+      "status": "completed",
+      "request_bytes": 4327,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 888,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009980000000000001,
+      "header_cost": "0.009980000000000001",
+      "seconds": 2.9796816669404507
+    },
+    {
+      "id": "a47705b3-d55b-45cb-ad12-8ea3ffde0be2",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00152535,
+      "reserve": 0.0078952,
+      "status": "completed",
+      "request_bytes": 12762,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 515,
+        "cache_creation_input_tokens": 3627
+      },
+      "estimated_cost": 0.00152535,
+      "header_cost": "0.00152535",
+      "seconds": 4.077033958979882
+    },
+    {
+      "id": "60c87fdc-eada-42b9-bdbc-217f1ded1376",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00991,
+      "reserve": 0.258,
+      "status": "completed",
+      "request_bytes": 4304,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 881,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00991,
+      "header_cost": "0.00991",
+      "seconds": 3.314950666972436
+    },
+    {
+      "id": "870e0e87-859f-425a-99a6-d398f6304af0",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015191,
+      "reserve": 0.007885999999999999,
+      "status": "completed",
+      "request_bytes": 12739,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 510,
+        "cache_creation_input_tokens": 3626
+      },
+      "estimated_cost": 0.0015191,
+      "header_cost": "0.0015191",
+      "seconds": 4.2923718329984695
+    },
+    {
+      "id": "7edc8e4b-b071-47e1-87eb-a21f6e5149b7",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010010000000000002,
+      "reserve": 0.25832000000000005,
+      "status": "completed",
+      "request_bytes": 4320,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 891,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010010000000000002,
+      "header_cost": "0.010010000000000002",
+      "seconds": 2.495816082926467
+    },
+    {
+      "id": "9ff7fce1-1552-446c-a44c-53383388819f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015133999999999998,
+      "reserve": 0.007892399999999999,
+      "status": "completed",
+      "request_bytes": 12755,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 504,
+        "cache_creation_input_tokens": 3632
+      },
+      "estimated_cost": 0.0015133999999999998,
+      "header_cost": "0.0015133999999999998",
+      "seconds": 6.224856749991886
+    },
+    {
+      "id": "42691645-29c6-4817-bc31-8dc2ee92d2b9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00986,
+      "reserve": 0.25736000000000003,
+      "status": "completed",
+      "request_bytes": 4272,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 876,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00986,
+      "header_cost": "0.00986",
+      "seconds": 1.9505188340554014
+    },
+    {
+      "id": "0316ab58-9d1a-46b4-b052-4758b5fc0c82",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00149045,
+      "reserve": 0.0078736,
+      "status": "completed",
+      "request_bytes": 12708,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 488,
+        "cache_creation_input_tokens": 3617
+      },
+      "estimated_cost": 0.00149045,
+      "header_cost": "0.00149045",
+      "seconds": 4.105218124925159
+    },
+    {
+      "id": "79a6add6-f3f2-401f-8940-236c44181db9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0099,
+      "reserve": 0.25804000000000005,
+      "status": "completed",
+      "request_bytes": 4306,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 880,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0099,
+      "header_cost": "0.0099",
+      "seconds": 1.8051073749084026
+    },
+    {
+      "id": "968b9a23-fe53-4135-a830-0675ab307aa0",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00150415,
+      "reserve": 0.007887199999999999,
+      "status": "completed",
+      "request_bytes": 12742,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 499,
+        "cache_creation_input_tokens": 3619
+      },
+      "estimated_cost": 0.00150415,
+      "header_cost": "0.00150415",
+      "seconds": 3.8519675409188494
+    },
+    {
+      "id": "eee3decc-4130-4ae6-9ca6-26b300e15cc9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009940000000000001,
+      "reserve": 0.25830000000000003,
+      "status": "completed",
+      "request_bytes": 4319,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 884,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009940000000000001,
+      "header_cost": "0.009940000000000001",
+      "seconds": 2.3360799169167876
+    },
+    {
+      "id": "1705f953-8cae-4172-b17a-0693ef78cfb6",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00150825,
+      "reserve": 0.007892399999999999,
+      "status": "completed",
+      "request_bytes": 12755,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 502,
+        "cache_creation_input_tokens": 3621
+      },
+      "estimated_cost": 0.00150825,
+      "header_cost": "0.00150825",
+      "seconds": 3.86937987501733
+    },
+    {
+      "id": "d9650084-571a-49bf-aef1-a319248e1b7e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009890000000000001,
+      "reserve": 0.25780000000000003,
+      "status": "completed",
+      "request_bytes": 4294,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 879,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009890000000000001,
+      "header_cost": "0.009890000000000001",
+      "seconds": 2.536782959010452
+    },
+    {
+      "id": "67fce80f-f230-4be9-b33d-2c899e952f37",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014891,
+      "reserve": 0.0078824,
+      "status": "completed",
+      "request_bytes": 12730,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 485,
+        "cache_creation_input_tokens": 3626
+      },
+      "estimated_cost": 0.0014891,
+      "header_cost": "0.0014891",
+      "seconds": 3.611658542067744
+    },
+    {
+      "id": "1478fdb7-0f11-47b4-9d3a-28d49164aaef",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00986,
+      "reserve": 0.25780000000000003,
+      "status": "completed",
+      "request_bytes": 4294,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 876,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00986,
+      "header_cost": "0.00986",
+      "seconds": 1.699226125027053
+    },
+    {
+      "id": "b58c9ad3-2fb0-4b16-8d65-a39c315b5b98",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016148,
+      "reserve": 0.0079708,
+      "status": "completed",
+      "request_bytes": 12951,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 581,
+        "cache_creation_input_tokens": 3668
+      },
+      "estimated_cost": 0.0016148,
+      "header_cost": "0.0016148",
+      "seconds": 4.413851125049405
+    },
+    {
+      "id": "ac488917-3b3e-42e6-bd80-7d3f7626765b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015232,
+      "reserve": 0.0080396,
+      "status": "completed",
+      "request_bytes": 13123,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 498,
+        "cache_creation_input_tokens": 3700
+      },
+      "estimated_cost": 0.0015232000000000002,
+      "header_cost": "0.0015232",
+      "seconds": 5.565881125046872
+    },
+    {
+      "id": "62b1f175-73b9-40f5-9574-a025c58582c8",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00965,
+      "reserve": 0.25532000000000005,
+      "status": "completed",
+      "request_bytes": 4170,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 855,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00965,
+      "header_cost": "0.00965",
+      "seconds": 2.3154632499208674
+    },
+    {
+      "id": "df363ed6-2019-4daa-8929-65806ee37da4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014528,
+      "reserve": 0.007838399999999999,
+      "status": "completed",
+      "request_bytes": 12620,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 461,
+        "cache_creation_input_tokens": 3596
+      },
+      "estimated_cost": 0.0014527999999999998,
+      "header_cost": "0.0014528",
+      "seconds": 7.815763542079367
+    },
+    {
+      "id": "89ed06d7-0ec5-4323-8b33-e7a6a840ecf2",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.00961,
+      "reserve": 0.25508000000000003,
+      "status": "completed",
+      "request_bytes": 4158,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 851,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.00961,
+      "header_cost": "0.00961",
+      "seconds": 1.9133426659973338
+    },
+    {
+      "id": "3e15aec7-4d65-4705-85fc-72cc7b045764",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014845,
+      "reserve": 0.0078336,
+      "status": "completed",
+      "request_bytes": 12608,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 487,
+        "cache_creation_input_tokens": 3598
+      },
+      "estimated_cost": 0.0014845,
+      "header_cost": "0.0014845",
+      "seconds": 6.348873750073835
+    },
+    {
+      "id": "4787dc24-e182-4635-99b7-2c859db6295b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009720000000000001,
+      "reserve": 0.2558,
+      "status": "completed",
+      "request_bytes": 4194,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 862,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009720000000000001,
+      "header_cost": "0.009720000000000001",
+      "seconds": 1.7767100420314819
+    },
+    {
+      "id": "8bc53cd3-d844-483f-8b31-feb3f23f52ae",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00145825,
+      "reserve": 0.007847999999999999,
+      "status": "completed",
+      "request_bytes": 12644,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 462,
+        "cache_creation_input_tokens": 3613
+      },
+      "estimated_cost": 0.00145825,
+      "header_cost": "0.00145825",
+      "seconds": 3.7488407909404486
+    },
+    {
+      "id": "0c8c29b2-c013-415a-a965-f6ad2cd836a1",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009620000000000002,
+      "reserve": 0.25520000000000004,
+      "status": "completed",
+      "request_bytes": 4164,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 852,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009620000000000002,
+      "header_cost": "0.009620000000000002",
+      "seconds": 2.8349526249803603
+    },
+    {
+      "id": "b78a5664-1c05-4f9f-8f7e-73a06ee9bf8a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00148925,
+      "reserve": 0.007836,
+      "status": "completed",
+      "request_bytes": 12614,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 492,
+        "cache_creation_input_tokens": 3593
+      },
+      "estimated_cost": 0.00148925,
+      "header_cost": "0.00148925",
+      "seconds": 4.2837770419428125
+    },
+    {
+      "id": "5e6c0f26-96bc-4e19-8c70-0777ed018cf1",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009750000000000002,
+      "reserve": 0.25622,
+      "status": "completed",
+      "request_bytes": 4215,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 865,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009750000000000002,
+      "header_cost": "0.009750000000000002",
+      "seconds": 2.362121207988821
+    },
+    {
+      "id": "305c75e5-4289-4a35-bbad-c790e247bea1",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014765,
+      "reserve": 0.0078564,
+      "status": "completed",
+      "request_bytes": 12665,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 477,
+        "cache_creation_input_tokens": 3614
+      },
+      "estimated_cost": 0.0014765,
+      "header_cost": "0.0014765",
+      "seconds": 4.10998087504413
+    },
+    {
+      "id": "4b7f32f5-829f-4fc6-9f91-05905f133e03",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009750000000000002,
+      "reserve": 0.25622,
+      "status": "completed",
+      "request_bytes": 4215,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 865,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009750000000000002,
+      "header_cost": "0.009750000000000002",
+      "seconds": 3.0744750420562923
+    },
+    {
+      "id": "fe59e303-9d04-4f6c-8625-06a917d99b2b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0014837000000000001,
+      "reserve": 0.0078564,
+      "status": "completed",
+      "request_bytes": 12665,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 483,
+        "cache_creation_input_tokens": 3614
+      },
+      "estimated_cost": 0.0014837000000000001,
+      "header_cost": "0.0014837000000000001",
+      "seconds": 4.11298387509305
+    },
+    {
+      "id": "571fe8e7-2802-4d5b-926e-f5920b1eb81f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009800000000000001,
+      "reserve": 0.25654000000000005,
+      "status": "completed",
+      "request_bytes": 4231,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 870,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009800000000000001,
+      "header_cost": "0.009800000000000001",
+      "seconds": 1.565716000040993
+    },
+    {
+      "id": "d4d82f78-eb39-41e4-9967-a03d37095094",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00148565,
+      "reserve": 0.0078628,
+      "status": "completed",
+      "request_bytes": 12681,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 484,
+        "cache_creation_input_tokens": 3617
+      },
+      "estimated_cost": 0.00148565,
+      "header_cost": "0.00148565",
+      "seconds": 4.0752742500044405
+    },
+    {
+      "id": "0918084f-bb21-4a93-a016-8a0f6aceb5e5",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009720000000000001,
+      "reserve": 0.25620000000000004,
+      "status": "completed",
+      "request_bytes": 4214,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 862,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009720000000000001,
+      "header_cost": "0.009720000000000001",
+      "seconds": 2.0416917499387637
+    },
+    {
+      "id": "acc18136-40d9-474e-88c6-df5746951904",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00148175,
+      "reserve": 0.007856,
+      "status": "completed",
+      "request_bytes": 12664,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 482,
+        "cache_creation_input_tokens": 3611
+      },
+      "estimated_cost": 0.00148175,
+      "header_cost": "0.00148175",
+      "seconds": 3.6361551670124754
+    },
+    {
+      "id": "c4bc531b-a2a5-46ce-ac4f-e603e6a0e4d9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009840000000000002,
+      "reserve": 0.25698000000000004,
+      "status": "completed",
+      "request_bytes": 4253,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 874,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009840000000000002,
+      "header_cost": "0.009840000000000002",
+      "seconds": 2.571833541034721
+    },
+    {
+      "id": "6e2b975f-9bed-4d78-91b9-6017fd3d951d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00152025,
+      "reserve": 0.0078716,
+      "status": "completed",
+      "request_bytes": 12703,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 512,
+        "cache_creation_input_tokens": 3621
+      },
+      "estimated_cost": 0.00152025,
+      "header_cost": "0.00152025",
+      "seconds": 4.20015358296223
+    },
+    {
+      "id": "ec776677-4e5d-458b-94ee-da76159141db",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009970000000000001,
+      "reserve": 0.25776000000000004,
+      "status": "completed",
+      "request_bytes": 4292,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 887,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009970000000000001,
+      "header_cost": "0.009970000000000001",
+      "seconds": 2.564105416997336
+    },
+    {
+      "id": "7caadc17-8bdd-4f83-ab7f-5fae1b2dd28b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015090999999999998,
+      "reserve": 0.007887199999999999,
+      "status": "completed",
+      "request_bytes": 12742,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 500,
+        "cache_creation_input_tokens": 3634
+      },
+      "estimated_cost": 0.0015091,
+      "header_cost": "0.0015090999999999998",
+      "seconds": 4.192505874903873
+    },
+    {
+      "id": "56a74f99-2d14-4d4d-b37a-03af064c8e82",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.009970000000000001,
+      "reserve": 0.25768,
+      "status": "completed",
+      "request_bytes": 4288,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 887,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.009970000000000001,
+      "header_cost": "0.009970000000000001",
+      "seconds": 1.6341300409985706
+    },
+    {
+      "id": "b3c951a3-5f1e-4eba-a864-aa472e8688c1",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015369,
+      "reserve": 0.0078856,
+      "status": "completed",
+      "request_bytes": 12738,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 524,
+        "cache_creation_input_tokens": 3630
+      },
+      "estimated_cost": 0.0015369,
+      "header_cost": "0.0015369",
+      "seconds": 4.355804792023264
+    },
+    {
+      "id": "1706b667-cc28-4da0-89ef-6af2f4b1c393",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01021,
+      "reserve": 0.25956,
+      "status": "completed",
+      "request_bytes": 4382,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 911,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01021,
+      "header_cost": "0.01021",
+      "seconds": 2.5342813750030473
+    },
+    {
+      "id": "1431bc26-2f45-42a0-b9c7-66b232b14329",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016369,
+      "reserve": 0.0080004,
+      "status": "completed",
+      "request_bytes": 13025,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 594,
+        "cache_creation_input_tokens": 3694
+      },
+      "estimated_cost": 0.0016369,
+      "header_cost": "0.0016369",
+      "seconds": 4.917919000028633
+    },
+    {
+      "id": "cdfd2ff9-15d3-43a3-90f5-3ae5b21b51c0",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015872999999999998,
+      "reserve": 0.0080692,
+      "status": "completed",
+      "request_bytes": 13197,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 546,
+        "cache_creation_input_tokens": 3726
+      },
+      "estimated_cost": 0.0015873,
+      "header_cost": "0.0015872999999999998",
+      "seconds": 4.105467917048372
+    },
+    {
+      "id": "c5a7143f-c58a-4c19-add3-f87300d41306",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010100000000000001,
+      "reserve": 0.25782000000000005,
+      "status": "completed",
+      "request_bytes": 4295,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 900,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010100000000000001,
+      "header_cost": "0.010100000000000001",
+      "seconds": 2.137199250049889
+    },
+    {
+      "id": "63fb7881-ff9a-4108-92e4-5f554d9f289b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015655,
+      "reserve": 0.007882799999999999,
+      "status": "completed",
+      "request_bytes": 12731,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 547,
+        "cache_creation_input_tokens": 3634
+      },
+      "estimated_cost": 0.0015655,
+      "header_cost": "0.0015655",
+      "seconds": 5.452415499952622
+    },
+    {
+      "id": "65120ebd-bc77-43bd-9b5d-f7428d9c79c4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010430000000000002,
+      "reserve": 0.26032000000000005,
+      "status": "completed",
+      "request_bytes": 4420,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 933,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010430000000000002,
+      "header_cost": "0.010430000000000002",
+      "seconds": 1.8582367080962285
+    },
+    {
+      "id": "371b34c7-fef8-4659-b512-d7f17670c806",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015687499999999998,
+      "reserve": 0.0079328,
+      "status": "completed",
+      "request_bytes": 12856,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 542,
+        "cache_creation_input_tokens": 3671
+      },
+      "estimated_cost": 0.0015687499999999998,
+      "header_cost": "0.0015687499999999998",
+      "seconds": 4.599079250008799
+    },
+    {
+      "id": "38555adf-b8d1-475b-9ce4-d57f3ee21502",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010400000000000001,
+      "reserve": 0.26018,
+      "status": "completed",
+      "request_bytes": 4413,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 930,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010400000000000001,
+      "header_cost": "0.010400000000000001",
+      "seconds": 2.0563436669763178
+    },
+    {
+      "id": "762d1a8a-8a18-43fd-adeb-eb142c439185",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.001569,
+      "reserve": 0.00793,
+      "status": "completed",
+      "request_bytes": 12849,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 542,
+        "cache_creation_input_tokens": 3672
+      },
+      "estimated_cost": 0.001569,
+      "header_cost": "0.001569",
+      "seconds": 4.229671209002845
+    },
+    {
+      "id": "d00ae86a-c2f8-4b8e-b9c4-2616b970615d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010310000000000001,
+      "reserve": 0.25952000000000003,
+      "status": "completed",
+      "request_bytes": 4380,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 921,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010310000000000001,
+      "header_cost": "0.010310000000000001",
+      "seconds": 1.982707167044282
+    },
+    {
+      "id": "4fa64935-6ac9-465e-b5ed-f22d3f6a6a60",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00155485,
+      "reserve": 0.0079168,
+      "status": "completed",
+      "request_bytes": 12816,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 535,
+        "cache_creation_input_tokens": 3649
+      },
+      "estimated_cost": 0.00155485,
+      "header_cost": "0.00155485",
+      "seconds": 4.142250792006962
+    },
+    {
+      "id": "2bce2ae2-7376-4670-a43a-e499737ebb8e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010360000000000001,
+      "reserve": 0.25992000000000004,
+      "status": "completed",
+      "request_bytes": 4400,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 926,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010360000000000001,
+      "header_cost": "0.010360000000000001",
+      "seconds": 4.106878082966432
+    },
+    {
+      "id": "0b56ff30-f00e-4f0f-bcb0-6825adf872dc",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015574,
+      "reserve": 0.0079248,
+      "status": "completed",
+      "request_bytes": 12836,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 534,
+        "cache_creation_input_tokens": 3664
+      },
+      "estimated_cost": 0.0015574,
+      "header_cost": "0.0015574",
+      "seconds": 6.304668208002113
+    },
+    {
+      "id": "7998341c-a73d-430a-86eb-8b9ea77b3799",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010400000000000001,
+      "reserve": 0.26036000000000004,
+      "status": "completed",
+      "request_bytes": 4422,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 930,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010400000000000001,
+      "header_cost": "0.010400000000000001",
+      "seconds": 1.5788216250948608
+    },
+    {
+      "id": "de3aa801-0f8f-4329-808d-21bb67249df4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015615,
+      "reserve": 0.007933599999999999,
+      "status": "completed",
+      "request_bytes": 12858,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 537,
+        "cache_creation_input_tokens": 3666
+      },
+      "estimated_cost": 0.0015615,
+      "header_cost": "0.0015615",
+      "seconds": 4.22699737502262
+    },
+    {
+      "id": "fae0ef9b-568c-49d3-a264-f5327898281b",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010320000000000001,
+      "reserve": 0.25968,
+      "status": "completed",
+      "request_bytes": 4388,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 922,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010320000000000001,
+      "header_cost": "0.010320000000000001",
+      "seconds": 2.258492499939166
+    },
+    {
+      "id": "d188a7f4-4d3d-4c07-96de-46e7cf61b948",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015612,
+      "reserve": 0.00792,
+      "status": "completed",
+      "request_bytes": 12824,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 538,
+        "cache_creation_input_tokens": 3660
+      },
+      "estimated_cost": 0.0015612,
+      "header_cost": "0.0015612",
+      "seconds": 5.1360668749548495
+    },
+    {
+      "id": "31b1ff3e-a41b-4b2c-a13e-77305533d44f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010280000000000001,
+      "reserve": 0.25914000000000004,
+      "status": "completed",
+      "request_bytes": 4361,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 918,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010280000000000001,
+      "header_cost": "0.010280000000000001",
+      "seconds": 2.0028455830179155
+    },
+    {
+      "id": "92c84fca-1443-45e6-8edf-894298c5d17c",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015601999999999999,
+      "reserve": 0.0079092,
+      "status": "completed",
+      "request_bytes": 12797,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 538,
+        "cache_creation_input_tokens": 3656
+      },
+      "estimated_cost": 0.0015601999999999999,
+      "header_cost": "0.0015601999999999999",
+      "seconds": 4.013476083986461
+    },
+    {
+      "id": "2493c180-383d-4891-ae46-1275670aa76d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01034,
+      "reserve": 0.25972,
+      "status": "completed",
+      "request_bytes": 4390,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 924,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01034,
+      "header_cost": "0.01034",
+      "seconds": 1.9174001249484718
+    },
+    {
+      "id": "cdfdd972-690b-4bdd-bcb2-cbc9c5e7a041",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015593,
+      "reserve": 0.007920799999999999,
+      "status": "completed",
+      "request_bytes": 12826,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 536,
+        "cache_creation_input_tokens": 3662
+      },
+      "estimated_cost": 0.0015593,
+      "header_cost": "0.0015593",
+      "seconds": 4.128860624972731
+    },
+    {
+      "id": "57dcee13-8f5b-40e1-acd3-bc94e7c4315a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010390000000000002,
+      "reserve": 0.2601,
+      "status": "completed",
+      "request_bytes": 4409,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 929,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010390000000000002,
+      "header_cost": "0.010390000000000002",
+      "seconds": 1.6481167090823874
+    },
+    {
+      "id": "e4b4b160-05d6-4e19-abe1-df23b27e221f",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00156295,
+      "reserve": 0.007928399999999999,
+      "status": "completed",
+      "request_bytes": 12845,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 538,
+        "cache_creation_input_tokens": 3667
+      },
+      "estimated_cost": 0.00156295,
+      "header_cost": "0.00156295",
+      "seconds": 5.487800833070651
+    },
+    {
+      "id": "1e88cf58-66a8-43c0-b007-57abc7787873",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010430000000000002,
+      "reserve": 0.26030000000000003,
+      "status": "completed",
+      "request_bytes": 4419,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 933,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010430000000000002,
+      "header_cost": "0.010430000000000002",
+      "seconds": 2.377969332970679
+    },
+    {
+      "id": "0c7cbb0a-d7b3-418e-a376-28a455b93843",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00155745,
+      "reserve": 0.0079324,
+      "status": "completed",
+      "request_bytes": 12855,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 533,
+        "cache_creation_input_tokens": 3669
+      },
+      "estimated_cost": 0.0015574499999999997,
+      "header_cost": "0.00155745",
+      "seconds": 4.165964083047584
+    },
+    {
+      "id": "c63e522e-484a-4d13-8433-e5ad2371e94c",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010350000000000002,
+      "reserve": 0.2599,
+      "status": "completed",
+      "request_bytes": 4399,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 925,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010350000000000002,
+      "header_cost": "0.010350000000000002",
+      "seconds": 1.8981704160105437
+    },
+    {
+      "id": "2992910b-7456-40a1-90e3-fd78bd0de16a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00168545,
+      "reserve": 0.0080136,
+      "status": "completed",
+      "request_bytes": 13058,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 628,
+        "cache_creation_input_tokens": 3725
+      },
+      "estimated_cost": 0.00168545,
+      "header_cost": "0.00168545",
+      "seconds": 4.710565209039487
+    },
+    {
+      "id": "ba87d906-e313-4077-b3ac-28f24a82dd14",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00160465,
+      "reserve": 0.0080824,
+      "status": "completed",
+      "request_bytes": 13230,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 554,
+        "cache_creation_input_tokens": 3757
+      },
+      "estimated_cost": 0.00160465,
+      "header_cost": "0.00160465",
+      "seconds": 4.541016499977559
+    },
+    {
+      "id": "e108503f-c1b4-488c-a796-4653c3390e77",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01033,
+      "reserve": 0.25712,
+      "status": "completed",
+      "request_bytes": 4260,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 923,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01033,
+      "header_cost": "0.01033",
+      "seconds": 1.6870373749407008
+    },
+    {
+      "id": "99bf06f1-c54c-4e8b-9e22-fb2d35cd4191",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00156715,
+      "reserve": 0.0078748,
+      "status": "completed",
+      "request_bytes": 12711,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 539,
+        "cache_creation_input_tokens": 3679
+      },
+      "estimated_cost": 0.00156715,
+      "header_cost": "0.00156715",
+      "seconds": 4.601688541006297
+    },
+    {
+      "id": "84e9be66-4335-4d1d-8a4f-66d9064a6e2a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010430000000000002,
+      "reserve": 0.25786000000000003,
+      "status": "completed",
+      "request_bytes": 4297,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 933,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010430000000000002,
+      "header_cost": "0.010430000000000002",
+      "seconds": 2.050015249988064
+    },
+    {
+      "id": "a9c67c2b-5874-4391-9546-4c4b16a46fa3",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015928499999999998,
+      "reserve": 0.0078896,
+      "status": "completed",
+      "request_bytes": 12748,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 560,
+        "cache_creation_input_tokens": 3681
+      },
+      "estimated_cost": 0.00159285,
+      "header_cost": "0.0015928499999999998",
+      "seconds": 4.831324042053893
+    },
+    {
+      "id": "000c18b1-cdcd-4b78-bcdc-542f970c56d9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0105,
+      "reserve": 0.25826000000000005,
+      "status": "completed",
+      "request_bytes": 4317,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 940,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.0105,
+      "header_cost": "0.0105",
+      "seconds": 1.9812735420418903
+    },
+    {
+      "id": "80c47509-740f-46fe-8ed4-50275b1a6ed4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015884,
+      "reserve": 0.0078976,
+      "status": "completed",
+      "request_bytes": 12768,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 554,
+        "cache_creation_input_tokens": 3692
+      },
+      "estimated_cost": 0.0015884,
+      "header_cost": "0.0015884",
+      "seconds": 4.078345666988753
+    },
+    {
+      "id": "6d55112c-8016-40b0-aa31-63fe9693c646",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010570000000000001,
+      "reserve": 0.25864000000000004,
+      "status": "completed",
+      "request_bytes": 4336,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 947,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010570000000000001,
+      "header_cost": "0.010570000000000001",
+      "seconds": 3.6491792920278385
+    },
+    {
+      "id": "a5b0095c-dcfe-41a6-bfdc-5204e16560ce",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00161025,
+      "reserve": 0.0079052,
+      "status": "completed",
+      "request_bytes": 12787,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 572,
+        "cache_creation_input_tokens": 3693
+      },
+      "estimated_cost": 0.00161025,
+      "header_cost": "0.00161025",
+      "seconds": 5.139918625005521
+    },
+    {
+      "id": "798af8f9-fa13-4961-9958-4e6f66aaac00",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010650000000000001,
+      "reserve": 0.25916,
+      "status": "completed",
+      "request_bytes": 4362,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 955,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010650000000000001,
+      "header_cost": "0.010650000000000001",
+      "seconds": 1.858626832952723
+    },
+    {
+      "id": "77e472a2-93ec-4829-9d62-f1dd05b7a47d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00159955,
+      "reserve": 0.0079156,
+      "status": "completed",
+      "request_bytes": 12813,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 561,
+        "cache_creation_input_tokens": 3703
+      },
+      "estimated_cost": 0.00159955,
+      "header_cost": "0.00159955",
+      "seconds": 3.9823900000192225
+    },
+    {
+      "id": "4a52f838-0bb3-4b87-8214-f5d72707bd39",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010530000000000001,
+      "reserve": 0.25838,
+      "status": "completed",
+      "request_bytes": 4323,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 943,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010530000000000001,
+      "header_cost": "0.010530000000000001",
+      "seconds": 1.6903990829596296
+    },
+    {
+      "id": "97abc50e-9fc5-4f2c-9994-ef401ea282e8",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016167500000000001,
+      "reserve": 0.007899999999999999,
+      "status": "completed",
+      "request_bytes": 12774,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 577,
+        "cache_creation_input_tokens": 3695
+      },
+      "estimated_cost": 0.00161675,
+      "header_cost": "0.0016167500000000001",
+      "seconds": 4.203484707977623
+    },
+    {
+      "id": "7891a0c2-fd82-4fcf-b976-a23b8d26e824",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010650000000000001,
+      "reserve": 0.25916,
+      "status": "completed",
+      "request_bytes": 4362,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 955,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010650000000000001,
+      "header_cost": "0.010650000000000001",
+      "seconds": 2.108794959029183
+    },
+    {
+      "id": "2d6dfc51-3fbc-48f2-8bd9-1bfefd95f030",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016170499999999999,
+      "reserve": 0.0079156,
+      "status": "completed",
+      "request_bytes": 12813,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 576,
+        "cache_creation_input_tokens": 3701
+      },
+      "estimated_cost": 0.00161705,
+      "header_cost": "0.0016170499999999999",
+      "seconds": 4.489740416989662
+    },
+    {
+      "id": "900beab8-c514-4409-8b7e-996797ab0d26",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010730000000000002,
+      "reserve": 0.25974,
+      "status": "completed",
+      "request_bytes": 4391,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 963,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010730000000000002,
+      "header_cost": "0.010730000000000002",
+      "seconds": 2.1018756669946015
+    },
+    {
+      "id": "affab07b-3fb6-4c01-aa87-48f912b2244c",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00161195,
+      "reserve": 0.007927199999999999,
+      "status": "completed",
+      "request_bytes": 12842,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 568,
+        "cache_creation_input_tokens": 3719
+      },
+      "estimated_cost": 0.00161195,
+      "header_cost": "0.00161195",
+      "seconds": 4.252482125069946
+    },
+    {
+      "id": "64fde87f-69dd-4003-818c-1de097f5c586",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01068,
+      "reserve": 0.25936000000000003,
+      "status": "completed",
+      "request_bytes": 4372,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 958,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01068,
+      "header_cost": "0.01068",
+      "seconds": 2.017147458042018
+    },
+    {
+      "id": "38d427ba-dc26-4dc2-a4d3-b2ac230c4c95",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015852000000000002,
+      "reserve": 0.007919599999999999,
+      "status": "completed",
+      "request_bytes": 12823,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 548,
+        "cache_creation_input_tokens": 3708
+      },
+      "estimated_cost": 0.0015851999999999997,
+      "header_cost": "0.0015852000000000002",
+      "seconds": 4.104248292045668
+    },
+    {
+      "id": "30457dd4-1208-40d1-88b3-10c1615836a3",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010390000000000002,
+      "reserve": 0.25746,
+      "status": "completed",
+      "request_bytes": 4277,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 929,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010390000000000002,
+      "header_cost": "0.010390000000000002",
+      "seconds": 1.921802332974039
+    },
+    {
+      "id": "884dde06-4c41-4151-ae70-a472a693b9c6",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00157405,
+      "reserve": 0.007881599999999999,
+      "status": "completed",
+      "request_bytes": 12728,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 546,
+        "cache_creation_input_tokens": 3673
+      },
+      "estimated_cost": 0.00157405,
+      "header_cost": "0.00157405",
+      "seconds": 4.163598124985583
+    },
+    {
+      "id": "9fcec3ca-6d8c-44c1-92b0-875bc3db93cd",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010360000000000001,
+      "reserve": 0.25720000000000004,
+      "status": "completed",
+      "request_bytes": 4264,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 926,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010360000000000001,
+      "header_cost": "0.010360000000000001",
+      "seconds": 2.406722749932669
+    },
+    {
+      "id": "d80336fb-3d3f-415b-9b7a-226944ce0f2d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0015928000000000001,
+      "reserve": 0.007876399999999999,
+      "status": "completed",
+      "request_bytes": 12715,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 561,
+        "cache_creation_input_tokens": 3676
+      },
+      "estimated_cost": 0.0015928000000000001,
+      "header_cost": "0.0015928000000000001",
+      "seconds": 4.481125125079416
+    },
+    {
+      "id": "3967d84a-4c7b-44ee-aa0c-9377abe56c37",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010400000000000001,
+      "reserve": 0.25760000000000005,
+      "status": "completed",
+      "request_bytes": 4284,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 930,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010400000000000001,
+      "header_cost": "0.010400000000000001",
+      "seconds": 1.597894417005591
+    },
+    {
+      "id": "ce46f1fa-2b1f-4d77-92bc-32dcffbf2772",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00167425,
+      "reserve": 0.0079692,
+      "status": "completed",
+      "request_bytes": 12947,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 617,
+        "cache_creation_input_tokens": 3733
+      },
+      "estimated_cost": 0.00167425,
+      "header_cost": "0.00167425",
+      "seconds": 4.282915832940489
+    },
+    {
+      "id": "47b42be2-a5dc-46ad-a767-0d4d788ed81a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010990000000000002,
+      "reserve": 0.26104000000000005,
+      "status": "completed",
+      "request_bytes": 4456,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 989,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010990000000000002,
+      "header_cost": "0.010990000000000002",
+      "seconds": 2.554691582918167
+    },
+    {
+      "id": "f8669453-eb93-446f-b1ff-eab2a4b00e59",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016868499999999997,
+      "reserve": 0.007955199999999999,
+      "status": "completed",
+      "request_bytes": 12912,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 625,
+        "cache_creation_input_tokens": 3745
+      },
+      "estimated_cost": 0.0016868500000000002,
+      "header_cost": "0.0016868499999999997",
+      "seconds": 4.265301709063351
+    },
+    {
+      "id": "ef069ad5-29a1-467a-8d98-1c60871e7747",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00161445,
+      "reserve": 0.008024,
+      "status": "completed",
+      "request_bytes": 13084,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 558,
+        "cache_creation_input_tokens": 3777
+      },
+      "estimated_cost": 0.00161445,
+      "header_cost": "0.00161445",
+      "seconds": 3.9839219589484856
+    },
+    {
+      "id": "c9ae208c-eba0-4ded-b3c7-2e6b3fc689cf",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010430000000000002,
+      "reserve": 0.25694,
+      "status": "completed",
+      "request_bytes": 4251,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 933,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010430000000000002,
+      "header_cost": "0.010430000000000002",
+      "seconds": 2.1499922500224784
+    },
+    {
+      "id": "c8f5ddc5-701e-403a-9882-14bd69b790a9",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016072999999999999,
+      "reserve": 0.0078728,
+      "status": "completed",
+      "request_bytes": 12706,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 571,
+        "cache_creation_input_tokens": 3686
+      },
+      "estimated_cost": 0.0016072999999999999,
+      "header_cost": "0.0016072999999999999",
+      "seconds": 4.442130875075236
+    },
+    {
+      "id": "e7bc4319-565b-4674-94b7-a5c761e3e6b8",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01055,
+      "reserve": 0.25796,
+      "status": "completed",
+      "request_bytes": 4302,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 945,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01055,
+      "header_cost": "0.01055",
+      "seconds": 2.1425755840027705
+    },
+    {
+      "id": "2576f44f-7032-4871-989e-4299789463e2",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.001624,
+      "reserve": 0.0078932,
+      "status": "completed",
+      "request_bytes": 12757,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 582,
+        "cache_creation_input_tokens": 3700
+      },
+      "estimated_cost": 0.001624,
+      "header_cost": "0.001624",
+      "seconds": 4.396644916967489
+    },
+    {
+      "id": "129ad8eb-e579-4725-908b-f29fa5910f5d",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010610000000000001,
+      "reserve": 0.25828,
+      "status": "completed",
+      "request_bytes": 4318,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 951,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010610000000000001,
+      "header_cost": "0.010610000000000001",
+      "seconds": 2.159382750047371
+    },
+    {
+      "id": "4e481c35-9c64-4b53-9b72-8872e25fe547",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016256999999999999,
+      "reserve": 0.0078996,
+      "status": "completed",
+      "request_bytes": 12773,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 583,
+        "cache_creation_input_tokens": 3702
+      },
+      "estimated_cost": 0.0016256999999999999,
+      "header_cost": "0.0016256999999999999",
+      "seconds": 4.513199666980654
+    },
+    {
+      "id": "c35d5915-0422-4295-a9c2-ea07ae8c679e",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01059,
+      "reserve": 0.25816,
+      "status": "completed",
+      "request_bytes": 4312,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 949,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01059,
+      "header_cost": "0.01059",
+      "seconds": 1.912957875058055
+    },
+    {
+      "id": "65d208fb-a6a5-437a-bd83-9a02193908b4",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016192,
+      "reserve": 0.0078972,
+      "status": "completed",
+      "request_bytes": 12767,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 578,
+        "cache_creation_input_tokens": 3700
+      },
+      "estimated_cost": 0.0016192,
+      "header_cost": "0.0016192",
+      "seconds": 4.170539833954535
+    },
+    {
+      "id": "2deaa325-1e81-461b-a484-6b0dc1daae00",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01067,
+      "reserve": 0.25868,
+      "status": "completed",
+      "request_bytes": 4338,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 957,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01067,
+      "header_cost": "0.01067",
+      "seconds": 1.7542683749925345
+    },
+    {
+      "id": "b58703c1-ef77-4146-b1f6-41aac61fb2de",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016313,
+      "reserve": 0.007907599999999999,
+      "status": "completed",
+      "request_bytes": 12793,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 586,
+        "cache_creation_input_tokens": 3710
+      },
+      "estimated_cost": 0.0016313,
+      "header_cost": "0.0016313",
+      "seconds": 4.393928250065073
+    },
+    {
+      "id": "326b4554-17a2-4abf-b381-a13a089e1ae8",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010650000000000001,
+      "reserve": 0.25870000000000004,
+      "status": "completed",
+      "request_bytes": 4339,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 955,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010650000000000001,
+      "header_cost": "0.010650000000000001",
+      "seconds": 1.9454309579450637
+    },
+    {
+      "id": "3e4755ae-f6ed-4a61-bc3d-66b4fd8e8792",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016007999999999999,
+      "reserve": 0.007908,
+      "status": "completed",
+      "request_bytes": 12794,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 561,
+        "cache_creation_input_tokens": 3708
+      },
+      "estimated_cost": 0.0016007999999999999,
+      "header_cost": "0.0016007999999999999",
+      "seconds": 4.002674542018212
+    },
+    {
+      "id": "959b579c-52e5-4776-9e68-1f4c1d070c9c",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010560000000000002,
+      "reserve": 0.25804000000000005,
+      "status": "completed",
+      "request_bytes": 4306,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 946,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010560000000000002,
+      "header_cost": "0.010560000000000002",
+      "seconds": 1.435144582996145
+    },
+    {
+      "id": "6710c099-fa7f-4890-b51d-580b6e3adcb7",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00160355,
+      "reserve": 0.007894799999999999,
+      "status": "completed",
+      "request_bytes": 12761,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 566,
+        "cache_creation_input_tokens": 3695
+      },
+      "estimated_cost": 0.00160355,
+      "header_cost": "0.00160355",
+      "seconds": 4.199206915916875
+    },
+    {
+      "id": "278d6926-0e66-4cf2-928b-af0e7618858a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010560000000000002,
+      "reserve": 0.25804000000000005,
+      "status": "completed",
+      "request_bytes": 4306,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 946,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010560000000000002,
+      "header_cost": "0.010560000000000002",
+      "seconds": 2.035591416992247
+    },
+    {
+      "id": "e7a8985e-0b72-45d6-a87a-a83c97870216",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0016239499999999999,
+      "reserve": 0.007894799999999999,
+      "status": "completed",
+      "request_bytes": 12761,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 583,
+        "cache_creation_input_tokens": 3695
+      },
+      "estimated_cost": 0.0016239499999999999,
+      "header_cost": "0.0016239499999999999",
+      "seconds": 4.900838000001386
+    },
+    {
+      "id": "fb23aa00-9f57-4536-ac6e-f25a61bf25fb",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01054,
+      "reserve": 0.25788,
+      "status": "completed",
+      "request_bytes": 4298,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 944,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.01054,
+      "header_cost": "0.01054",
+      "seconds": 1.624352665967308
+    },
+    {
+      "id": "e5128690-9dc7-4e36-9396-3b106aa3bc72",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00161845,
+      "reserve": 0.0078916,
+      "status": "completed",
+      "request_bytes": 12753,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 578,
+        "cache_creation_input_tokens": 3697
+      },
+      "estimated_cost": 0.00161845,
+      "header_cost": "0.00161845",
+      "seconds": 4.374980624997988
+    },
+    {
+      "id": "e477c5e0-d127-46ee-9583-c6c2e7cd89cc",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010700000000000001,
+      "reserve": 0.25892000000000004,
+      "status": "completed",
+      "request_bytes": 4350,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 960,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010700000000000001,
+      "header_cost": "0.010700000000000001",
+      "seconds": 2.984122624970041
+    },
+    {
+      "id": "916cfe09-aa59-42da-9e24-2f344b9d6b7a",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00160515,
+      "reserve": 0.0079124,
+      "status": "completed",
+      "request_bytes": 12805,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 564,
+        "cache_creation_input_tokens": 3711
+      },
+      "estimated_cost": 0.00160515,
+      "header_cost": "0.00160515",
+      "seconds": 4.040520124952309
+    },
+    {
+      "id": "34ba8f9c-3024-49c7-88ba-363f411487e3",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.010620000000000001,
+      "reserve": 0.2584,
+      "status": "completed",
+      "request_bytes": 4324,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 952,
+        "output_tokens": 22
+      },
+      "estimated_cost": 0.010620000000000001,
+      "header_cost": "0.010620000000000001",
+      "seconds": 2.2205893330974504
+    },
+    {
+      "id": "bf9a940d-6170-457e-8e43-b70e2eb87426",
+      "label": "v3/background/incidents_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00170485,
+      "reserve": 0.007983599999999999,
+      "status": "completed",
+      "request_bytes": 12983,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 640,
+        "cache_creation_input_tokens": 3745
+      },
+      "estimated_cost": 0.00170485,
+      "header_cost": "0.00170485",
+      "seconds": 5.369696166948415
+    }
+  ],
+  "known_cost": 1.1413515,
+  "charged_or_reserved": 1.1413515,
+  "main_peak_input_tokens": 3058,
+  "median_turn_seconds": 80.88416991697159,
+  "passed": false
+}
