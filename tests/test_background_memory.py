@@ -657,3 +657,20 @@ async def test_manual_multi_observation_failure_rolls_back_and_accounts_for_comp
         assert error.value.usage.input_tokens == 1
         result = await client.compact()
         assert replay_events(history, [result]) == client.history
+
+
+async def test_observer_sees_incomplete_assistant_response_status(monkeypatch):
+    observations = []
+    async def provider(**kwargs):
+        if kwargs["model"] == "memory":
+            observations.append(json.loads(kwargs["messages"][0]["content"]))
+            return text_response("Assistant response incomplete; work remains unverified.", model="memory")
+        response = text_response("I started the work but", model="main")
+        response["stop_reason"] = "max_tokens"
+        return response
+
+    monkeypatch.setattr("litellm.anthropic_messages", provider)
+    async with LiteAgentClient(options=LiteAgentOptions(model="main", compaction=memory_options())) as client:
+        await collect(client, "Complete the task")
+        await client.compact()
+        assert observations[0]["events"][-1]["stop_reason"] == "max_tokens"
