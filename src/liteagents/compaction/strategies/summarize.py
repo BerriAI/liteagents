@@ -9,11 +9,11 @@ from typing import Any
 
 import litellm
 
-from .._internal.adapter import extract_response_fields
-from ..types import AssistantMessage, CompactionUpdate, ReplacePrefix
-from .base import CompactionContext, CompactionError, CompactionResult, ContextBudgetExceeded
-from .policies import RecentTokens
-from .tokens import context_window
+from ..._internal.adapter import extract_response_fields
+from ...types import AssistantMessage, CompactionUpdate, ReplacePrefix
+from ..base import CompactionContext, CompactionError, CompactionResult, ContextBudgetExceeded
+from ..retention import RecentTokens
+from ..tokens import context_window
 
 _SUMMARY_SYSTEM = (
     "Summarize the supplied conversation for an agent that will continue the work. "

@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
-from ..types import CompactionUpdate, ReplaceToolResult, ToolResultBlock, UserMessage
-from .base import CompactionContext, CompactionResult
+from ...types import CompactionUpdate, ReplaceToolResult, ToolResultBlock, UserMessage
+from ..base import CompactionContext, CompactionResult
 
 
 @dataclass(frozen=True)

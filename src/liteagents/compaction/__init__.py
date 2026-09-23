@@ -9,10 +9,10 @@ from .base import (
     ContextBudgetExceeded,
 )
 from .options import CompactionOptions
-from .policies import RecentTokens, TokenThreshold
-from .prune import PruneToolResults
-from .summarize import Summarize
+from .retention import RecentTokens
+from .strategies import PruneToolResults, Summarize
 from .tokens import TokenCounter, TokenEstimate, context_window, estimate_tokens
+from .triggers import TokenThreshold
 
 __all__ = [
     "CompactionContext",

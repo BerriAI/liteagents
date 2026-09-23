@@ -6,9 +6,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 
 from .base import CompactionStrategy, CompactionTrigger
-from .policies import TokenThreshold
-from .summarize import Summarize
+from .strategies import Summarize
 from .tokens import TokenCounter, estimate_tokens
+from .triggers import TokenThreshold
 
 
 @dataclass(frozen=True)
