@@ -56,6 +56,6 @@ Do not add:
 
 - permission systems or hooks
 - sandboxing
-- MCP server support
+- hosting MCP servers (client tools live in `mcp.py`, with caller-owned sessions)
 - session persistence/resume
 - subprocess or CLI transport

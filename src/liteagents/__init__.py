@@ -12,10 +12,12 @@ from .pr_risk_agent import PRRiskAgent, PullRequest, RiskAssessment
 from .routers import JevAgent, JevModelRouter, JevTier, ModelRouter, StaticRouter
 from .tools import Tool
 from .types import (
+    AgentEvent,
     AssistantMessage,
     ContentBlock,
     Message,
     TextBlock,
+    TextDelta,
     ToolResultBlock,
     ToolUseBlock,
     TurnContext,
@@ -23,6 +25,7 @@ from .types import (
 )
 
 __all__ = [
+    "AgentEvent",
     "AssistantMessage",
     "ContentBlock",
     "FusionOptions",
@@ -38,6 +41,7 @@ __all__ = [
     "RiskAssessment",
     "StaticRouter",
     "TextBlock",
+    "TextDelta",
     "Tool",
     "ToolResultBlock",
     "ToolUseBlock",

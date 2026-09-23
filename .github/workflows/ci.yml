@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
+        mcp-version: ["1.12.0", "2.2.0"]
     steps:
       - uses: actions/checkout@v4
 
@@ -20,13 +21,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install package
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,mcp]" "mcp==${{ matrix.mcp-version }}"
 
       - name: Enforce file line-count budget
         run: python scripts/check_loc.py
 
       - name: Lint
         run: ruff check src/ tests/
+
+      - name: Type check
+        run: mypy src/liteagents --ignore-missing-imports
 
       - name: Test
         run: pytest tests/

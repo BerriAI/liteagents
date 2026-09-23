@@ -76,10 +76,13 @@ def extract_response_fields(
     stop_reason = _get(response, "stop_reason")
     model = _get(response, "model")
     usage = _get(response, "usage")
+    if hasattr(usage, "model_dump"):
+        usage = usage.model_dump()
     return content_as_dicts, stop_reason, model, usage
 
 
-def tool_result_block(tool_use_id: str, content: str, is_error: bool = False) -> dict[str, Any]:
+def tool_result_block(tool_use_id: str, content: str | list[dict[str, Any]],
+                      is_error: bool = False) -> dict[str, Any]:
     return {
         "type": "tool_result",
         "tool_use_id": tool_use_id,

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, ClassVar
+
 from liteagents import AssistantMessage, LiteAgentOptions, Tool, ToolResultBlock, UserMessage, query
 
 from .conftest import text_response, tool_use_response
@@ -8,7 +10,7 @@ from .conftest import text_response, tool_use_response
 class EchoTool(Tool):
     name = "echo"
     description = "Echoes its input."
-    input_schema = {"type": "object", "properties": {"text": {"type": "string"}}, "required": ["text"]}
+    input_schema: ClassVar[dict[str, Any]] = {"type": "object", "properties": {"text": {"type": "string"}}, "required": ["text"]}
 
     async def execute(self, input):
         return f"echoed: {input['text']}"
