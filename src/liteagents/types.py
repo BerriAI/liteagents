@@ -51,6 +51,17 @@ Message: TypeAlias = UserMessage | AssistantMessage
 
 
 @dataclass
+class TextDelta:
+    """Incremental display text; the completed AssistantMessage still follows."""
+
+    text: str
+    model: str
+
+
+AgentEvent: TypeAlias = Message | TextDelta
+
+
+@dataclass
 class TurnContext:
     """What a ModelRouter sees before picking a model for one round.
 

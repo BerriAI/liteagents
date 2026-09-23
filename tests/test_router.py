@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any, ClassVar
 
 from liteagents import LiteAgentOptions, TurnContext, query
 
@@ -44,7 +45,7 @@ async def test_router_reselects_each_round(mock_anthropic_messages):
     class NoopTool(Tool):
         name = "noop"
         description = "Does nothing."
-        input_schema = {"type": "object", "properties": {}}
+        input_schema: ClassVar[dict[str, Any]] = {"type": "object", "properties": {}}
 
         async def execute(self, input):
             return "ok"

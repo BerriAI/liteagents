@@ -25,7 +25,7 @@ class Tool(ABC):
     input_schema: dict[str, Any]
 
     @abstractmethod
-    async def execute(self, input: dict[str, Any]) -> str:
+    async def execute(self, input: dict[str, Any]) -> str | list[dict[str, Any]]:
         """Run the tool and return its result as a string.
 
         Raise on failure -- the tool loop catches exceptions and turns them

@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from copy import deepcopy
 from typing import Any
 
 from ._internal import adapter
-from .types import AssistantMessage, ContentBlock, Message, ToolResultBlock, UserMessage
+from .types import (
+    AssistantMessage,
+    ContentBlock,
+    Message,
+    TextBlock,
+    ToolResultBlock,
+    ToolUseBlock,
+    UserMessage,
+)
 
 
 class ConversationHistory:
@@ -16,9 +26,31 @@ class ConversationHistory:
     else works with liteagents.types dataclasses.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, messages: Sequence[Message] = ()) -> None:
         self._raw: list[dict[str, Any]] = []
         self.messages: list[Message] = []
+        for message in deepcopy(messages):
+            if not isinstance(message, (UserMessage, AssistantMessage)):
+                raise TypeError("History must contain UserMessage or AssistantMessage instances")
+            content: str | list[dict[str, Any]]
+            if isinstance(message, UserMessage) and isinstance(message.content, str):
+                content = message.content
+            else:
+                content = []
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        content.append({"type": "text", "text": block.text})
+                    elif isinstance(block, ToolUseBlock):
+                        content.append({"type": "tool_use", "id": block.id,
+                                        "name": block.name, "input": block.input})
+                    elif isinstance(block, ToolResultBlock):
+                        content.append({"type": "tool_result", "tool_use_id": block.tool_use_id,
+                                        "content": block.content, "is_error": block.is_error})
+                    else:
+                        raise TypeError(f"Unsupported history block: {type(block).__name__}")
+            self._raw.append({"role": "user" if isinstance(message, UserMessage) else "assistant",
+                              "content": content})
+            self.messages.append(message)
 
     def raw(self) -> list[dict[str, Any]]:
         return self._raw

@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
+from contextlib import aclosing
 from typing import Any
 
 import litellm
 
 from ._internal.adapter import extract_response_fields, tool_result_block
+from ._internal.streaming import stream_response
 from .history import ConversationHistory
 from .routers.base import ModelRouter
 from .tools import Tool, find_tool
-from .types import Message, ToolUseBlock, TurnContext
+from .types import AgentEvent, TextDelta, ToolUseBlock, TurnContext
 
 
 async def run_tool_loop(
@@ -25,7 +27,9 @@ async def run_tool_loop(
     turn_index: int,
     prompt_for_router: str,
     tool_choice: dict[str, Any] | None = None,
-) -> AsyncIterator[Message]:
+    stream: bool = False,
+    model_kwargs: dict[str, Any] | None = None,
+) -> AsyncGenerator[AgentEvent, None]:
     """Runs model-call -> tool-execution rounds for ONE user turn, until the
     model stops requesting tools or max_turns is hit. Mutates `history` in
     place and yields each message (assistant responses, and the synthetic
@@ -37,6 +41,8 @@ async def run_tool_loop(
     context.prompt so this is invisible; a memoizing router can key on
     context.turn to make repeat rounds within one turn cheap and stable.
     """
+    if len({tool.name for tool in tools}) != len(tools):
+        raise ValueError("Tool names must be unique; use prefixes for MCP tools from different servers")
     anthropic_tools = [t.to_anthropic_tool() for t in tools] or None
 
     for _round in range(max_turns):
@@ -46,6 +52,9 @@ async def run_tool_loop(
         context = TurnContext(prompt=prompt_for_router, history=list(history.messages), turn=turn_index)
         model = await router.route(context)
 
+        request_kwargs = dict(model_kwargs or {})
+        if stream:
+            request_kwargs["stream"] = True
         response = await litellm.anthropic_messages(
             model=model,
             messages=list(history.raw()),
@@ -53,7 +62,16 @@ async def run_tool_loop(
             max_tokens=max_tokens,
             tools=anthropic_tools,
             tool_choice=tool_choice,
+            **request_kwargs,
         )
+
+        if stream:
+            async with aclosing(stream_response(response, model=model)) as events:
+                async for event in events:
+                    if isinstance(event, TextDelta):
+                        yield event
+                    else:
+                        response = event
 
         content_dicts, stop_reason, response_model, usage = extract_response_fields(response)
         assistant_message = history.add_assistant_response(content_dicts, model=response_model or model)

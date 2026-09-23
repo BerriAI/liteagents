@@ -30,7 +30,7 @@ class DelegateToSidekickTool(Tool):
         "judgment. The sidekick has the same tools you do and keeps its own "
         "conversation history across delegations in this session."
     )
-    input_schema = {
+    input_schema = {  # noqa: RUF012 - Tool supports class or instance schemas
         "type": "object",
         "properties": {
             "task": {
@@ -60,11 +60,13 @@ class FusionRuntime:
     model as a plain tool would (re-sending full task context every call).
     """
 
-    def __init__(self, *, main_tools: list[Tool], options: FusionOptions) -> None:
+    def __init__(self, *, main_tools: list[Tool], options: FusionOptions,
+                 model_kwargs: dict[str, Any] | None = None) -> None:
         self._sidekick_tools = list(main_tools)  # sidekick can use the same real tools
         self._sidekick_router = StaticRouter(options.sidekick_model)
         self._sidekick_history = ConversationHistory()
         self._options = options
+        self._model_kwargs = dict(model_kwargs or {})
         self._delegate_tool = DelegateToSidekickTool(self)
         self._delegation_count = 0
 
@@ -95,6 +97,7 @@ class FusionRuntime:
             max_turns=self._options.sidekick_max_turns,
             turn_index=self._delegation_count,
             prompt_for_router=task,
+            model_kwargs=self._model_kwargs,
         ):
             if isinstance(message, AssistantMessage):
                 last_assistant = message

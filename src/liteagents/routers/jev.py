@@ -11,9 +11,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import httpx
+from typing_extensions import Self
 
 from ..tools import Tool
-from ..types import Message, TurnContext
+from ..types import AgentEvent, Message, TurnContext
 
 if TYPE_CHECKING:
     from ..agent import LiteAgentClient
@@ -164,7 +165,7 @@ class JevAgent:
         )
         self._client: LiteAgentClient | None = None
 
-    async def __aenter__(self) -> JevAgent:
+    async def __aenter__(self) -> Self:
         from ..agent import LiteAgentClient
 
         self._client = await LiteAgentClient(options=self._options).__aenter__()
@@ -174,7 +175,7 @@ class JevAgent:
         if self._client is not None:
             await self._client.__aexit__(*exc_info)
 
-    async def query(self, prompt: str) -> AsyncIterator[Message]:
+    async def query(self, prompt: str) -> AsyncIterator[AgentEvent]:
         if self._client is None:
             raise RuntimeError("JevAgent must be used as an async context manager: 'async with JevAgent(...) as agent'")
         async for message in self._client.query(prompt):

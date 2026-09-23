@@ -12,6 +12,8 @@ A provider-independent agent SDK with the same query() interface as the Claude A
 - fusion mode: a frontier model plus a cheap sidekick, running in parallel
 - write your own router instead, no classifier required
 - same `query()` / `AssistantMessage` / `TextBlock` shapes as the Claude Agent SDK
+- MCP client tools from initialized stdio or remote sessions (`pip install 'liteagents[mcp]'`)
+- opt-in text streaming, per-client gateway options, and typed initial history
 
 ## Installation
 
@@ -125,3 +127,86 @@ async for message in query(prompt="Hello", options=options):
 | one model family | any LiteLLM model, JEV router, or fusion |
 
 mostly an import and model-config change.
+
+## MCP tools
+
+Install `liteagents[mcp]`, create and initialize an MCP `ClientSession`, then
+adapt its tools. The application owns the transport, credentials and session
+lifetime. The same adapter works with stdio, Streamable HTTP and SSE sessions.
+
+```python
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+from liteagents import LiteAgentOptions, query
+from liteagents.mcp import load_mcp_tools
+
+params = StdioServerParameters(command="python", args=["memory_server.py"])
+async with stdio_client(params) as (read, write):
+    async with ClientSession(read, write) as session:
+        await session.initialize()
+        tools = await load_mcp_tools(
+            session,
+            allowed_tool_names=["search_memories", "read_memory"],
+            prefix="memory_",  # optional; disambiguates tools from multiple servers
+        )
+        options = LiteAgentOptions(model="openai/gpt-5.4-mini", tools=tools)
+        async for message in query(prompt="What did I work on?", options=options):
+            print(message)
+```
+
+`allowed_tool_names` matches remote names before adding a prefix. `None` exposes
+all discovered tools; `[]` exposes none. Discovery follows pagination and rejects
+duplicate names. Tool schemas, text, images, structured results and resource data
+are preserved; MCP tool failures become error results the model can handle.
+Keep the session open for the full query and rediscover tools explicitly if the
+server's catalog changes. Cancellation propagates to MCP calls. This is a client
+adapter; it does not host MCP servers or manage authentication/approvals.
+
+## Gateways, streaming and existing chat history
+
+`model_kwargs` forwards connection and provider settings to LiteLLM on every
+round, including fusion sidekick calls. Core fields such as `model`, `tools` and
+`stream` belong on `LiteAgentOptions` and cannot be overridden through this dict.
+Use `litellm_proxy/<alias>` for opaque LiteLLM gateway model names.
+
+```python
+import os
+from contextlib import aclosing
+from liteagents import (
+    AssistantMessage, LiteAgentClient, LiteAgentOptions, TextBlock, TextDelta, UserMessage,
+)
+
+options = LiteAgentOptions(
+    model="litellm_proxy/my-agent-model",
+    model_kwargs={
+        "api_base": "https://my-gateway.example/v1",
+        "api_key": os.environ["LITELLM_API_KEY"],
+        "timeout": 90,
+        "num_retries": 0,
+        "extra_headers": {"x-litellm-enable-message-redaction": "true"},
+        "extra_body": {"no-log": True},
+        "no-log": True,
+    },
+    stream=True,
+)
+history = [UserMessage("Earlier question"), AssistantMessage([TextBlock("Earlier answer")], model="")]
+async with LiteAgentClient(options=options, history=history) as agent:
+    async with aclosing(agent.query("A follow-up question")) as events:
+        async for event in events:
+            if isinstance(event, TextDelta):
+                print(event.text, end="", flush=True)
+            elif isinstance(event, AssistantMessage):
+                print(event.stop_reason, event.usage)
+```
+
+Streaming defaults to off. When enabled, `TextDelta` events provide incremental
+display text; complete `AssistantMessage` and tool-result messages still follow.
+Do not append both deltas and completed text to the same answer. Only completed
+messages enter history. Usage is per model response. A truncated or failed stream
+raises instead of yielding a completed response. Use `aclosing` when consuming a
+query that may stop early, so the provider stream closes promptly.
+
+Initial history is copied and remains in memory for this client only. When
+`max_turns` is reached during tool use, no final answer is produced: the last
+assistant message has `stop_reason="tool_use"`. Applications should detect this
+instead of delivering tool-planning text as a finished answer.

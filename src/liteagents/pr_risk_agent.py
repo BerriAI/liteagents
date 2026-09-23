@@ -35,7 +35,7 @@ class _EmitAssessmentTool(Tool):
         "Emit the final risk assessment for this pull request. Call this "
         "exactly once, as your only tool call."
     )
-    input_schema = {
+    input_schema = {  # noqa: RUF012 - Tool supports class or instance schemas
         "type": "object",
         "properties": {
             "risk": {"type": "string", "enum": ["low", "medium", "high"]},
