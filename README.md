@@ -115,21 +115,6 @@ async for message in query(prompt="Hello", options=options):
                 print(block.text)
 ```
 
-## PR risk agent
-
-```python
-from liteagents import PRRiskAgent, PullRequest
-
-agent = PRRiskAgent(model_router=router)
-assessment = await agent.classify(PullRequest(title="Add API key rotation", diff=diff))
-
-print(assessment.risk)  # low / medium / high
-```
-
-```shell
-gh pr diff 123 | python -m cookbook.agent_sdk.pr_risk_agent --title "Add API key rotation"
-```
-
 ## Migrating from the Claude Agent SDK
 
 | Claude Agent SDK | LiteAgents SDK |
