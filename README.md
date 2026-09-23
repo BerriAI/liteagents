@@ -2,6 +2,9 @@
 
 A provider-independent agent SDK with the same query() interface as the Claude Agent SDK, **allowing you to use the right model for every turn**. Auto-routing automatically selects the best-fit model for each step across providers, balancing quality, speed, and cost. Use OpenAI, Anthropic, Deepseek, Gemini, xAI all within one agent run.
 
+<img width="1540" height="1080" alt="area3" src="https://github.com/user-attachments/assets/5fd27ec5-1de0-4d69-af4c-87f819dcacea" />
+
+
 ## Features
 
 - cross-provider: mix OpenAI, Anthropic, Gemini, Bedrock, Azure in one agent run
