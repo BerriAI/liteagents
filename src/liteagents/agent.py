@@ -2,17 +2,20 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Sequence
 from contextlib import aclosing
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any
 
 from typing_extensions import Self
 
+from ._internal.compaction_runtime import CompactionRuntime
+from .compaction import CompactionOptions
 from .fusion import FusionOptions, FusionRuntime
 from .history import ConversationHistory
 from .loop import run_tool_loop
 from .routers.base import ModelRouter, StaticRouter
 from .tools import Tool
-from .types import AgentEvent, Message
+from .types import AgentEvent, CompactionCompleted, CompactionSkipped, Message
 
 
 @dataclass
@@ -25,6 +28,7 @@ class LiteAgentOptions:
     max_turns: int = 20
     tool_choice: dict[str, Any] | None = None
     fusion: FusionOptions | None = None
+    compaction: CompactionOptions | None = None
     stream: bool = False
     # Per-client connection/provider options, never process-global credentials.
     model_kwargs: dict[str, Any] = field(default_factory=dict, repr=False)
@@ -51,6 +55,8 @@ class LiteAgentClient:
         self._history = ConversationHistory(history)
         self._turn = 0
         self._fusion: FusionRuntime | None = None
+        self._compaction = CompactionRuntime(options.compaction) if options.compaction else None
+        self._busy = False
 
     async def __aenter__(self) -> Self:
         if self._options.fusion is not None:
@@ -62,6 +68,17 @@ class LiteAgentClient:
         return None  # no subprocess or connection to tear down; kept for API symmetry
 
     async def query(self, prompt: str) -> AsyncGenerator[AgentEvent, None]:
+        if self._busy:
+            raise RuntimeError("This client is already querying or compacting")
+        self._busy = True
+        try:
+            async with aclosing(self._query(prompt)) as events:
+                async for event in events:
+                    yield event
+        finally:
+            self._busy = False
+
+    async def _query(self, prompt: str) -> AsyncGenerator[AgentEvent, None]:
         self._turn += 1
         tools = self._fusion.tools_for_main_loop() if self._fusion else self._options.tools
         # run_tool_loop reads history.raw()/history.messages but never mutates
@@ -79,13 +96,48 @@ class LiteAgentClient:
             tool_choice=self._options.tool_choice,
             stream=self._options.stream,
             model_kwargs=self._options.model_kwargs,
+            compaction=self._compaction,
         )) as events:
             async for message in events:
                 yield message
 
     @property
     def history(self) -> list[Message]:
-        return list(self._history.messages)
+        """Detached copy of active model context, including any generated summaries."""
+        return deepcopy(self._history.messages)
+
+    async def compact(self, *, instructions: str | None = None,
+                      model: str | None = None) -> CompactionCompleted | CompactionSkipped:
+        """Compact while idle without routing or advancing the user turn counter.
+
+        `model` selects the target context budget, not a summarizer override. A routed
+        client uses its last selected model; before its first query, pass one explicitly.
+        """
+        if self._busy:
+            raise RuntimeError("This client is already querying or compacting")
+        if self._compaction is None:
+            raise ValueError("Configure compaction before calling compact()")
+        target = model or self._compaction.last_model
+        if target is None and self._options.model_router is None:
+            target = self._options.model
+        if target is None:
+            raise ValueError("Pass model= when compacting before the router's first selection")
+        self._busy = True
+        try:
+            tools = self._fusion.tools_for_main_loop() if self._fusion else self._options.tools
+            outcome: CompactionCompleted | CompactionSkipped | None = None
+            async with aclosing(self._compaction.run(
+                history=self._history, model=target, system=self._options.system, tools=tools,
+                max_tokens=self._options.max_tokens, model_kwargs=self._options.model_kwargs,
+                manual=True, instructions=instructions,
+            )) as events:
+                async for event in events:
+                    if isinstance(event, (CompactionCompleted, CompactionSkipped)):
+                        outcome = event
+            assert outcome is not None
+            return outcome
+        finally:
+            self._busy = False
 
 
 async def query(*, prompt: str, options: LiteAgentOptions,

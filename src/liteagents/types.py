@@ -9,7 +9,7 @@ ConversationHistory (see history.py) and never appear in a public signature.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 
 @dataclass
@@ -40,6 +40,11 @@ class UserMessage:
 
 
 @dataclass
+class SummaryMessage(UserMessage):
+    """Generated context about earlier messages, serialized as a user message."""
+
+
+@dataclass
 class AssistantMessage:
     content: list[ContentBlock]
     model: str
@@ -58,7 +63,76 @@ class TextDelta:
     model: str
 
 
-AgentEvent: TypeAlias = Message | TextDelta
+@dataclass(frozen=True)
+class ReplacePrefix:
+    """Replace messages before `stop` (exclusive) with a summary.
+
+    The SDK also retains the latest human message if it falls in this prefix.
+    Indices always refer to the original, uncompacted history.
+    """
+
+    stop: int
+    summary: str
+
+
+@dataclass(frozen=True)
+class ReplaceToolResult:
+    message_index: int
+    tool_use_id: str
+    content: str = "[Earlier tool output removed to reduce context.]"
+
+
+@dataclass(frozen=True)
+class CompactionUpdate:
+    """Replayable edits against a history with `message_count` messages."""
+
+    message_count: int
+    prefix: ReplacePrefix | None = None
+    tool_results: tuple[ReplaceToolResult, ...] = ()
+
+
+CompactionReason: TypeAlias = Literal["manual", "threshold", "budget"]
+
+
+@dataclass(frozen=True)
+class CompactionStarted:
+    reason: CompactionReason
+    model: str
+    tokens_before: int
+    token_source: str
+
+
+@dataclass(frozen=True)
+class CompactionCompleted:
+    reason: CompactionReason
+    model: str
+    tokens_before: int
+    tokens_after: int
+    token_source: str
+    update: CompactionUpdate
+    usage: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class CompactionSkipped:
+    reason: CompactionReason
+    model: str
+    detail: str
+    usage: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class CompactionFailed:
+    reason: CompactionReason
+    model: str
+    error: str
+    usage: dict[str, Any] | None = None
+
+
+CompactionEvent: TypeAlias = (
+    CompactionStarted | CompactionCompleted | CompactionSkipped | CompactionFailed
+)
+AgentEvent: TypeAlias = Message | TextDelta | CompactionEvent
 
 
 @dataclass

@@ -14,6 +14,7 @@ A provider-independent agent SDK with the same query() interface as the Claude A
 - same `query()` / `AssistantMessage` / `TextBlock` shapes as the Claude Agent SDK
 - MCP client tools from initialized stdio or remote sessions (`pip install 'liteagents[mcp]'`)
 - opt-in text streaming, per-client gateway options, and typed initial history
+- opt-in context compaction with pluggable triggers and strategies
 
 ## Installation
 
@@ -210,3 +211,151 @@ Initial history is copied and remains in memory for this client only. When
 `max_turns` is reached during tool use, no final answer is produced: the last
 assistant message has `stop_reason="tool_use"`. Applications should detect this
 instead of delivering tool-planning text as a finished answer.
+
+## Context compaction
+
+Compaction is disabled by default. Enable it to summarize older context while
+keeping recent messages verbatim:
+
+```python
+from liteagents import (
+    CompactionCompleted, CompactionOptions, LiteAgentClient, LiteAgentOptions,
+    RecentTokens, Summarize, TokenThreshold,
+)
+
+options = LiteAgentOptions(
+    model="openai/gpt-5.4-mini",
+    compaction=CompactionOptions(
+        trigger=TokenThreshold(fraction=0.8),
+        strategy=Summarize(
+            # Omit model to summarize with the model selected for this round.
+            model="openai/gpt-5.4-mini",
+            keep=RecentTokens(12_000),
+            max_tokens=2_000,
+            instructions="Preserve decisions, exact identifiers, and unfinished work.",
+        ),
+    ),
+)
+
+async with LiteAgentClient(options=options) as agent:
+    async for event in agent.query("Continue the migration"):
+        if isinstance(event, CompactionCompleted):
+            print(event.tokens_before, event.tokens_after, event.usage)
+
+    result = await agent.compact(instructions="Focus on remaining migration work.")
+```
+
+`CompactionOptions()` defaults to an 80% trigger and `Summarize()`. Use
+`TokenThreshold(tokens=100_000)` for an absolute threshold. Set `trigger=None`
+for manual-only compaction; `agent.compact()` requires configured compaction and
+an idle client. A client rejects overlapping queries and compactions. With a
+router, manual compaction uses the last selected model's budget; before the first
+query, supply `agent.compact(model="provider/model")`. It never calls the router
+or increments the turn counter. The strategy's `model` selects the summarizer.
+
+Automatic checks run **after routing, before every model request**, including
+requests within one tool loop. A known input-budget overflow triggers reduction
+even if an automatic threshold has not been reached. Manual-only configuration
+instead raises `ContextBudgetExceeded`. Compaction calls do not consume
+`max_turns` and do not execute tools. Each attempt makes at most one summary call;
+provider errors propagate without internal tool replay or compaction retry.
+
+The three budgets are independent: `trigger` determines when to compact, `keep`
+targets recent history to retain, and `max_tokens` caps summary output. Cuts
+retain complete tool-call/result groups, so the tail can exceed `keep`. The latest
+human request also survives verbatim, including when older tool rounds within
+that same request are summarized. Previous summaries feed into the next summary.
+System instructions and tool definitions remain outside the replaced history.
+
+Token counts are **estimates**, not billing totals. The default offline counter
+uses serialized request UTF-8 bytes divided by three; it includes messages,
+system instructions, tool schemas, and retained provider blocks. Multimodal and
+provider-specific token accounting can differ. `token_source` identifies the
+counter in events. Inject `token_counter(model, text) -> TokenEstimate` for a
+custom tokenizer; `text` is serialized request/message content, without connection
+credentials. The usable input budget is the model's LiteLLM input limit minus
+`LiteAgentOptions.max_tokens` and `safety_margin` (default 1,024).
+
+For gateway aliases or custom limits, set
+`context_windows={"litellm_proxy/agent": 128_000, "litellm_proxy/summary": 128_000}`
+on `CompactionOptions`. Fractional triggers require a known limit. The summarizer
+also requires a known limit and checks its own input plus output reservation
+before making a request. Absolute triggers can work without a known target
+window, but cannot then enforce that target's maximum. Summary requests inherit
+the client's connection/provider `model_kwargs`, excluding main-turn reasoning
+budgets, structured-output constraints, stop sequences, and native context-management
+settings. `Summarize.model_kwargs` can explicitly override these settings or use a
+separate summarizer connection.
+
+For verbose tool output, use a deterministic strategy that needs no model call:
+
+```python
+from liteagents import PruneToolResults
+
+compaction = CompactionOptions(
+    trigger=TokenThreshold(tokens=60_000),
+    strategy=PruneToolResults(keep=3),  # retain the last three tool results
+)
+```
+
+Pruning replaces older result contents with a marker, preserving calls, IDs,
+error flags, and other provider metadata. Already-pruned or shorter results are
+left alone. It does not archive the removed contents or make them retrievable.
+
+The event stream can include `CompactionStarted`, `CompactionCompleted`,
+`CompactionSkipped`, and `CompactionFailed`. Summary text is context, not an
+ordinary assistant answer or `TextDelta`. A skipped attempt may still have paid
+summary usage. Failure events precede `CompactionError`; its `usage` carries
+reported summary usage when available. Cancellation propagates without committing
+an unfinished compaction. Failed, invalid, stale, or non-shrinking edits never
+replace history or strategy state. If reduction cannot fit a known input budget,
+the SDK raises `ContextBudgetExceeded` before calling the main model.
+
+`agent.history` is a detached copy of **active model context**, including
+`SummaryMessage`s. Yielded messages and router histories are detached as well;
+mutating them does not modify the client's context. Applications own transcript
+storage. To maintain a context mirror when using stateless `query()`, append the
+incoming `UserMessage` first, apply `apply_compaction(messages, event.update)` on
+`CompactionCompleted`, and append completed `UserMessage`/`AssistantMessage`
+events. Do not append text deltas or lifecycle events. This typed mirror has the
+same existing limitation as `agent.history`: unmodeled provider blocks are not
+exported. Inside the live client, retained raw provider blocks are preserved.
+
+Custom strategies implement `async compact(context) -> CompactionResult | None`:
+
+```python
+from liteagents import CompactionResult, CompactionUpdate, ReplacePrefix
+
+class TaskSummary:
+    async def compact(self, context):
+        stop = RecentTokens(8_000).boundary(context)
+        if stop == 0:
+            return None
+        summary = await summarize_for_my_domain(context.messages[:stop])
+        return CompactionResult(
+            update=CompactionUpdate(
+                message_count=len(context.messages),
+                prefix=ReplacePrefix(stop=stop, summary=summary),
+            ),
+            state=context.state,
+        )
+```
+
+`summarize_for_my_domain` above is application-owned. `CompactionContext` provides
+a detached typed snapshot, valid cut boundaries, per-message estimates, selected
+model, input budget, reason, instructions, and optional state. A custom trigger
+implements `should_compact(context) -> bool`. `CompactionUpdate` accepts a prefix
+replacement and/or `ReplaceToolResult` edits indexed against the original
+snapshot. The SDK validates and atomically applies them, retaining original raw
+entries outside the edit. Keep conversation-specific bookkeeping in the result's
+`state`, not on shared strategy/trigger instances; state is copied and committed
+only with a successful update. Custom strategies own their additional model calls
+and should return their usage with the result.
+
+Fusion has independent opt-in `FusionOptions.sidekick_compaction` configuration
+and runtime state. Main-agent policy is not implicitly applied to the sidekick;
+sidekick events remain inside the delegated loop, like its other messages.
+
+This implementation provides portable client-side reduction. Provider-native
+compaction blocks, background scheduling, and durable observational memory are
+not included.

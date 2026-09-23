@@ -88,4 +88,4 @@ async def test_jev_agent_routes_and_queries(mock_anthropic_messages):
     # (mocked) response happened to report back.
     assert mock_anthropic_messages.calls[0]["model"] == "anthropic/claude-opus-4-8"
     assert messages[0].model == "anthropic/claude-opus-4-8"
-    assert agent.history[-1] is messages[0]
+    assert agent.history[-1] == messages[0]

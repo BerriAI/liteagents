@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import aclosing
+from copy import deepcopy
 from typing import Any
 
 import litellm
 
 from ._internal.adapter import extract_response_fields, tool_result_block
+from ._internal.compaction_runtime import CompactionRuntime
 from ._internal.streaming import stream_response
 from .history import ConversationHistory
 from .routers.base import ModelRouter
@@ -29,6 +31,7 @@ async def run_tool_loop(
     tool_choice: dict[str, Any] | None = None,
     stream: bool = False,
     model_kwargs: dict[str, Any] | None = None,
+    compaction: CompactionRuntime | None = None,
 ) -> AsyncGenerator[AgentEvent, None]:
     """Runs model-call -> tool-execution rounds for ONE user turn, until the
     model stops requesting tools or max_turns is hit. Mutates `history` in
@@ -49,8 +52,16 @@ async def run_tool_loop(
         # Snapshot both lists -- history keeps mutating after this point, and
         # a router or caller holding onto `context`/the call kwargs should
         # see the state as of this round, not whatever history grows into.
-        context = TurnContext(prompt=prompt_for_router, history=list(history.messages), turn=turn_index)
+        context = TurnContext(prompt=prompt_for_router, history=deepcopy(history.messages), turn=turn_index)
         model = await router.route(context)
+
+        if compaction is not None:
+            async with aclosing(compaction.run(
+                history=history, model=model, system=system, tools=tools, max_tokens=max_tokens,
+                model_kwargs=model_kwargs,
+            )) as compaction_events:
+                async for compaction_event in compaction_events:
+                    yield compaction_event
 
         request_kwargs = dict(model_kwargs or {})
         if stream:
@@ -77,7 +88,7 @@ async def run_tool_loop(
         assistant_message = history.add_assistant_response(content_dicts, model=response_model or model)
         assistant_message.stop_reason = stop_reason
         assistant_message.usage = usage
-        yield assistant_message
+        yield deepcopy(assistant_message)
 
         if stop_reason != "tool_use":
             return
@@ -100,7 +111,7 @@ async def run_tool_loop(
             except Exception as exc:  # noqa: BLE001 -- a broken tool becomes an error result, not a crash
                 results.append(tool_result_block(block.id, f"Error: {exc}", is_error=True))
 
-        yield history.add_user_tool_results(results)
+        yield deepcopy(history.add_user_tool_results(results))
 
     # max_turns exhausted while the model still wants tools: stop here. The
     # caller already saw the last AssistantMessage (stop_reason "tool_use")
