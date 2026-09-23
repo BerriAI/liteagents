@@ -88,5 +88,11 @@ async def test_real_authenticated_remote_mcp_session(mock_anthropic_messages, pr
             ):
                 await exercise(session, mock_anthropic_messages)
     finally:
-        process.terminate()
-        await asyncio.wait_for(process.wait(), timeout=10)
+        if process.returncode is None:
+            process.terminate()
+        try:
+            await asyncio.wait_for(process.wait(), timeout=10)
+        finally:
+            if process.returncode is None:
+                process.kill()
+                await process.wait()

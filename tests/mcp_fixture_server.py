@@ -42,4 +42,7 @@ if __name__ == "__main__":
                 return
             await app(scope, receive, send)
 
-        uvicorn.run(authenticated, host="127.0.0.1", port=int(sys.argv[1]), log_level="error")
+        # Old MCP SSE handlers can retain a long-lived connection after the
+        # client exits. Bound graceful shutdown of this disposable fixture.
+        uvicorn.run(authenticated, host="127.0.0.1", port=int(sys.argv[1]), log_level="error",
+                    timeout_graceful_shutdown=1)
