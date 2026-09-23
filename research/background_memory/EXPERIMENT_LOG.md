@@ -114,3 +114,94 @@ all these artifacts.
   account invoice. Source, outcomes and failed attempts remain unchanged.
 - v7 reruns short/long matched controls, scaled histories, real source review,
   and the aggressive receipt case with this corrected measurement boundary.
+
+## 2026-09-23 UTC: first v7 checkpoint
+
+- Fresh seed 29111: all five short full-history cases and all five short
+  background-policy cases passed. Both groups made zero observer calls. Total
+  costs were $0.299047 and $0.2955775 respectively; this small stochastic
+  difference is not evidence of a short-context savings advantage.
+- All 88 response-ID hashes in those trials were distinct. CI passed all six
+  Python/MCP combinations at `1c346a6`, including the response-cache controls and
+  a test that rejects a paid request before sending when its reservation exceeds
+  the shared budget.
+
+## 2026-09-23 UTC: v7 observer outage recovery
+
+- Fresh long release, seed 29111, passed all six exact fields after one injected
+  observer failure. The host halted at the bound; the harness explicitly called
+  `compact()` and continued the pending request once at turn index 5.
+- Full/background peak input: 39,092 / 7,720 tokens. Cost: $0.9698395 /
+  $0.76282585. Median turn latency: 1.99 / 2.11 seconds. The recovery's latency
+  and calls are included; this is not an uninterrupted-success claim.
+- Correction from the retained JSON: the full-history cost above is
+  **$0.9698075**. The previously typed $0.9698395 was a transcription error;
+  the background cost and rounded comparison are unchanged.
+
+## 2026-09-23 UTC: v7 long holdouts complete
+
+- All five full-history and all five background-policy long holdouts passed on
+  fresh seed 29111. Combined cost: $4.0418490 / $3.3182627; reduction 17.9%.
+- Peak background input was 7,720 tokens. Inventory savings were modest, and
+  interrupted-transfer memory cost slightly more. Bounded input is the consistent
+  property; cost savings remain workload dependent.
+- Exact late lookup, all twelve incident writes, correction handling, and transfer
+  receipts/balances passed. The explicit release recovery remains separately
+  recorded. Scaled histories and public-source review are still in progress.
+
+## 2026-09-23 UTC: v7 scale results
+
+- Release (68 turns) and late lookup (57 turns) both passed in full and background
+  modes with fresh seed 4013 and response reuse disabled. The memory profile was
+  unchanged from the smaller holdouts.
+- Combined full/background cost: $9.1348720 / $4.3234853 (52.7% lower).
+  Full peaks were 116,655 and 89,091 tokens; background peaks were 7,829 and 7,768.
+- Decision: retain batched working notes with exact retrieval as the measured
+  starting profile; keep strict one-turn scheduling as a separate latency tradeoff.
+
+## 2026-09-23 UTC: v7 public-source review
+
+- Full history and background memory passed all seven Codex source checks.
+  Synchronous summarization answered six and returned null for the note-file
+  size limit. Its failure is retained, with the exact expected/actual fields.
+- Background used five history recovery calls and cost about $0.618 versus
+  $0.509 for full history. This roughly 14k-token workload did not justify
+  memory on price. The report preserves this counterexample to universal savings.
+
+## 2026-09-23 UTC: aggressive receipt regression
+
+- Fresh incident seed 9273 passed with a 4,000-token main budget and 640-token
+  notes. Measured peak was 3,991; all twelve incident
+  writes occurred exactly once. Cost $0.8059708, median
+  turn latency 8.35 seconds.
+- This closes the earlier repeated-read / truncated-note regression without
+  specializing the implementation to incident identifiers or expected answers.
+
+## 2026-09-23 UTC: fresh strict-turn scheduling replication
+
+- Both strict one-turn release trials passed with response reuse disabled.
+  After-response observation: $0.691, 2,385-token peak, 4.90s median. Incoming
+  request observation: $0.701, 2,476-token peak, 3.32s median.
+- Earlier observation hid part of the latency at slightly greater cost. Keep
+  eager scheduling research-only until broader action/tool workloads justify
+  a public policy choice. A strict cap does not promise zero waiting.
+- Fresh Luna-only full-history lookup also passed at about $0.0142. Do not infer
+  that Astra is necessary for these tasks from the observer architecture.
+
+## 2026-09-23 UTC: paid research complete and evidence audit
+
+- Fresh Luna-only Codex review also passed. The final two Luna controls cost
+  $0.0115 and $0.0142; both used full history. The report
+  explicitly avoids claiming these tasks require Astra.
+- Final ledger: 2,833 attempts, $65.19865942 charged/reserved,
+  including $3.4405932 in conservative cancelled-call reservations.
+  No requests remain pending; no more paid runs are queued.
+- Every v7 source/harness digest matches `1c346a6`, and all 941 completed
+  responses with reuse disabled have unique hashes. Aggregate accounting adds
+  all four preliminary probes not represented in individual result artifacts.
+- Keep the PR as an unmerged experiment. The measured 8k/1k/4k starting profile
+  bounds input; strict one-turn scheduling, memory formats and cache placement
+  remain explicit tradeoffs, with no universal quality or price guarantee.
+- Audit scope clarification: the 941-response hash check covers retained v7
+  result artifacts; preliminary probes are included separately in aggregate
+  ledger accounting. No preliminary requests are treated as free budget.

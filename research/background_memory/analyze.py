@@ -6,6 +6,8 @@ import argparse
 import gzip
 import json
 import math
+from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -36,6 +38,7 @@ def summary(result):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", default="research/background_memory/results")
+    parser.add_argument("--ledger", type=Path, help="Optional private ledger; publishes aggregates only")
     args = parser.parse_args()
     root = Path(args.results)
     traces = {p.name: json.loads(p.read_text()) for p in sorted(root.glob("v*.json"))
@@ -44,6 +47,30 @@ def main():
     (root / "summary.json").write_text(json.dumps(rows, indent=2) + "\n")
     packed = json.dumps(traces, separators=(",", ":")).encode()
     (root / "traces.json.gz").write_bytes(gzip.compress(packed, mtime=0))
+    if args.ledger:
+        ledger = json.loads(args.ledger.read_text())
+        ids = [c["id"] for c in ledger]
+        if len(set(ids)) != len(ids):
+            raise ValueError("Ledger request IDs must be unique")
+        traced = {c.get("id") for result in traces.values() for c in result.get("calls", [])}
+        def totals(calls):
+            return {"requests": len(calls), "statuses": dict(Counter(c["status"] for c in calls)),
+                    "charged_or_reserved_usd": sum(c["charged_or_reserved"] for c in calls),
+                    "completed_reported_or_estimated_usd": sum(
+                        c["charged_or_reserved"] for c in calls if c["status"] == "completed"),
+                    "unresolved_reserved_usd": sum(
+                        c["charged_or_reserved"] for c in calls if c["status"] != "completed")}
+        accounting = {
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "authorized_ceiling_usd": 200, "harness_ceiling_usd": 190,
+            "basis": "Gateway reported charges or usage estimates, with full reservations for ambiguous calls; not an independently reconciled invoice.",
+            "all_requests": totals(ledger),
+            "by_model": {model: totals([c for c in ledger if c["model"] == model])
+                         for model in sorted({c["model"] for c in ledger})},
+            "requests_in_result_artifacts": totals([c for c in ledger if c["id"] in traced]),
+            "additional_diagnostics": totals([c for c in ledger if c["id"] not in traced]),
+        }
+        (root / "accounting.json").write_text(json.dumps(accounting, indent=2) + "\n")
     print("| Run | Pass | Cost | Peak input | Cache read | Median / p95 seconds |")
     print("|---|---:|---:|---:|---:|---:|")
     for r in rows:

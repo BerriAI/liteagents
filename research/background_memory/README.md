@@ -129,6 +129,16 @@ comparable. Complete local JSON files can be packaged with:
 python research/background_memory/analyze.py
 ```
 
+To include sanitized budget aggregates from the shared private ledger:
+
+```sh
+python research/background_memory/analyze.py --ledger /absolute/private/directory/ledger.json
+```
+
+The published [accounting snapshot](results/accounting.json) includes preliminary
+diagnostics and cancellation reservations as well as scored trials. The private
+ledger path and credentials are never copied into that snapshot.
+
 Run one paid process at a time; the shared ledger lock is process-local. Do not
 edit SDK or harness Python files during a run: code is imported once, digests are
 frozen at process start, and edits between cases cause a stop. Reusing a result

@@ -83,6 +83,98 @@ local result files to rebuild both artifacts.
   must inspect state before retrying. The live transfer fixture deliberately
   cancels after committing an action to exercise this distinction.
 
+## Corrected v7 validation (fresh seed 29111)
+
+Whole-response reuse is disabled. Settings are 8k main input / 1k notes / 4k
+observation batches, with ordinary working notes and after-response scheduling.
+All ten short trials passed with zero observer calls: full-history cost $0.2990,
+background-policy cost $0.2956. That small difference reflects stochastic outputs,
+not a demonstrated short-context savings advantage. All 88 short-trial response
+identifiers were distinct.
+
+| Workflow | Full / memory cost | Full / memory peak input | Full / memory median seconds | Both pass |
+|---|---:|---:|---:|---:|
+| release | $0.970 / $0.763 | 39,092 / 7,720 | 1.99 / 2.11 | True |
+| inventory | $0.852 / $0.820 | 32,889 / 7,432 | 2.08 / 2.25 | True |
+| incidents | $1.130 / $0.718 | 34,560 / 6,922 | 8.21 / 8.23 | True |
+| lookup | $0.707 / $0.628 | 29,871 / 7,252 | 2.13 / 2.32 | True |
+| workflow | $0.383 / $0.390 | 13,687 / 6,298 | 4.44 / 4.78 | True |
+
+Combined long cost was **$3.3183 versus $4.0418 (17.9% lower)**.
+Memory's largest measured input was 7,720 tokens. These are single-seed paired
+workflows, not confidence intervals. Inventory saved only about 4%, while the
+interrupted-transfer workflow cost slightly more with memory. The full inventory
+baseline cached 92.6% of its input; the observer itself cost only $0.0121. Cache
+invalidation at the main model can dominate the price of the cheaper observer.
+
+The release pair includes a user interruption and one injected observer outage.
+The background run halted at its bound and recovered through one explicit
+application `compact()` then continuation at turn index 5. Its recovery cost and
+latency are included; it is not an uninterrupted-success claim. Incident and
+transfer checks verify actual fixture state and exactly-once actions, in addition
+to the final answer. Late lookup verifies original facts alongside a later
+correction to current state.
+
+### Three-times-longer histories (fresh seed 4013)
+
+The same 8k / 1k / 4k profile is used without a turn cap or artificial user pause.
+
+| Workflow | Turns | Full / memory cost | Full / memory peak input | Full / memory median seconds | Both pass |
+|---|---:|---:|---:|---:|---:|
+| release | 68 | $5.435 / $2.391 | 116,655 / 7,829 | 2.99 / 2.33 | True |
+| lookup | 57 | $3.700 / $1.933 | 89,091 / 7,768 | 2.73 / 2.52 | True |
+
+Both tasks passed their exact checks. Combined cost was $4.3235 versus
+$9.1349, a 52.7% reduction. The larger release case reached 116,655
+tokens with full history while memory remained below 8,000. This supports a
+bounded-input benefit at these horizons; it does not prove perfect recall for
+arbitrary tasks or an indefinitely growing archive.
+
+### Review of actual Codex 0.153.4 source
+
+Nineteen turns cover six public Rust files, followed by seven exact source checks.
+The source is review data, never executed.
+
+| Policy | Correct fields | Cost | Peak input | Median seconds | Recovery calls |
+|---|---:|---:|---:|---:|---:|
+| full | 7/7 | $0.509 | 13,853 | 6.95 | 0 |
+| summary | 6/7 | $0.549 | 7,695 | 7.71 | 0 |
+| background | 7/7 | $0.618 | 7,528 | 7.94 | 5 |
+
+The synchronous-summary answer returned `null` for the note-file size limit;
+its other six fields were correct. Background memory answered all seven fields
+and made five recovery calls. Full history was cheaper and faster than memory on
+this task: reducing a roughly 14k-token context was not a cost win. Source-review
+accuracy and cost are reported together; this is not a broad coding benchmark.
+
+### Strict one-turn and aggressive-budget checks
+
+The following paired release trials share seed 29111, a one-human-turn cap,
+and a one-token observation threshold. Unlike the long holdout above, neither
+injects an observer outage or user interruption; compare these two schedules
+directly, not their cost against that different fault-injection setup.
+
+| One-turn schedule | Pass | Cost | Peak input | Median seconds |
+|---|---:|---:|---:|---:|
+| After response | True | $0.691 | 2,385 | 4.90 |
+| Incoming request | True | $0.701 | 2,476 | 3.32 |
+
+Observing the incoming request hid part of the wait, but did not eliminate it.
+The eager scheduler is a harness-only experiment, not a new public SDK option.
+A separate incident regression with 4k main input / 640-token notes passed all
+12 exactly-once writes at a 3,991-token measured peak ($0.806; 8.35s median).
+This verifies the general completed-call receipt and bounded note-repair fixes.
+
+### Fresh Luna-only controls
+
+- `codex_review_41344`: passed at $0.0115, 14,235 peak tokens.
+- `lookup_long_29111`: passed at $0.0142, 29,872 peak tokens.
+
+Both use full history and disabled gateway response reuse. The same source-review
+and lookup tasks are solved much more cheaply by Luna alone. These experiments
+validate context handling; they do **not** establish that Astra is necessary for
+the task's reasoning. Model choice can dominate the observer optimization.
+
 ## Exploratory comparison (seed 901; response caching not controlled)
 
 Working notes, 8k input budget, 1k note budget, and a 4k observation batch.
@@ -151,12 +243,39 @@ the model will notice a missing fact or retrieve the right evidence. Exact
 lookup, cumulative updates, action checks, interruptions, and failures must all
 be measured; a small prompt and a low bill alone are insufficient success criteria.
 
+## Accounting and final verification
+
+The [aggregate ledger](results/accounting.json) accounts for **$65.1987**
+across 2,833 authorized gateway attempts: $61.7581 in completed
+reported/estimated usage and $3.4406 reserved for three cancelled calls.
+There are no pending requests. Astra accounts for $64.3675; Luna for
+$0.8312. Four preliminary diagnostic requests outside result artifacts
+are included in the ledger total. The $190 harness ceiling remained below the
+user's $200 authorization; the budget was a ceiling, not a spending target.
+
+All 941 completed responses in the retained v7 result artifacts with gateway reuse
+disabled have distinct response ID hashes. Every v7 result's source/harness
+digest matches frozen revision `1c346a6`;
+subsequent changes package results and add aggregate accounting. The SDK checks
+pass 295 tests, Ruff, mypy and the 500-nonblank-line gate, with all six CI
+Python/MCP combinations passing before final results packaging.
+
+The historical artifacts retain 104 scored/aborted/diagnostic run records,
+including seven failed trials and two researcher-aborted trials. Failed baselines
+and obsolete implementations are not removed. These are complete stored result
+records (answers, checks, usage, final notes and configurations), not a capture of
+every wire request or every intermediate note revision.
+
 ## Scope and reproducibility
 
 Exploratory v1–v3 runs used the earlier PR #5 API and mostly a conservative
 bytes/3 counter. Code evolved between those runs; they are diagnostic history,
 not a controlled final comparison. Early v4 also improved truncated-output repair
-and manual rollback; v5 validation uses frozen source. The latest implementation is based on
+and manual rollback. v5 exposed the opaque-block counter problem; v6 fixed it
+and exposed whole-response reuse at the gateway. v7 freezes source digests at
+process start and disables response reuse. Earlier per-case digests describe
+files on disk and should not be treated as proof of the code loaded in a process
+while development was continuing. The latest implementation is based on
 PR #5 commit `8b7c191b5b085d476e541a9c1004c1ffdf7bcb81`, with structured token
 counts and request-usage anchors. Results record source digests and complete
 parameters. Token caps refer to SDK estimates; small discrepancies from gateway
