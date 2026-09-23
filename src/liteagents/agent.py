@@ -189,7 +189,7 @@ class LiteAgentClient:
         except BaseException as exc:
             if checkpoint is not None and isinstance(self._compaction, BackgroundMemoryRuntime):
                 await self._compaction.rollback(self._history, checkpoint)
-            if isinstance(exc, CompactionError):
+            if isinstance(exc, CompactionError) and completed:
                 exc.usage = TokenUsage.combine([e.usage for e in completed if e.usage is not None]
                                                + ([exc.usage] if exc.usage is not None else []))
             raise
