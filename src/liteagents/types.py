@@ -145,7 +145,7 @@ class WireTool(TypedDict):
     input_schema: dict[str, Any]
 
 
-CompactionReason: TypeAlias = Literal["manual", "threshold", "budget"]
+CompactionReason: TypeAlias = Literal["manual", "threshold", "budget", "background"]
 
 
 @dataclass(frozen=True)

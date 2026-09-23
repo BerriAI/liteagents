@@ -93,6 +93,37 @@ class ConversationHistory:
     def snapshot(self) -> ConversationHistory:
         return deepcopy(self)
 
+    def extend_from(self, source: ConversationHistory, start: int) -> None:
+        """Archive newly appended entries without reconstructing provider blocks."""
+        self._raw.extend(deepcopy(source._raw[start:]))
+        self.messages.extend(deepcopy(source.messages[start:]))
+        self.version += 1
+
+    def finish_interrupted_tools(self, completed: list[dict[str, Any]] | None = None) -> None:
+        """Close outstanding calls after interruption without claiming execution succeeded.
+
+        Completed results from an interrupted batch are retained. For the rest,
+        execution may have started; the continuation must inspect state before retrying.
+        """
+        pending: dict[str, None] = {}
+        for message in self.messages:
+            if isinstance(message.content, str):
+                continue
+            for block in message.content:
+                if isinstance(block, ToolUseBlock):
+                    pending[block.id] = None
+                elif isinstance(block, ToolResultBlock):
+                    pending.pop(block.tool_use_id, None)
+        if not pending:
+            return
+        results = deepcopy(completed or [])
+        recorded = {result["tool_use_id"] for result in results}
+        results.extend(adapter.tool_result_block(
+            call_id, "Tool execution was interrupted. Its outcome is unknown; inspect current "
+            "state before retrying a potentially completed action.", is_error=True,
+        ) for call_id in pending if call_id not in recorded)
+        self.add_user_tool_results(results)
+
     def compacted(self, update: CompactionUpdate) -> ConversationHistory:
         """Validate an edit proposal and build a candidate without changing this history."""
         if update.message_count != len(self.messages):

@@ -1,0 +1,743 @@
+{
+  "label": "v2/background/inventory_long_719",
+  "mode": "background",
+  "scenario": "inventory_long_719",
+  "checks": [
+    {
+      "turn": 6,
+      "expected": {
+        "north": 138,
+        "south": 79
+      },
+      "actual": {
+        "north": 138,
+        "south": 79
+      },
+      "fields": {
+        "north": true,
+        "south": true
+      },
+      "passed": true
+    },
+    {
+      "turn": 12,
+      "expected": {
+        "north": 133,
+        "south": 82
+      },
+      "actual": {
+        "north": 133,
+        "south": 82
+      },
+      "fields": {
+        "north": true,
+        "south": true
+      },
+      "passed": true
+    }
+  ],
+  "turns": [
+    {
+      "index": 0,
+      "seconds": 2.1607681659515947,
+      "answer": "Starting inventory recorded: north=135, south=82. Only explicit stock instructions will change it.",
+      "active_messages": 2,
+      "transcript_messages": 2
+    },
+    {
+      "index": 1,
+      "seconds": 1.9241188340820372,
+      "answer": "Transferred 1 unit north to south. Inventory: north=134, south=83.",
+      "active_messages": 4,
+      "transcript_messages": 4
+    },
+    {
+      "index": 2,
+      "seconds": 2.03894533298444,
+      "answer": "Received 6 units at north. Inventory: north=140, south=83.",
+      "active_messages": 6,
+      "transcript_messages": 6
+    },
+    {
+      "index": 3,
+      "seconds": 1.6693601249717176,
+      "answer": "Shipped 2 units from south. Inventory: north=140, south=81.",
+      "active_messages": 8,
+      "transcript_messages": 8
+    },
+    {
+      "index": 4,
+      "seconds": 1.9608321250416338,
+      "answer": "Transferred 5 units from north to south. Inventory: north=135, south=86.",
+      "active_messages": 7,
+      "transcript_messages": 10
+    },
+    {
+      "index": 5,
+      "seconds": 3.9599989580456167,
+      "answer": "Received 3 units at north. Inventory: north=138, south=86.",
+      "active_messages": 5,
+      "transcript_messages": 12
+    },
+    {
+      "index": 6,
+      "seconds": 2.0734294580761343,
+      "answer": "{\"north\":138,\"south\":79}",
+      "active_messages": 7,
+      "transcript_messages": 14
+    },
+    {
+      "index": 7,
+      "seconds": 3.3484424999915063,
+      "answer": "Transferred 7 units from north to south. Inventory: north=131, south=86.",
+      "active_messages": 7,
+      "transcript_messages": 16
+    },
+    {
+      "index": 8,
+      "seconds": 1.7445077920565382,
+      "answer": "Received 5 units at north. Inventory: north=136, south=86.",
+      "active_messages": 5,
+      "transcript_messages": 18
+    },
+    {
+      "index": 9,
+      "seconds": 1.6181273749098182,
+      "answer": "Shipped 4 units from south. Inventory: north=136, south=82.",
+      "active_messages": 7,
+      "transcript_messages": 20
+    },
+    {
+      "index": 10,
+      "seconds": 2.0099214580841362,
+      "answer": "Transferred 6 units from north to south. Inventory: north=130, south=88.",
+      "active_messages": 7,
+      "transcript_messages": 22
+    },
+    {
+      "index": 11,
+      "seconds": 4.345710000023246,
+      "answer": "Received 3 units at north. Inventory: north=133, south=88.",
+      "active_messages": 5,
+      "transcript_messages": 24
+    },
+    {
+      "index": 12,
+      "seconds": 1.8541316660121083,
+      "answer": "{\"north\":133,\"south\":82}",
+      "active_messages": 7,
+      "transcript_messages": 26
+    },
+    {
+      "index": 13,
+      "seconds": 1.8033219589851797,
+      "answer": "Transferred 4 units from north to south. Inventory: north=129, south=86.",
+      "active_messages": 7,
+      "transcript_messages": 28
+    },
+    {
+      "index": 14,
+      "seconds": 4.386701250099577,
+      "answer": "Received 6 units at north. Inventory: north=135, south=86.",
+      "active_messages": 5,
+      "transcript_messages": 30
+    },
+    {
+      "index": 15,
+      "seconds": 2.305629250011407,
+      "answer": "Shipped 6 units from south. Inventory: north=135, south=80.",
+      "active_messages": 7,
+      "transcript_messages": 32
+    },
+    {
+      "index": 16,
+      "seconds": 3.8394883329747245,
+      "answer": "Transferred 5 units from north to south. Inventory: north=130, south=85.",
+      "active_messages": 7,
+      "transcript_messages": 34
+    }
+  ],
+  "compactions": [
+    {
+      "before": 6416,
+      "after": 5404
+    },
+    {
+      "before": 6944,
+      "after": 3900
+    },
+    {
+      "before": 6985,
+      "after": 5478
+    },
+    {
+      "before": 7019,
+      "after": 3991
+    },
+    {
+      "before": 7065,
+      "after": 5555
+    },
+    {
+      "before": 7095,
+      "after": 4087
+    },
+    {
+      "before": 7173,
+      "after": 5669
+    },
+    {
+      "before": 7210,
+      "after": 4207
+    },
+    {
+      "before": 7281,
+      "after": 5782
+    }
+  ],
+  "failures": [
+    "Memory response exceeded max_memory_tokens"
+  ],
+  "configuration": {
+    "output": "research/background_memory/results",
+    "version": "v2",
+    "modes": "full,background",
+    "scenario": "inventory_long",
+    "seed": 719,
+    "heldout": false,
+    "turns": 0,
+    "context": 6000,
+    "memory": 640,
+    "observation": 12000,
+    "min_observation": 1024,
+    "user_pause": 0
+  },
+  "source_digest": "a323a43bf6c09cca48d82a36c70ed0499e4779d72eab23a3e44a6dfb97dd0ccc",
+  "error": "ContextBudgetExceeded: Memory could not make room; original history is intact: Memory response exceeded max_memory_tokens",
+  "final_memory": "Objective:\n- Track stock movements for north and south inventories.\n\nConstraints:\n- Initial inventory: north=135, south=82 [message:1].\n- Only explicit stock instructions change inventory; telemetry is unrelated [message:1][message:27].\n- Acknowledge each update briefly unless JSON is requested [message:1].\n\nDecisions and reasons:\n- Ignore telemetry lines in stock calculations because they are explicitly unrelated [message:1][message:27].\n\nVerified progress and evidence:\n- Transfer of 1 unit from north to south completed [message:3].\n- Received 6 new units at north [message:5].\n- Shipped 2 units from south [message:7].\n- Transfer of 5 units from north to south completed [message:9]; assistant confirmed completion [message:10].\n- Received 3 new units at north; inventory became north=138, south=86 [message:11][message:12].\n- Shipped 7 units from south; inventory became north=138, south=79 [message:13][message:14].\n- Transfer of 7 units from north to south completed; inventory became north=131, south=86 [message:15][message:16].\n- Received 5 new units at north; inventory became north=136, south=86 [message:17][message:18].\n- Shipped 4 units from south; inventory became north=136, south=82 [message:19][message:20].\n- Transfer of 6 units from north to south completed; inventory became north=130, south=88 [message:21][message:22].\n- Received 3 new units at north; inventory became north=133, south=88 [message:23][message:24].\n- Shipped 6 units from south; inventory became north=133, south=82. JSON response was provided as requested [message:25][message:26].\n- Transfer of 4 units from north to south completed; current inventory is north=129, south=86 [message:27][message:28].\n\nOpen work:\n- Await further explicit stock instructions.",
+  "calls": [
+    {
+      "id": "97605bc4-296e-41a2-b616-c6d69b2f4944",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0024800000000000004,
+      "reserve": 0.18830000000000002,
+      "status": "completed",
+      "request_bytes": 819,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 128,
+        "output_tokens": 24
+      },
+      "estimated_cost": 0.0024800000000000004,
+      "header_cost": "0.0024800000000000004",
+      "seconds": 2.1567670409567654
+    },
+    {
+      "id": "d819cbe4-be64-48de-8eac-5c680b1948f0",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.01978,
+      "reserve": 0.28154,
+      "status": "completed",
+      "request_bytes": 5481,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 22,
+        "cache_creation_input_tokens": 1492
+      },
+      "estimated_cost": 0.01978,
+      "header_cost": "0.01978",
+      "seconds": 1.91973758302629
+    },
+    {
+      "id": "8d20817b-d0d5-4119-b5a1-e194f196062f",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.019584499999999998,
+      "reserve": 0.37390000000000007,
+      "status": "completed",
+      "request_bytes": 10099,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 21,
+        "cache_creation_input_tokens": 1361,
+        "cache_read_input_tokens": 1492
+      },
+      "estimated_cost": 0.0195845,
+      "header_cost": "0.019584499999999998",
+      "seconds": 2.034749291022308
+    },
+    {
+      "id": "4dad11de-9118-4495-b3c1-956b7ee14bd9",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0006014999999999999,
+      "reserve": 0.0053296,
+      "status": "completed",
+      "request_bytes": 6348,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 147,
+        "cache_creation_input_tokens": 1698
+      },
+      "estimated_cost": 0.0006014999999999999,
+      "header_cost": "0.0006014999999999999",
+      "seconds": 2.2452283749589697
+    },
+    {
+      "id": "8c0a131a-7e24-4d01-a549-e81d2a7077e1",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.021033,
+      "reserve": 0.46606000000000003,
+      "status": "completed",
+      "request_bytes": 14707,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 22,
+        "cache_creation_input_tokens": 1364,
+        "cache_read_input_tokens": 2853
+      },
+      "estimated_cost": 0.021033000000000003,
+      "header_cost": "0.021033",
+      "seconds": 1.6650214169640094
+    },
+    {
+      "id": "5a51b377-c26b-43dd-bd1c-e0ea7a66316e",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.057705000000000006,
+      "reserve": 0.49812000000000006,
+      "status": "completed",
+      "request_bytes": 16310,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 23,
+        "cache_creation_input_tokens": 4522
+      },
+      "estimated_cost": 0.057705000000000006,
+      "header_cost": "0.057705000000000006",
+      "seconds": 1.9553486249642447
+    },
+    {
+      "id": "eaef8328-0093-41f0-881f-4aaa78bbbd65",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0009952,
+      "reserve": 0.0072968,
+      "status": "completed",
+      "request_bytes": 11266,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 173,
+        "cache_creation_input_tokens": 3148
+      },
+      "estimated_cost": 0.0009952,
+      "header_cost": "0.0009952",
+      "seconds": 4.163860916974954
+    },
+    {
+      "id": "9925e7e1-53a4-4c41-9545-541b9410992e",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.04088000000000001,
+      "reserve": 0.4078800000000001,
+      "status": "completed",
+      "request_bytes": 11798,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 21,
+        "cache_creation_input_tokens": 3184
+      },
+      "estimated_cost": 0.04088,
+      "header_cost": "0.04088000000000001",
+      "seconds": 1.7458386248908937
+    },
+    {
+      "id": "12bafdb8-2dc8-4db7-959b-d1fc0a4771ea",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0007109,
+      "reserve": 0.0054692000000000005,
+      "status": "completed",
+      "request_bytes": 6697,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 219,
+        "cache_creation_input_tokens": 1790
+      },
+      "estimated_cost": 0.0007109,
+      "header_cost": "0.0007109",
+      "seconds": 2.4787100000539795
+    },
+    {
+      "id": "e84788d8-aa96-47d7-aa97-d0278ecb5f8c",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.021039,
+      "reserve": 0.5012,
+      "status": "completed",
+      "request_bytes": 16464,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 13,
+        "cache_creation_input_tokens": 1374,
+        "cache_read_input_tokens": 3184
+      },
+      "estimated_cost": 0.021039,
+      "header_cost": "0.021039",
+      "seconds": 2.0687737909611315
+    },
+    {
+      "id": "db11dc60-8bed-4f0f-a26b-2b576a6d9db7",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.058255,
+      "reserve": 0.50254,
+      "status": "completed",
+      "request_bytes": 16531,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 23,
+        "cache_creation_input_tokens": 4566
+      },
+      "estimated_cost": 0.05825500000000001,
+      "header_cost": "0.058255",
+      "seconds": 3.343412082991563
+    },
+    {
+      "id": "1c46df1e-8df3-4414-9b94-50c6f6c1b091",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0011373499999999999,
+      "reserve": 0.0073916,
+      "status": "completed",
+      "request_bytes": 11503,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 280,
+        "cache_creation_input_tokens": 3203
+      },
+      "estimated_cost": 0.0011373499999999999,
+      "header_cost": "0.0011373499999999999",
+      "seconds": 3.547006207983941
+    },
+    {
+      "id": "ccf627d9-ac3d-4a28-b3b9-66c777bc67de",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0416675,
+      "reserve": 0.4133200000000001,
+      "status": "completed",
+      "request_bytes": 12070,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 21,
+        "cache_creation_input_tokens": 3247
+      },
+      "estimated_cost": 0.0416675,
+      "header_cost": "0.0416675",
+      "seconds": 1.5286794579587877
+    },
+    {
+      "id": "2c6db5fc-d59b-4bfa-ab76-d53c2c7b3e84",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00080275,
+      "reserve": 0.0055772,
+      "status": "completed",
+      "request_bytes": 6967,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 282,
+        "cache_creation_input_tokens": 1855
+      },
+      "estimated_cost": 0.00080275,
+      "header_cost": "0.00080275",
+      "seconds": 3.0265395829919726
+    },
+    {
+      "id": "a28886b5-9c82-4e2a-89b0-fd794c78b478",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.021452,
+      "reserve": 0.50548,
+      "status": "completed",
+      "request_bytes": 16678,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 22,
+        "cache_creation_input_tokens": 1366,
+        "cache_read_input_tokens": 3247
+      },
+      "estimated_cost": 0.021452,
+      "header_cost": "0.021452",
+      "seconds": 1.6133702079532668
+    },
+    {
+      "id": "f7426e7f-82ec-42d3-a05a-fb5525300185",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0591925,
+      "reserve": 0.50714,
+      "status": "completed",
+      "request_bytes": 16761,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 23,
+        "cache_creation_input_tokens": 4641
+      },
+      "estimated_cost": 0.05919250000000001,
+      "header_cost": "0.0591925",
+      "seconds": 2.001899082912132
+    },
+    {
+      "id": "2f3d4a92-7f0c-4088-be0f-83cc167ecc74",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0012046000000000001,
+      "reserve": 0.0074824,
+      "status": "completed",
+      "request_bytes": 11730,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 320,
+        "cache_creation_input_tokens": 3280
+      },
+      "estimated_cost": 0.0012046000000000001,
+      "header_cost": "0.0012046000000000001",
+      "seconds": 3.7233282499946654
+    },
+    {
+      "id": "c7afdb12-a871-4fa5-af66-8521470c5ef8",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.042667500000000004,
+      "reserve": 0.41906000000000004,
+      "status": "completed",
+      "request_bytes": 12357,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 21,
+        "cache_creation_input_tokens": 3327
+      },
+      "estimated_cost": 0.0426675,
+      "header_cost": "0.042667500000000004",
+      "seconds": 2.619198750006035
+    },
+    {
+      "id": "f0a69f77-d441-4439-accf-6d4589253e50",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0009258000000000001,
+      "reserve": 0.0056932,
+      "status": "completed",
+      "request_bytes": 7257,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 366,
+        "cache_creation_input_tokens": 1944
+      },
+      "estimated_cost": 0.0009258,
+      "header_cost": "0.0009258000000000001",
+      "seconds": 3.6522126250201836
+    },
+    {
+      "id": "7f1d7083-6ce1-4199-b8db-dd1b8f150190",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0211195,
+      "reserve": 0.51236,
+      "status": "completed",
+      "request_bytes": 17022,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 13,
+        "cache_creation_input_tokens": 1369,
+        "cache_read_input_tokens": 3327
+      },
+      "estimated_cost": 0.021119500000000003,
+      "header_cost": "0.0211195",
+      "seconds": 1.849140707985498
+    },
+    {
+      "id": "caa79aca-6d66-4265-bda3-e6785d977cdc",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.060105000000000006,
+      "reserve": 0.51402,
+      "status": "completed",
+      "request_bytes": 17105,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 23,
+        "cache_creation_input_tokens": 4714
+      },
+      "estimated_cost": 0.060105000000000006,
+      "header_cost": "0.060105000000000006",
+      "seconds": 1.7972823330201209
+    },
+    {
+      "id": "3523c68b-96ae-43eb-aa9b-c7bdc0223310",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0013817999999999999,
+      "reserve": 0.0076204,
+      "status": "completed",
+      "request_bytes": 12075,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 451,
+        "cache_creation_input_tokens": 3360
+      },
+      "estimated_cost": 0.0013817999999999999,
+      "header_cost": "0.0013817999999999999",
+      "seconds": 4.599318999913521
+    },
+    {
+      "id": "cd68d811-a5bd-4356-ae62-a343f15140b0",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.04375500000000001,
+      "reserve": 0.42626000000000003,
+      "status": "completed",
+      "request_bytes": 12717,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 21,
+        "cache_creation_input_tokens": 3414
+      },
+      "estimated_cost": 0.043755,
+      "header_cost": "0.04375500000000001",
+      "seconds": 1.5775364160072058
+    },
+    {
+      "id": "80d10ebf-ec77-4690-8356-0c6cdc02c27d",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00106955,
+      "reserve": 0.005838,
+      "status": "completed",
+      "request_bytes": 7619,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 466,
+        "cache_creation_input_tokens": 2039
+      },
+      "estimated_cost": 0.0010695499999999998,
+      "header_cost": "0.00106955",
+      "seconds": 5.110982999904081
+    },
+    {
+      "id": "8612488d-653c-41ad-b149-a883b5ffa6a9",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0215815,
+      "reserve": 0.51852,
+      "status": "completed",
+      "request_bytes": 17330,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 22,
+        "cache_creation_input_tokens": 1363,
+        "cache_read_input_tokens": 3414
+      },
+      "estimated_cost": 0.0215815,
+      "header_cost": "0.0215815",
+      "seconds": 2.3016381250927225
+    },
+    {
+      "id": "5dcd1abb-2e48-489a-afe8-8677974dbd3a",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.061367500000000005,
+      "reserve": 0.52076,
+      "status": "completed",
+      "request_bytes": 17442,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 23,
+        "cache_creation_input_tokens": 4815
+      },
+      "estimated_cost": 0.061367500000000005,
+      "header_cost": "0.061367500000000005",
+      "seconds": 2.606003166991286
+    },
+    {
+      "id": "ea864668-3a4a-485e-92ae-2e0b6d13b1b2",
+      "label": "v2/background/inventory_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00153455,
+      "reserve": 0.0077596,
+      "status": "completed",
+      "request_bytes": 12423,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 556,
+        "cache_creation_input_tokens": 3467
+      },
+      "estimated_cost": 0.00153455,
+      "header_cost": "0.00153455",
+      "seconds": 5.318202832946554
+    }
+  ],
+  "known_cost": 0.6240285,
+  "charged_or_reserved": 0.6240285,
+  "main_peak_input_tokens": 4818,
+  "median_turn_seconds": 2.03894533298444,
+  "passed": false
+}

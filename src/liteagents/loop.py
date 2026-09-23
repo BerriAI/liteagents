@@ -11,6 +11,7 @@ import litellm
 
 from ._internal.adapter import extract_response_fields, tool_result_block
 from ._internal.compaction_runtime import CompactionRuntime
+from ._internal.memory_runtime import BackgroundMemoryRuntime
 from ._internal.streaming import stream_response
 from .compaction.tokens import TokenCountRequest
 from .history import ConversationHistory
@@ -32,7 +33,7 @@ async def run_tool_loop(
     tool_choice: dict[str, Any] | None = None,
     stream: bool = False,
     model_kwargs: dict[str, Any] | None = None,
-    compaction: CompactionRuntime | None = None,
+    compaction: CompactionRuntime | BackgroundMemoryRuntime | None = None,
 ) -> AsyncGenerator[AgentEvent, None]:
     """Runs model-call -> tool-execution rounds for ONE user turn, until the
     model stops requesting tools or max_turns is hit. Mutates `history` in
@@ -45,9 +46,9 @@ async def run_tool_loop(
     context.prompt so this is invisible; a memoizing router can key on
     context.turn to make repeat rounds within one turn cheap and stable.
     """
-    if len({tool.name for tool in tools}) != len(tools):
+    available_tools = [*tools, *compaction.tools()] if isinstance(compaction, BackgroundMemoryRuntime) else tools
+    if len({tool.name for tool in available_tools}) != len(available_tools):
         raise ValueError("Tool names must be unique; use prefixes for MCP tools from different servers")
-    anthropic_tools = [t.to_anthropic_tool() for t in tools] or None
 
     for _round in range(max_turns):
         # Snapshot both lists -- history keeps mutating after this point, and
@@ -63,6 +64,13 @@ async def run_tool_loop(
             )) as compaction_events:
                 async for compaction_event in compaction_events:
                     yield compaction_event
+
+        # Recovery is useful only after eviction. Tiny conversations retain the
+        # same request/tool surface as the ordinary full-history path.
+        request_tools = available_tools if (
+            isinstance(compaction, BackgroundMemoryRuntime) and compaction.memory.version
+        ) else tools
+        anthropic_tools = [t.to_anthropic_tool() for t in request_tools] or None
 
         request_kwargs = dict(model_kwargs or {})
         if stream:
@@ -97,6 +105,11 @@ async def run_tool_loop(
         assistant_message = history.add_assistant_response(content_dicts, model=response_model or model)
         assistant_message.stop_reason = stop_reason
         assistant_message.usage = usage.to_dict() if usage is not None else None
+        if isinstance(compaction, BackgroundMemoryRuntime):
+            for memory_event in compaction.after_message(
+                history, complete_turn=stop_reason != "tool_use", pending_tools=stop_reason == "tool_use",
+            ):
+                yield memory_event
         yield deepcopy(assistant_message)
 
         if stop_reason != "tool_use":
@@ -109,18 +122,28 @@ async def run_tool_loop(
         # Sequential, not gathered concurrently -- a deliberate simplicity
         # choice (easier to reason about and log), not an oversight.
         results: list[dict[str, Any]] = []
-        for block in tool_use_blocks:
-            tool = find_tool(tools, block.name)
-            if tool is None:
-                results.append(tool_result_block(block.id, f"Error: no tool named {block.name!r}", is_error=True))
-                continue
-            try:
-                output = await tool.execute(block.input)
-                results.append(tool_result_block(block.id, output))
-            except Exception as exc:  # noqa: BLE001 -- a broken tool becomes an error result, not a crash
-                results.append(tool_result_block(block.id, f"Error: {exc}", is_error=True))
+        try:
+            for block in tool_use_blocks:
+                tool = find_tool(request_tools, block.name)
+                if tool is None:
+                    results.append(tool_result_block(block.id, f"Error: no tool named {block.name!r}", is_error=True))
+                    continue
+                try:
+                    output = await tool.execute(block.input)
+                    results.append(tool_result_block(block.id, output))
+                except Exception as exc:  # noqa: BLE001 -- a broken tool becomes an error result, not a crash
+                    results.append(tool_result_block(block.id, f"Error: {exc}", is_error=True))
+        except BaseException:
+            history.finish_interrupted_tools(results)
+            if isinstance(compaction, BackgroundMemoryRuntime):
+                compaction.capture(history)
+            raise
 
-        yield deepcopy(history.add_user_tool_results(results))
+        tool_results = history.add_user_tool_results(results)
+        if isinstance(compaction, BackgroundMemoryRuntime):
+            for memory_event in compaction.after_message(history):
+                yield memory_event
+        yield deepcopy(tool_results)
 
     # max_turns exhausted while the model still wants tools: stop here. The
     # caller already saw the last AssistantMessage (stop_reason "tool_use")

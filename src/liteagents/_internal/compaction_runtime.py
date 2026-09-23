@@ -13,6 +13,7 @@ from ..compaction import (
     TriggerContext,
     context_window,
 )
+from ..compaction.background import BackgroundMemoryOptions
 from ..history import ConversationHistory
 from ..tools import Tool
 from ..types import (
@@ -26,6 +27,7 @@ from ..types import (
 from ..usage import TokenUsage
 from .compaction_context import HistorySnapshot, RuntimeContext, SummaryService, TokenMeasurements
 from .context_tokens import ContextTokens
+from .memory_runtime import BackgroundMemoryRuntime
 
 
 class CompactionRuntime:
@@ -34,6 +36,9 @@ class CompactionRuntime:
         self.state: Any = None
         self.context_tokens = ContextTokens()
         self.last_model: str | None = None
+
+    async def cancel_pending(self) -> None:
+        """Synchronous strategies have no background work to cancel."""
 
     async def run(
         self, *, history: ConversationHistory, model: str, system: str | None,
@@ -109,3 +114,11 @@ class CompactionRuntime:
                 exc.usage = usage
                 raise
             raise CompactionError(str(exc), usage=usage) from exc
+
+
+def make_compaction_runtime(
+    options: CompactionOptions | BackgroundMemoryOptions | None,
+) -> CompactionRuntime | BackgroundMemoryRuntime | None:
+    if isinstance(options, BackgroundMemoryOptions):
+        return BackgroundMemoryRuntime(options)
+    return CompactionRuntime(options) if options is not None else None

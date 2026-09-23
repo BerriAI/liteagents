@@ -1,6 +1,7 @@
 """Portable, pluggable context reduction. Strategies propose edits; the SDK commits them."""
 
 from ..types import TokenEstimate
+from .background import BackgroundMemoryOptions, MemorySnapshot
 from .base import (
     CompactionContext,
     CompactionError,
@@ -25,6 +26,7 @@ from .triggers import AllOf, AnyOf, TokenThreshold, TurnThreshold, all_of, any_o
 __all__ = [
     "AllOf",
     "AnyOf",
+    "BackgroundMemoryOptions",
     "Cascade",
     "CompactionContext",
     "CompactionError",
@@ -33,6 +35,7 @@ __all__ = [
     "CompactionStrategy",
     "CompactionTrigger",
     "ContextBudgetExceeded",
+    "MemorySnapshot",
     "PruneToolResults",
     "RecentTokens",
     "Summarize",

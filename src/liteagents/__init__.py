@@ -32,6 +32,7 @@ from .compaction import (
     cascade,
     heuristic_tokens,
 )
+from .compaction.background import BackgroundMemoryOptions, MemorySnapshot
 from .fusion import FusionOptions
 from .history import apply_compaction
 from .pr_risk_agent import PRRiskAgent, PullRequest, RiskAssessment
@@ -68,6 +69,7 @@ __all__ = [
     "AllOf",
     "AnyOf",
     "AssistantMessage",
+    "BackgroundMemoryOptions",
     "BatchUpdate",
     "Cascade",
     "CompactionCompleted",
@@ -92,6 +94,7 @@ __all__ = [
     "JevTier",
     "LiteAgentClient",
     "LiteAgentOptions",
+    "MemorySnapshot",
     "Message",
     "ModelRouter",
     "PRRiskAgent",

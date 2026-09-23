@@ -3,8 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ._internal.compaction_runtime import CompactionRuntime
+from ._internal.compaction_runtime import make_compaction_runtime
 from .compaction import CompactionOptions
+from .compaction.background import BackgroundMemoryOptions
 from .history import ConversationHistory
 from .loop import run_tool_loop
 from .routers.base import StaticRouter
@@ -21,7 +22,7 @@ class FusionOptions:
     sidekick_model: str
     sidekick_max_turns: int = 10
     sidekick_max_tokens: int = 4096
-    sidekick_compaction: CompactionOptions | None = None
+    sidekick_compaction: CompactionOptions | BackgroundMemoryOptions | None = None
 
 
 class DelegateToSidekickTool(Tool):
@@ -72,8 +73,11 @@ class FusionRuntime:
         self._model_kwargs = dict(model_kwargs or {})
         self._delegate_tool = DelegateToSidekickTool(self)
         self._delegation_count = 0
-        self._compaction = (CompactionRuntime(options.sidekick_compaction)
-                            if options.sidekick_compaction is not None else None)
+        self._compaction = make_compaction_runtime(options.sidekick_compaction)
+
+    async def close(self) -> None:
+        if self._compaction is not None:
+            await self._compaction.cancel_pending()
 
     def tools_for_main_loop(self) -> list[Tool]:
         return [*self._sidekick_tools, self._delegate_tool]

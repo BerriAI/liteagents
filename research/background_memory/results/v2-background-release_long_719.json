@@ -1,0 +1,1167 @@
+{
+  "label": "v2/background/release_long_719",
+  "mode": "background",
+  "scenario": "release_long_719",
+  "checks": [
+    {
+      "turn": 23,
+      "expected": {
+        "owner": "Nadia",
+        "region": "eu-west-2",
+        "retries": 5,
+        "deadline": "Friday 16:00 UTC",
+        "rollback_token": "restore-728146139",
+        "storage": "Postgres"
+      },
+      "actual": {
+        "owner": "Nadia",
+        "region": "eu-west-2",
+        "retries": 5,
+        "deadline": "Friday 16:00 UTC",
+        "rollback_token": "restore-728146139",
+        "storage": "Postgres"
+      },
+      "fields": {
+        "owner": true,
+        "region": true,
+        "retries": true,
+        "deadline": true,
+        "rollback_token": true,
+        "storage": true
+      },
+      "passed": true
+    }
+  ],
+  "turns": [
+    {
+      "index": 0,
+      "seconds": 2.0717009579529986,
+      "answer": "Noted: owner Luis; region eu-west-2; retries 3; deadline Friday 16:00 UTC; rollback token restore-728146139; storage Postgres.",
+      "active_messages": 2,
+      "transcript_messages": 2
+    },
+    {
+      "index": 1,
+      "seconds": 2.981904458021745,
+      "answer": "Acknowledged as reference telemetry only; the release plan remains unchanged.",
+      "active_messages": 4,
+      "transcript_messages": 4
+    },
+    {
+      "index": 2,
+      "seconds": 2.0752277499996126,
+      "answer": "Redis is proposed but neither approved nor applied; storage remains Postgres.",
+      "active_messages": 6,
+      "transcript_messages": 6
+    },
+    {
+      "index": 3,
+      "seconds": 2.5642495000502095,
+      "answer": "Acknowledged: this telemetry is reference-only and does not change the release plan.",
+      "active_messages": 5,
+      "transcript_messages": 8
+    },
+    {
+      "index": 4,
+      "seconds": 3.301793541992083,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 10
+    },
+    {
+      "index": 5,
+      "seconds": 3.2295755830127746,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 12
+    },
+    {
+      "index": 6,
+      "seconds": 2.5591182078933343,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 14
+    },
+    {
+      "index": 7,
+      "seconds": 2.857602332951501,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 16
+    },
+    {
+      "index": 8,
+      "seconds": 2.804951916099526,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 18
+    },
+    {
+      "index": 9,
+      "seconds": 4.821663124952465,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 20
+    },
+    {
+      "index": 10,
+      "seconds": 1.7949416660703719,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 22
+    },
+    {
+      "index": 11,
+      "seconds": 2.3298016668995842,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 24
+    },
+    {
+      "index": 12,
+      "seconds": 2.937243042048067,
+      "answer": "Acknowledged: Nadia supersedes Luis as release owner, retries are now 5, and all other release-plan details remain unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 26
+    },
+    {
+      "index": 13,
+      "seconds": 3.122924124938436,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 28
+    },
+    {
+      "index": 14,
+      "seconds": 2.7235122920246795,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 30
+    },
+    {
+      "index": 15,
+      "seconds": 2.6067201249534264,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 32
+    },
+    {
+      "index": 16,
+      "seconds": 3.0125499999849126,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 34
+    },
+    {
+      "index": 17,
+      "seconds": 4.738183125038631,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 36
+    },
+    {
+      "index": 18,
+      "seconds": 2.1803906250279397,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 38
+    },
+    {
+      "index": 19,
+      "seconds": 3.571633249986917,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 40
+    },
+    {
+      "index": 20,
+      "seconds": 2.4707810409599915,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 42
+    },
+    {
+      "index": 21,
+      "seconds": 4.076191958039999,
+      "answer": "Acknowledged: the Redis proposal is rejected, and Postgres remains the release plan\u2019s storage choice.",
+      "active_messages": 5,
+      "transcript_messages": 44
+    },
+    {
+      "index": 22,
+      "seconds": 3.0897692090366036,
+      "answer": "Acknowledged: this telemetry is reference-only, and the release plan remains unchanged.",
+      "active_messages": 5,
+      "transcript_messages": 46
+    },
+    {
+      "index": 23,
+      "seconds": 2.1933288330910727,
+      "answer": "{\n  \"owner\": \"Nadia\",\n  \"region\": \"eu-west-2\",\n  \"retries\": 5,\n  \"deadline\": \"Friday 16:00 UTC\",\n  \"rollback_token\": \"restore-728146139\",\n  \"storage\": \"Postgres\"\n}",
+      "active_messages": 7,
+      "transcript_messages": 48
+    }
+  ],
+  "compactions": [
+    {
+      "before": 6277,
+      "after": 4808
+    },
+    {
+      "before": 6807,
+      "after": 4866
+    },
+    {
+      "before": 6862,
+      "after": 4874
+    },
+    {
+      "before": 6877,
+      "after": 4887
+    },
+    {
+      "before": 6885,
+      "after": 4886
+    },
+    {
+      "before": 6887,
+      "after": 4884
+    },
+    {
+      "before": 6886,
+      "after": 4887
+    },
+    {
+      "before": 6886,
+      "after": 4884
+    },
+    {
+      "before": 6884,
+      "after": 4886
+    },
+    {
+      "before": 6895,
+      "after": 4896
+    },
+    {
+      "before": 6913,
+      "after": 4928
+    },
+    {
+      "before": 6929,
+      "after": 4964
+    },
+    {
+      "before": 6967,
+      "after": 4962
+    },
+    {
+      "before": 6961,
+      "after": 4974
+    },
+    {
+      "before": 6975,
+      "after": 4986
+    },
+    {
+      "before": 6987,
+      "after": 4974
+    },
+    {
+      "before": 6977,
+      "after": 4980
+    },
+    {
+      "before": 6984,
+      "after": 4992
+    },
+    {
+      "before": 6999,
+      "after": 5006
+    },
+    {
+      "before": 7017,
+      "after": 5023
+    }
+  ],
+  "failures": [],
+  "configuration": {
+    "output": "research/background_memory/results",
+    "version": "v2",
+    "modes": "background",
+    "scenario": "release_long",
+    "seed": 719,
+    "heldout": false,
+    "turns": 0,
+    "context": 6000,
+    "memory": 640,
+    "observation": 12000,
+    "min_observation": 1024,
+    "user_pause": 0
+  },
+  "source_digest": "db14e04d19880d3d6c572362c3239f636481ee0c7169c643f6278404641dfc57",
+  "final_memory": "Objective:\n- Maintain a release plan for Nadia.\n\nConstraints:\n- Region: `eu-west-2`\n- Retries: `5` (supersedes prior value `3`)\n- Deadline: Friday 16:00 UTC\n- Rollback token: `restore-728146139`\n- Storage: Postgres\n- Release owner: Nadia; Luis is superseded [message:25]\n\nDecisions and reasons:\n- Redis proposal was explicitly interrupted and rejected; Postgres remains the storage choice [message:43]\u2013[message:44].\n- Telemetry is reference-only and does not change the release plan [message:3], [message:5]\u2013[message:21], [message:23]\u2013[message:25], [message:27], [message:29], [message:31], [message:33], [message:35], [message:37], [message:39], [message:41], [message:43].\n\nVerified progress and evidence:\n- Release-plan details were recorded and acknowledged [message:1]\u2013[message:2].\n- Nadia is the release owner and retries are `5`; prior owner Luis and retries value `3` are superseded [message:25].\n- Assistant acknowledged that Redis is rejected and Postgres remains the release plan\u2019s storage choice [message:44].\n\nOpen work:\n- No additional release-plan actions or status updates provided.",
+  "calls": [
+    {
+      "id": "10bff5c8-2970-4cf5-a6df-9ef7dbb5163b",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0035,
+      "reserve": 0.18926000000000004,
+      "status": "completed",
+      "request_bytes": 867,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 150,
+        "output_tokens": 40
+      },
+      "estimated_cost": 0.0035,
+      "header_cost": "0.0035",
+      "seconds": 2.068801625049673
+    },
+    {
+      "id": "2e4bcd91-2e50-4a95-81e2-2c9915ccd064",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0251175,
+      "reserve": 0.31026000000000004,
+      "status": "completed",
+      "request_bytes": 6917,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 17,
+        "cache_creation_input_tokens": 1939
+      },
+      "estimated_cost": 0.0251175,
+      "header_cost": "0.0251175",
+      "seconds": 2.9783179159276187
+    },
+    {
+      "id": "5695a22e-7d8e-4a3e-b360-ad916c4427cc",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0249065,
+      "reserve": 0.4302,
+      "status": "completed",
+      "request_bytes": 12914,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 18,
+        "cache_creation_input_tokens": 1763,
+        "cache_read_input_tokens": 1939
+      },
+      "estimated_cost": 0.0249065,
+      "header_cost": "0.0249065",
+      "seconds": 2.067479584016837
+    },
+    {
+      "id": "336e9302-079e-4f1f-b435-9f6750ceb921",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00077295,
+      "reserve": 0.005914,
+      "status": "completed",
+      "request_bytes": 7809,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 198,
+        "cache_creation_input_tokens": 2139
+      },
+      "estimated_cost": 0.0007729499999999999,
+      "header_cost": "0.00077295",
+      "seconds": 3.142747459001839
+    },
+    {
+      "id": "f004edd4-5dd4-42f3-824a-8228d4173cb1",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.05101750000000001,
+      "reserve": 0.4624400000000001,
+      "status": "completed",
+      "request_bytes": 14526,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 3999
+      },
+      "estimated_cost": 0.05101750000000001,
+      "header_cost": "0.05101750000000001",
+      "seconds": 1.487104041967541
+    },
+    {
+      "id": "e1a05bce-8d42-48b6-a8f9-0748d37fd177",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0008084499999999999,
+      "reserve": 0.006016,
+      "status": "completed",
+      "request_bytes": 8064,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 218,
+        "cache_creation_input_tokens": 2185
+      },
+      "estimated_cost": 0.0008084499999999999,
+      "header_cost": "0.0008084499999999999",
+      "seconds": 3.1932856660569087
+    },
+    {
+      "id": "e6a40b1e-7a74-4d0b-91b5-58a6d59cc3e0",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051467500000000006,
+      "reserve": 0.46602000000000005,
+      "status": "completed",
+      "request_bytes": 14705,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4035
+      },
+      "estimated_cost": 0.051467500000000006,
+      "header_cost": "0.051467500000000006",
+      "seconds": 1.5916585830273107
+    },
+    {
+      "id": "05400c6c-66b8-46f0-bf82-b50855d38f60",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0008484999999999999,
+      "reserve": 0.0060912,
+      "status": "completed",
+      "request_bytes": 8252,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 242,
+        "cache_creation_input_tokens": 2230
+      },
+      "estimated_cost": 0.0008485000000000001,
+      "header_cost": "0.0008484999999999999",
+      "seconds": 3.011324500082992
+    },
+    {
+      "id": "3db15d43-4f1c-4b66-82d5-f9ba709d9e31",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051417500000000005,
+      "reserve": 0.46654000000000007,
+      "status": "completed",
+      "request_bytes": 14731,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4031
+      },
+      "estimated_cost": 0.05141750000000001,
+      "header_cost": "0.051417500000000005",
+      "seconds": 1.80324595910497
+    },
+    {
+      "id": "f0c870dc-d805-458e-a9b0-fe907abece8e",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0008360499999999999,
+      "reserve": 0.0061068,
+      "status": "completed",
+      "request_bytes": 8291,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 231,
+        "cache_creation_input_tokens": 2233
+      },
+      "estimated_cost": 0.0008360499999999999,
+      "header_cost": "0.0008360499999999999",
+      "seconds": 2.6980181670514867
+    },
+    {
+      "id": "1c864ef8-563a-4578-843b-7e3b23900c44",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051505,
+      "reserve": 0.46734000000000003,
+      "status": "completed",
+      "request_bytes": 14771,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4038
+      },
+      "estimated_cost": 0.05150500000000001,
+      "header_cost": "0.051505",
+      "seconds": 1.6585192499915138
+    },
+    {
+      "id": "6b83474f-9dbf-4371-bfc9-451493d74171",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0008460999999999999,
+      "reserve": 0.006114,
+      "status": "completed",
+      "request_bytes": 8309,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 240,
+        "cache_creation_input_tokens": 2230
+      },
+      "estimated_cost": 0.0008461,
+      "header_cost": "0.0008460999999999999",
+      "seconds": 2.7416892499895766
+    },
+    {
+      "id": "223fe4eb-5df3-4b14-bd19-1c741b87c179",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051505,
+      "reserve": 0.46724000000000004,
+      "status": "completed",
+      "request_bytes": 14766,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4038
+      },
+      "estimated_cost": 0.05150500000000001,
+      "header_cost": "0.051505",
+      "seconds": 1.768893292057328
+    },
+    {
+      "id": "5a3c1ca1-e61b-49ed-94b7-61816632fe28",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0008471500000000001,
+      "reserve": 0.0061184,
+      "status": "completed",
+      "request_bytes": 8320,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 239,
+        "cache_creation_input_tokens": 2239
+      },
+      "estimated_cost": 0.0008471500000000001,
+      "header_cost": "0.0008471500000000001",
+      "seconds": 2.6918200419750065
+    },
+    {
+      "id": "d56c29b3-b54a-4ce4-8c21-95274fc9775f",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.05151750000000001,
+      "reserve": 0.46712000000000004,
+      "status": "completed",
+      "request_bytes": 14760,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4039
+      },
+      "estimated_cost": 0.05151750000000001,
+      "header_cost": "0.05151750000000001",
+      "seconds": 1.8756119169993326
+    },
+    {
+      "id": "9ec1dab9-e83e-492c-a345-617c72eb1ffb",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0008424999999999999,
+      "reserve": 0.006112,
+      "status": "completed",
+      "request_bytes": 8304,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 237,
+        "cache_creation_input_tokens": 2230
+      },
+      "estimated_cost": 0.0008425,
+      "header_cost": "0.0008424999999999999",
+      "seconds": 3.418474541977048
+    },
+    {
+      "id": "4177a3c8-5be5-4ec4-9a30-32401b06fd24",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051605000000000005,
+      "reserve": 0.46730000000000005,
+      "status": "completed",
+      "request_bytes": 14769,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4046
+      },
+      "estimated_cost": 0.051605000000000005,
+      "header_cost": "0.051605000000000005",
+      "seconds": 3.2740884999511763
+    },
+    {
+      "id": "9ab81511-8543-4ec7-97aa-96de6a2b37be",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00083515,
+      "reserve": 0.0061148,
+      "status": "completed",
+      "request_bytes": 8311,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 229,
+        "cache_creation_input_tokens": 2239
+      },
+      "estimated_cost": 0.00083515,
+      "header_cost": "0.00083515",
+      "seconds": 2.6092026659753174
+    },
+    {
+      "id": "3788a37e-1cc5-43ba-84f4-5e69295a0f8d",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051542500000000005,
+      "reserve": 0.4671600000000001,
+      "status": "completed",
+      "request_bytes": 14762,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4041
+      },
+      "estimated_cost": 0.051542500000000005,
+      "header_cost": "0.051542500000000005",
+      "seconds": 1.7906922498950735
+    },
+    {
+      "id": "0f4b4220-2b26-48cc-9a52-bf57439a4112",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00084545,
+      "reserve": 0.0061156,
+      "status": "completed",
+      "request_bytes": 8313,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 238,
+        "cache_creation_input_tokens": 2237
+      },
+      "estimated_cost": 0.00084545,
+      "header_cost": "0.00084545",
+      "seconds": 2.565025083022192
+    },
+    {
+      "id": "11314ac7-16bf-4a12-9ad5-7e6e3e728cf1",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051542500000000005,
+      "reserve": 0.46728000000000003,
+      "status": "completed",
+      "request_bytes": 14768,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4041
+      },
+      "estimated_cost": 0.051542500000000005,
+      "header_cost": "0.051542500000000005",
+      "seconds": 1.5458322920603678
+    },
+    {
+      "id": "2cef7945-f90f-4b42-8f01-cec5a422ba7c",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00084235,
+      "reserve": 0.0061172,
+      "status": "completed",
+      "request_bytes": 8317,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 235,
+        "cache_creation_input_tokens": 2239
+      },
+      "estimated_cost": 0.00084235,
+      "header_cost": "0.00084235",
+      "seconds": 2.488204334047623
+    },
+    {
+      "id": "949d0da4-8992-4c79-aab9-e41624bbee65",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.052117500000000004,
+      "reserve": 0.4678800000000001,
+      "status": "completed",
+      "request_bytes": 14798,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 30,
+        "cache_creation_input_tokens": 4047
+      },
+      "estimated_cost": 0.05211750000000001,
+      "header_cost": "0.052117500000000004",
+      "seconds": 1.9848265410400927
+    },
+    {
+      "id": "0cfc8159-127c-4925-9d93-a4104a4ba47b",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00086465,
+      "reserve": 0.006118,
+      "status": "completed",
+      "request_bytes": 8319,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 254,
+        "cache_creation_input_tokens": 2237
+      },
+      "estimated_cost": 0.00086465,
+      "header_cost": "0.00086465",
+      "seconds": 2.8149202920030802
+    },
+    {
+      "id": "5006b8c8-6970-49b6-8b99-4dc4ea2878c7",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.051980000000000005,
+      "reserve": 0.46982000000000007,
+      "status": "completed",
+      "request_bytes": 14895,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4076
+      },
+      "estimated_cost": 0.05198000000000001,
+      "header_cost": "0.051980000000000005",
+      "seconds": 2.2867541250307113
+    },
+    {
+      "id": "af32a72e-b475-4215-91aa-7138577d2202",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00092835,
+      "reserve": 0.0061624,
+      "status": "completed",
+      "request_bytes": 8430,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 300,
+        "cache_creation_input_tokens": 2271
+      },
+      "estimated_cost": 0.00092835,
+      "header_cost": "0.00092835",
+      "seconds": 3.252437875024043
+    },
+    {
+      "id": "ea77d823-f98f-42ff-8eeb-2334b9a8d284",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.052167500000000006,
+      "reserve": 0.4719400000000001,
+      "status": "completed",
+      "request_bytes": 15001,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4091
+      },
+      "estimated_cost": 0.052167500000000006,
+      "header_cost": "0.052167500000000006",
+      "seconds": 1.752041041967459
+    },
+    {
+      "id": "5e018933-3ccd-4d17-bb7e-529beae91557",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00093125,
+      "reserve": 0.0062092,
+      "status": "completed",
+      "request_bytes": 8547,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 297,
+        "cache_creation_input_tokens": 2297
+      },
+      "estimated_cost": 0.00093125,
+      "header_cost": "0.00093125",
+      "seconds": 2.7011442499933764
+    },
+    {
+      "id": "5070897d-4daf-461e-a9ff-8eb11161e49f",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.052242500000000004,
+      "reserve": 0.4718200000000001,
+      "status": "completed",
+      "request_bytes": 14995,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4097
+      },
+      "estimated_cost": 0.05224250000000001,
+      "header_cost": "0.052242500000000004",
+      "seconds": 1.6526657909853384
+    },
+    {
+      "id": "066ed686-13e9-4410-bdd5-602722629a0e",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00095355,
+      "reserve": 0.006204,
+      "status": "completed",
+      "request_bytes": 8534,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 316,
+        "cache_creation_input_tokens": 2295
+      },
+      "estimated_cost": 0.0009535500000000001,
+      "header_cost": "0.00095355",
+      "seconds": 3.1180425410857424
+    },
+    {
+      "id": "ff13b248-d6fa-4c25-88cf-616448e6f99d",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.05246750000000001,
+      "reserve": 0.47252000000000005,
+      "status": "completed",
+      "request_bytes": 15030,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4115
+      },
+      "estimated_cost": 0.052467500000000014,
+      "header_cost": "0.05246750000000001",
+      "seconds": 1.543121249997057
+    },
+    {
+      "id": "eee372e1-0455-4ae8-8720-e40a02d9a8ee",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0009785,
+      "reserve": 0.0062236,
+      "status": "completed",
+      "request_bytes": 8583,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 332,
+        "cache_creation_input_tokens": 2318
+      },
+      "estimated_cost": 0.0009785,
+      "header_cost": "0.0009785",
+      "seconds": 3.3817257919581607
+    },
+    {
+      "id": "3371ac13-40f2-438a-b3c3-3bdb1092da20",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.052667500000000006,
+      "reserve": 0.47328000000000003,
+      "status": "completed",
+      "request_bytes": 15068,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4131
+      },
+      "estimated_cost": 0.05266750000000001,
+      "header_cost": "0.052667500000000006",
+      "seconds": 2.894864207948558
+    },
+    {
+      "id": "b4c3bb5e-ff01-492d-9d2a-cbc7bc43c5c5",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00095965,
+      "reserve": 0.006236,
+      "status": "completed",
+      "request_bytes": 8614,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 314,
+        "cache_creation_input_tokens": 2329
+      },
+      "estimated_cost": 0.00095965,
+      "header_cost": "0.00095965",
+      "seconds": 3.0241379590006545
+    },
+    {
+      "id": "13db86bc-0943-4228-b712-681c18f726d0",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.052555000000000004,
+      "reserve": 0.47256000000000004,
+      "status": "completed",
+      "request_bytes": 15032,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4122
+      },
+      "estimated_cost": 0.05255500000000001,
+      "header_cost": "0.052555000000000004",
+      "seconds": 2.044952833093703
+    },
+    {
+      "id": "9592fd0a-7671-48dc-8daf-2f97edafcf10",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00096195,
+      "reserve": 0.006222,
+      "status": "completed",
+      "request_bytes": 8579,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 318,
+        "cache_creation_input_tokens": 2319
+      },
+      "estimated_cost": 0.00096195,
+      "header_cost": "0.00096195",
+      "seconds": 3.3070307089947164
+    },
+    {
+      "id": "71c2a133-cd20-4265-9d32-85b152866410",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.0525675,
+      "reserve": 0.47292000000000006,
+      "status": "completed",
+      "request_bytes": 15050,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4123
+      },
+      "estimated_cost": 0.0525675,
+      "header_cost": "0.0525675",
+      "seconds": 2.304363084025681
+    },
+    {
+      "id": "c5204551-38c5-4a2f-b86a-d397f4fe2d8b",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00098505,
+      "reserve": 0.0062272000000000004,
+      "status": "completed",
+      "request_bytes": 8592,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 336,
+        "cache_creation_input_tokens": 2325
+      },
+      "estimated_cost": 0.00098505,
+      "header_cost": "0.00098505",
+      "seconds": 3.22553408308886
+    },
+    {
+      "id": "f312a887-1e0c-489d-b8cc-90b6ec4ef238",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.052667500000000006,
+      "reserve": 0.47364000000000006,
+      "status": "completed",
+      "request_bytes": 15086,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4131
+      },
+      "estimated_cost": 0.05266750000000001,
+      "header_cost": "0.052667500000000006",
+      "seconds": 1.5434892500052229
+    },
+    {
+      "id": "3e975171-fd8c-47ae-aeb4-3bc00638dc33",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.0009791000000000001,
+      "reserve": 0.0062404,
+      "status": "completed",
+      "request_bytes": 8625,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 330,
+        "cache_creation_input_tokens": 2330
+      },
+      "estimated_cost": 0.0009791000000000001,
+      "header_cost": "0.0009791000000000001",
+      "seconds": 2.9747018750058487
+    },
+    {
+      "id": "c29c5b30-e7ac-42fd-b8bb-3ef753a11297",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.053105000000000006,
+      "reserve": 0.47444000000000003,
+      "status": "completed",
+      "request_bytes": 15126,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 24,
+        "cache_creation_input_tokens": 4150
+      },
+      "estimated_cost": 0.053105000000000006,
+      "header_cost": "0.053105000000000006",
+      "seconds": 2.6397752499906346
+    },
+    {
+      "id": "6d6d26ef-679c-4a1a-a177-e71fc687ef31",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00099795,
+      "reserve": 0.0062528,
+      "status": "completed",
+      "request_bytes": 8656,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 343,
+        "cache_creation_input_tokens": 2343
+      },
+      "estimated_cost": 0.0009979499999999998,
+      "header_cost": "0.00099795",
+      "seconds": 4.0040279580280185
+    },
+    {
+      "id": "9c8cf8ac-b313-4ebf-86ec-69f250d8fc52",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.053192500000000004,
+      "reserve": 0.47552000000000005,
+      "status": "completed",
+      "request_bytes": 15180,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 20,
+        "cache_creation_input_tokens": 4173
+      },
+      "estimated_cost": 0.053192500000000004,
+      "header_cost": "0.053192500000000004",
+      "seconds": 1.719159791013226
+    },
+    {
+      "id": "7cf1f07a-d880-458a-a2a2-3a6e28a56cbf",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-5.6-luna",
+      "charged_or_reserved": 0.00099095,
+      "reserve": 0.0062752,
+      "status": "completed",
+      "request_bytes": 8712,
+      "max_tokens": 640,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 333,
+        "cache_creation_input_tokens": 2363
+      },
+      "estimated_cost": 0.00099095,
+      "header_cost": "0.00099095",
+      "seconds": 4.3798430419992656
+    },
+    {
+      "id": "743c990f-ea23-4b2f-afd9-14130af9daac",
+      "label": "v2/background/release_long_719",
+      "model": "openai/gpt-6-astra",
+      "charged_or_reserved": 0.008090499999999999,
+      "reserve": 0.48218000000000005,
+      "status": "completed",
+      "request_bytes": 15513,
+      "max_tokens": 1200,
+      "http_status": 200,
+      "usage": {
+        "input_tokens": 3,
+        "output_tokens": 64,
+        "cache_creation_input_tokens": 55,
+        "cache_read_input_tokens": 4173
+      },
+      "estimated_cost": 0.0080905,
+      "header_cost": "0.008090499999999999",
+      "seconds": 2.1894036249723285
+    }
+  ],
+  "known_cost": 1.1213201000000002,
+  "charged_or_reserved": 1.1213201000000002,
+  "main_peak_input_tokens": 4231,
+  "median_turn_seconds": 2.8312771245255135,
+  "passed": true
+}
