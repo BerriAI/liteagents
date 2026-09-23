@@ -46,7 +46,7 @@ module = [
     "liteagents._internal.context_tokens",
     "liteagents._internal.validation",
     "liteagents.usage",
-    "tests.typecheck_compaction",
+    "tests.typecheck.*",
 ]
 disallow_untyped_defs = true
 disallow_any_generics = true
