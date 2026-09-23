@@ -259,7 +259,7 @@ async def test_no_reduction_for_oversized_input_never_calls_main_model(mock_anth
 
 
 async def test_unknown_window_requires_metadata_for_fraction(monkeypatch, mock_anthropic_messages):
-    monkeypatch.setattr("liteagents.compaction.litellm.get_model_info", lambda model: {})
+    monkeypatch.setattr("litellm.get_model_info", lambda model: {})
     options = LiteAgentOptions(model="unknown", compaction=policy(trigger=TokenThreshold(fraction=0.8)))
     with pytest.raises(CompactionError, match="Unknown context window"):
         _ = [event async for event in query(prompt="hi", options=options)]
@@ -467,7 +467,7 @@ async def test_manual_only_oversized_context_does_not_automatically_compact(mock
 
 
 async def test_absolute_threshold_can_use_unknown_target_with_explicit_summary_window(monkeypatch, mock_anthropic_messages):
-    monkeypatch.setattr("liteagents.compaction.litellm.get_model_info", lambda model: {})
+    monkeypatch.setattr("litellm.get_model_info", lambda model: {})
     mock_anthropic_messages.push(text_response("summary", model="summary"))
     mock_anthropic_messages.push(text_response("done", model="unknown"))
     options = LiteAgentOptions(model="unknown", compaction=policy(context_windows={"summary": 100_000}))
