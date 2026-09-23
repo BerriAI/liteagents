@@ -112,6 +112,7 @@ class Gateway:
             record["estimated_cost"] = (input_tokens * input_rate + output_tokens * output_rate
                                         + cache_tokens * cache_rate + creation_tokens * input_rate * 1.25)
             record["header_cost"] = response.headers.get("x-litellm-response-cost")
+            record["response_cache_hit"] = response.headers.get("x-litellm-cache-hit")
             actual = float(record["header_cost"]) if record["header_cost"] is not None else record["estimated_cost"]
             if not usage or actual <= 0:
                 actual = reserve  # missing accounting must never create free budget

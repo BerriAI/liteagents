@@ -557,3 +557,27 @@ async def test_manual_compaction_returns_replayable_batch_for_multiple_observati
         result = await client.compact()
         assert client.memory.version > 1
         assert replay_events(history, [result]) == client.history
+
+
+async def test_output_truncation_gets_one_same_source_repair_with_usage(monkeypatch):
+    requests = []
+    async def provider(**kwargs):
+        if kwargs["model"] == "memory":
+            requests.append(kwargs)
+            response = text_response("partial state" if len(requests) == 1 else "Verified current state", model="memory")
+            if len(requests) == 1:
+                response["stop_reason"] = "max_tokens"
+            return response
+        return text_response("answer " * 200, model="main")
+
+    monkeypatch.setattr("litellm.anthropic_messages", provider)
+    async with LiteAgentClient(options=LiteAgentOptions(
+        model="main", compaction=memory_options(max_recent_turns=1),
+    )) as client:
+        await collect(client, "first")
+        events = await collect(client, "second")
+        result = next(e for e in events if isinstance(e, CompactionCompleted))
+        assert len(result.usage.stages) == 2
+        assert requests[0]["messages"] == requests[1]["messages"]
+        assert "incomplete" in requests[1]["system"]
+        assert client.memory.notes == "Verified current state"

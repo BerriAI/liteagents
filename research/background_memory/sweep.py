@@ -11,6 +11,9 @@ from pathlib import Path
 def matrix(phase):
     common = ["--context", "8000", "--memory", "1000", "--min-observation", "4000"]
     if phase == "explore":
+        yield "v4-receipts", "background", "incidents_long", ["--context", "4000", "--memory", "640"]
+        for case in ["release_long", "incidents_long", "workflow_long"]:
+            yield "v4-control", "full", case, []
         # Matched controls first. Keep the same seed across policy comparisons.
         yield "v4-control", "full,summary", "inventory_long", []
         yield "v4-control", "full,summary", "lookup_long", []

@@ -111,18 +111,20 @@ async def observe(
         if usage is not None:
             attempts.append(usage)
         notes = "\n".join(b.get("text", "") for b in content if b.get("type") == "text").strip()
-        if stop_reason != "end_turn" or not notes:
+        if stop_reason not in {"end_turn", "max_tokens"} or (not notes and stop_reason == "end_turn"):
             raise CompactionError("Memory response was incomplete or empty", usage=combined_usage(attempts))
         counted = options.token_counter(options.model, TokenCountRequest(({"role": "user", "content": notes},))).tokens
-        if counted <= options.max_memory_tokens:
+        if notes and stop_reason == "end_turn" and counted <= options.max_memory_tokens:
             return Observation(MemorySnapshot(request.base_version + 1, request.processed_through, notes),
                                combined_usage(attempts))
         if attempt == 0:
             # Provider output tokens and the caller's counter need not agree.
             # One bounded retry uses the SAME source events, never a truncated
             # draft; coverage and original history stay unchanged until success.
-            target_bytes = max(1, int(len(notes.encode()) * options.max_memory_tokens / counted * 0.7))
-            system = (request.system + f"\nYour previous notes exceeded the working-state budget. "
+            target_bytes = max(1, min(options.max_memory_tokens,
+                int(len(notes.encode()) * options.max_memory_tokens / max(counted, 1) * 0.7)
+                if notes else options.max_memory_tokens))
+            system = (request.system + f"\nYour previous notes were incomplete or exceeded the working-state budget. "
                       f"Return at most {target_bytes} UTF-8 bytes, consolidating current state and "
                       "replacing resolved details with source references.")
             serialized = TokenCountRequest(({"role": "user", "content": request.text},), system)
@@ -132,7 +134,7 @@ async def observe(
                 budget = min(budget, window - options.max_memory_tokens - options.safety_margin)
             if options.token_counter(options.model, serialized).tokens > budget:
                 break
-    raise CompactionError("Memory response exceeded max_memory_tokens", usage=combined_usage(attempts))
+    raise CompactionError("Memory response remained incomplete or exceeded max_memory_tokens", usage=combined_usage(attempts))
 
 
 

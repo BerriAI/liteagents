@@ -39,6 +39,7 @@ def parsed_json(text):
 
 
 async def run_case(gateway, scenario, mode, args):
+    gateway.fail_memory = False
     windows = {MAIN: 922_000, MEMORY: 922_000}
     policy = None
     if mode == "background":
@@ -73,6 +74,7 @@ async def run_case(gateway, scenario, mode, args):
             for index, step in enumerate(scenario.steps):
                 if index == scenario.failed_memory_step:
                     gateway.fail_memory = True
+                interrupted_before = any(getattr(tool, "interrupted", False) for tool in scenario.tools)
                 started = time.monotonic()
                 answers = []
                 try:
@@ -87,7 +89,7 @@ async def run_case(gateway, scenario, mode, args):
                             elif isinstance(event, CompactionFailed):
                                 result["failures"].append(event.error)
                 except asyncio.CancelledError:
-                    if scenario.name.startswith("workflow_") and any(
+                    if scenario.name.startswith("workflow_") and not interrupted_before and any(
                         getattr(tool, "interrupted", False) for tool in scenario.tools
                     ):
                         result.setdefault("interruptions", []).append(index)
