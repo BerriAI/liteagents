@@ -13,7 +13,7 @@ from pathlib import Path
 
 import litellm
 from gateway import MAIN, MEMORY, Gateway
-from policies import JSON_STATE, TERSE_STATE, delta_observer
+from policies import JSON_STATE, TERSE_STATE, delta_observer, eager_input_scheduler
 from scenarios import SetStatus, scenarios
 
 from liteagents import (
@@ -164,6 +164,9 @@ async def main(args):
     gateway.layout, gateway.stable_notes = args.layout, args.stable_notes
     from liteagents._internal import memory_runtime
     original_observer = memory_runtime.observe
+    original_start = memory_runtime.BackgroundMemoryRuntime._start
+    if args.schedule == "eager_input":
+        memory_runtime.BackgroundMemoryRuntime._start = eager_input_scheduler(original_start)
     if args.style == "delta":
         memory_runtime.observe = delta_observer
     original = litellm.anthropic_messages
@@ -184,6 +187,7 @@ async def main(args):
     finally:
         litellm.anthropic_messages = original
         memory_runtime.observe = original_observer
+        memory_runtime.BackgroundMemoryRuntime._start = original_start
         await gateway.close()
 
 
@@ -201,6 +205,7 @@ if __name__ == "__main__":
     parser.add_argument("--memory", type=int, default=1200)
     parser.add_argument("--observation", type=int, default=12000)
     parser.add_argument("--min-observation", type=int, default=1024)
+    parser.add_argument("--schedule", choices=["after_response", "eager_input"], default="after_response")
     parser.add_argument("--style", choices=["working", "json", "terse", "delta"], default="working")
     parser.add_argument("--layout", choices=["prefix", "before_current_request"], default="prefix")
     parser.add_argument("--stable-notes", action="store_true")

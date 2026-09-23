@@ -93,6 +93,9 @@ private repositories are sent to the research gateway.
   wire-layout and metadata experiments for cache behavior.
 - `--user-pause`: explicit time for the observer while the simulated user reads.
   This delay is excluded from turn latency and must be reported in comparisons.
+- `--schedule after_response|eager_input`: whether observation can include the
+  incoming request while the main model responds; publication still preserves it
+  verbatim. This is a research scheduling experiment.
 - `--scale`: multiply long-workload length. `--heldout` injects interruption and
   observer failure into the release workflow. Seeds change identifiers and facts.
 
@@ -105,7 +108,7 @@ with their license and provenance in `fixtures/`. It checks current gateway
 eligibility, reset semantics, read-only history, search behavior and exact limits.
 The code is passed as review evidence and is never executed.
 
-Serial matrices are available through `sweep.py --phase explore|holdout|scale`.
+Serial matrices are available through `sweep.py --phase explore|pipeline|holdout|scale`.
 Use a fresh `--seed` for holdouts and the same private ledger directory across
 phases. The report explains why the exploratory versions are not all directly
 comparable. Complete local JSON files can be packaged with:

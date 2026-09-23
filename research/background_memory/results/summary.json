@@ -1,0 +1,3017 @@
+[
+  {
+    "label": "v1/background/release_long_719",
+    "passed": true,
+    "cost": 1.10924675,
+    "peak_main_input": 4361,
+    "main_cache_read_fraction": 0.09342575450983769,
+    "median_turn_seconds": 4.409661207988393,
+    "p95_turn_seconds": 6.344441374996677,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 21,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": null,
+    "source_digest": null,
+    "research_digest": null
+  },
+  {
+    "label": "v1/background/release_short_719",
+    "passed": true,
+    "cost": 0.061626400000000005,
+    "peak_main_input": 976,
+    "main_cache_read_fraction": 0.0,
+    "median_turn_seconds": 2.874929584097117,
+    "p95_turn_seconds": 6.746662124991417,
+    "turns": 7,
+    "main_calls": 7,
+    "observer_calls": 4,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": null,
+    "source_digest": null,
+    "research_digest": null
+  },
+  {
+    "label": "v1/full/release_long_719",
+    "passed": true,
+    "cost": 0.9655635,
+    "peak_main_input": 39054,
+    "main_cache_read_fraction": 0.9197680690399137,
+    "median_turn_seconds": 1.9815006664721295,
+    "p95_turn_seconds": 3.8671564999967813,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": null,
+    "source_digest": null,
+    "research_digest": null
+  },
+  {
+    "label": "v1/full/release_short_719",
+    "passed": true,
+    "cost": 0.04166,
+    "peak_main_input": 722,
+    "main_cache_read_fraction": 0.0,
+    "median_turn_seconds": 2.2100032919552177,
+    "p95_turn_seconds": 3.8934413749957457,
+    "turns": 7,
+    "main_calls": 7,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": null,
+    "source_digest": null,
+    "research_digest": null
+  },
+  {
+    "label": "v2/background/inventory_long_719",
+    "passed": false,
+    "cost": 0.6240285,
+    "peak_main_input": 4818,
+    "main_cache_read_fraction": 0.2745094966463988,
+    "median_turn_seconds": 2.03894533298444,
+    "p95_turn_seconds": 4.386701250099577,
+    "turns": 17,
+    "main_calls": 17,
+    "observer_calls": 10,
+    "recovery_calls": 0,
+    "error": "ContextBudgetExceeded: Memory could not make room; original history is intact: Memory response exceeded max_memory_tokens",
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 138,
+          "south": 79
+        },
+        "actual": {
+          "north": 138,
+          "south": 79
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 133,
+          "south": 82
+        },
+        "actual": {
+          "north": 133,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [
+      "Memory response exceeded max_memory_tokens"
+    ],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v2",
+      "modes": "full,background",
+      "scenario": "inventory_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "a323a43bf6c09cca48d82a36c70ed0499e4779d72eab23a3e44a6dfb97dd0ccc",
+    "research_digest": null
+  },
+  {
+    "label": "v2/background/release_long_719",
+    "passed": true,
+    "cost": 1.1213201000000002,
+    "peak_main_input": 4231,
+    "main_cache_read_fraction": 0.06668703356173351,
+    "median_turn_seconds": 2.8312771245255135,
+    "p95_turn_seconds": 4.738183125038631,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 21,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v2",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "db14e04d19880d3d6c572362c3239f636481ee0c7169c643f6278404641dfc57",
+    "research_digest": null
+  },
+  {
+    "label": "v2/full/inventory_long_719",
+    "passed": true,
+    "cost": 0.8502934999999999,
+    "peak_main_input": 32876,
+    "main_cache_read_fraction": 0.9256346438777185,
+    "median_turn_seconds": 2.1482191040413454,
+    "p95_turn_seconds": 4.097946041030809,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 138,
+          "south": 79
+        },
+        "actual": {
+          "north": 138,
+          "south": 79
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 133,
+          "south": 82
+        },
+        "actual": {
+          "north": 133,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 137,
+          "south": 80
+        },
+        "actual": {
+          "north": 137,
+          "south": 80
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 135,
+          "south": 82
+        },
+        "actual": {
+          "north": 135,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 135,
+          "south": 82
+        },
+        "actual": {
+          "north": 135,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v2",
+      "modes": "full,background",
+      "scenario": "inventory_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "db14e04d19880d3d6c572362c3239f636481ee0c7169c643f6278404641dfc57",
+    "research_digest": null
+  },
+  {
+    "label": "v3/background/incidents_long_719",
+    "passed": false,
+    "cost": 1.1413515,
+    "peak_main_input": 3058,
+    "main_cache_read_fraction": 0.06397978329953037,
+    "median_turn_seconds": 80.88416991697159,
+    "p95_turn_seconds": 87.70967566606123,
+    "turns": 9,
+    "main_calls": 100,
+    "observer_calls": 103,
+    "recovery_calls": 0,
+    "error": "ContextBudgetExceeded: Memory could not make room; original history is intact: Memory response was incomplete or empty",
+    "checks": [],
+    "observer_failures": [
+      "Memory response was incomplete or empty"
+    ],
+    "interrupted_turns": [],
+    "action_check": {
+      "all_reviewed": false,
+      "writes": 1,
+      "expected_writes": 12
+    },
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v3",
+      "modes": "full,background",
+      "scenario": "incidents_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "5c98df5c486b6152ceb15fabec288c0160097a37c62300af127f447a35318915",
+    "research_digest": null
+  },
+  {
+    "label": "v3/background/inventory_long_719",
+    "passed": true,
+    "cost": 0.9125178500000001,
+    "peak_main_input": 3253,
+    "main_cache_read_fraction": 0.06988393073546441,
+    "median_turn_seconds": 2.852922625024803,
+    "p95_turn_seconds": 5.758576084044762,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 24,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 138,
+          "south": 79
+        },
+        "actual": {
+          "north": 138,
+          "south": 79
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 133,
+          "south": 82
+        },
+        "actual": {
+          "north": 133,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 137,
+          "south": 80
+        },
+        "actual": {
+          "north": 137,
+          "south": 80
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 135,
+          "south": 82
+        },
+        "actual": {
+          "north": 135,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 135,
+          "south": 82
+        },
+        "actual": {
+          "north": 135,
+          "south": 82
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v3",
+      "modes": "background",
+      "scenario": "inventory_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "b69c078e88f0286b00e5cc54ecbb770aa5888b4243c29a54ef5e2d53668fba5f",
+    "research_digest": null
+  },
+  {
+    "label": "v3/background/lookup_long_719",
+    "passed": true,
+    "cost": 0.9162740500000001,
+    "peak_main_input": 4085,
+    "main_cache_read_fraction": 0.05592369341297811,
+    "median_turn_seconds": 3.10206562501844,
+    "p95_turn_seconds": 5.104197125067003,
+    "turns": 21,
+    "main_calls": 22,
+    "observer_calls": 18,
+    "recovery_calls": 1,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 197,
+          "original_endpoint": "/leases/v8/5336152",
+          "original_error_code": "E895932",
+          "current_timeout_ms": 270
+        },
+        "actual": {
+          "original_timeout_ms": 197,
+          "original_endpoint": "/leases/v8/5336152",
+          "original_error_code": "E895932",
+          "current_timeout_ms": 270
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v3",
+      "modes": "full,background",
+      "scenario": "lookup_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "a0bc64c86e8370e4b3c451c2b42f5963fd59b71e8425cf0c9dc40e1366dedb48",
+    "research_digest": "023a65e3214747326becf5122884cc1aaf6877934b325edfbd89fcf3bd5a6b0f"
+  },
+  {
+    "label": "v3/background/release_long_719",
+    "passed": true,
+    "cost": 0.6917825,
+    "peak_main_input": 2454,
+    "main_cache_read_fraction": 0.04412720218315481,
+    "median_turn_seconds": 5.1733818329521455,
+    "p95_turn_seconds": 6.543497624923475,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 22,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "eu-west-2",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-728146139",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v3",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "b69c078e88f0286b00e5cc54ecbb770aa5888b4243c29a54ef5e2d53668fba5f",
+    "research_digest": null
+  },
+  {
+    "label": "v3/full/incidents_long_719",
+    "passed": true,
+    "cost": 1.129518,
+    "peak_main_input": 34525,
+    "main_cache_read_fraction": 0.9483315999756687,
+    "median_turn_seconds": 7.4212789160665125,
+    "p95_turn_seconds": 10.86624529096298,
+    "turns": 13,
+    "main_calls": 37,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 12,
+        "expected": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-93745201",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "actual": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-93745201",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "fields": {
+          "first_owner": true,
+          "first_restore_code": true,
+          "last_service": true,
+          "reviewed_count": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": {
+      "all_reviewed": true,
+      "writes": 12,
+      "expected_writes": 12
+    },
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v3",
+      "modes": "full,background",
+      "scenario": "incidents_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "user_pause": 0
+    },
+    "source_digest": "5c98df5c486b6152ceb15fabec288c0160097a37c62300af127f447a35318915",
+    "research_digest": null
+  },
+  {
+    "label": "v3/full/lookup_long_719",
+    "passed": true,
+    "cost": 0.7066815,
+    "peak_main_input": 29872,
+    "main_cache_read_fraction": 0.9124747318812296,
+    "median_turn_seconds": 2.1349698751000687,
+    "p95_turn_seconds": 2.7060799580067396,
+    "turns": 21,
+    "main_calls": 21,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 197,
+          "original_endpoint": "/leases/v8/5336152",
+          "original_error_code": "E895932",
+          "current_timeout_ms": 270
+        },
+        "actual": {
+          "original_timeout_ms": 197,
+          "original_endpoint": "/leases/v8/5336152",
+          "original_error_code": "E895932",
+          "current_timeout_ms": 270
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v3",
+      "modes": "full,background",
+      "scenario": "lookup_long",
+      "seed": 719,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "a0bc64c86e8370e4b3c451c2b42f5963fd59b71e8425cf0c9dc40e1366dedb48",
+    "research_digest": "023a65e3214747326becf5122884cc1aaf6877934b325edfbd89fcf3bd5a6b0f"
+  },
+  {
+    "label": "v4-balanced/background/incidents_long_901",
+    "passed": true,
+    "cost": 0.6969156,
+    "peak_main_input": 7420,
+    "main_cache_read_fraction": 0.8051490585096739,
+    "median_turn_seconds": 7.528701999923214,
+    "p95_turn_seconds": 12.916393416002393,
+    "turns": 13,
+    "main_calls": 38,
+    "observer_calls": 6,
+    "recovery_calls": 1,
+    "error": null,
+    "checks": [
+      {
+        "turn": 12,
+        "expected": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-88559024",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "actual": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-88559024",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "fields": {
+          "first_owner": true,
+          "first_restore_code": true,
+          "last_service": true,
+          "reviewed_count": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": {
+      "all_reviewed": true,
+      "writes": 12,
+      "expected_writes": 12
+    },
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-balanced",
+      "modes": "background",
+      "scenario": "long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-balanced/background/inventory_long_901",
+    "passed": true,
+    "cost": 0.77542955,
+    "peak_main_input": 7352,
+    "main_cache_read_fraction": 0.5910909596490144,
+    "median_turn_seconds": 2.0686477500130422,
+    "p95_turn_seconds": 3.4619842499960214,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 8,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-balanced",
+      "modes": "background",
+      "scenario": "long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-balanced/background/lookup_long_901",
+    "passed": true,
+    "cost": 0.6272479000000001,
+    "peak_main_input": 7267,
+    "main_cache_read_fraction": 0.5976874905688848,
+    "median_turn_seconds": 2.5264009579550475,
+    "p95_turn_seconds": 4.377154375077225,
+    "turns": 21,
+    "main_calls": 22,
+    "observer_calls": 6,
+    "recovery_calls": 1,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-balanced",
+      "modes": "background",
+      "scenario": "long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-balanced/background/release_long_901",
+    "passed": true,
+    "cost": 0.7459113,
+    "peak_main_input": 7866,
+    "main_cache_read_fraction": 0.6248245001539143,
+    "median_turn_seconds": 2.115606666484382,
+    "p95_turn_seconds": 3.548179041943513,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 7,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-balanced",
+      "modes": "background",
+      "scenario": "long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-balanced/background/workflow_long_901",
+    "passed": true,
+    "cost": 0.36971375,
+    "peak_main_input": 5579,
+    "main_cache_read_fraction": 0.8269811748695849,
+    "median_turn_seconds": 4.859273875539657,
+    "p95_turn_seconds": 8.15553779201582,
+    "turns": 14,
+    "main_calls": 32,
+    "observer_calls": 3,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 13,
+        "expected": {
+          "north": 422,
+          "south": 128,
+          "completed_count": 10
+        },
+        "actual": {
+          "north": 422,
+          "south": 128,
+          "completed_count": 10
+        },
+        "fields": {
+          "north": true,
+          "south": true,
+          "completed_count": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [
+      2
+    ],
+    "action_check": null,
+    "workflow_check": {
+      "interruption_exercised": true,
+      "each_reference_once": true,
+      "correct_actions": true,
+      "correct_balances": true
+    },
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-balanced",
+      "modes": "background",
+      "scenario": "long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-batched/background/incidents_long_901",
+    "passed": true,
+    "cost": 0.7287833,
+    "peak_main_input": 12486,
+    "main_cache_read_fraction": 0.8637781425891182,
+    "median_turn_seconds": 7.440722582978196,
+    "p95_turn_seconds": 9.573288917075843,
+    "turns": 13,
+    "main_calls": 39,
+    "observer_calls": 4,
+    "recovery_calls": 2,
+    "error": null,
+    "checks": [
+      {
+        "turn": 12,
+        "expected": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-88559024",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "actual": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-88559024",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "fields": {
+          "first_owner": true,
+          "first_restore_code": true,
+          "last_service": true,
+          "reviewed_count": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": {
+      "all_reviewed": true,
+      "writes": 12,
+      "expected_writes": 12
+    },
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-batched",
+      "modes": "background",
+      "scenario": "incidents_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 16000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 8000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "025cbdc1a1b39bba40cc51889d101542bb37d90705973ccfb2c593008c5f129e",
+    "research_digest": "1c39c3e29e49eb1fa72a3f7eb779b8edf64e59631b80593e3163ea26c9dd15ce"
+  },
+  {
+    "label": "v4-control/full/incidents_long_901",
+    "passed": true,
+    "cost": 1.091856,
+    "peak_main_input": 34478,
+    "main_cache_read_fraction": 0.9527697070165119,
+    "median_turn_seconds": 7.502995499991812,
+    "p95_turn_seconds": 10.477751124999486,
+    "turns": 13,
+    "main_calls": 37,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 12,
+        "expected": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-88559024",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "actual": {
+          "first_owner": "Sol",
+          "first_restore_code": "key-88559024",
+          "last_service": "svc-3",
+          "reviewed_count": 12
+        },
+        "fields": {
+          "first_owner": true,
+          "first_restore_code": true,
+          "last_service": true,
+          "reviewed_count": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": {
+      "all_reviewed": true,
+      "writes": 12,
+      "expected_writes": 12
+    },
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full",
+      "scenario": "incidents_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "51e5c29afffde7860274c97b3d4588c2acb394bb17f2db11bfe5f7889a916616",
+    "research_digest": "d4c4489c2f297121ba9215e7f5f257951e9f638ad8dfe40b4b8158997aa9c94c"
+  },
+  {
+    "label": "v4-control/full/inventory_long_901",
+    "passed": true,
+    "cost": 0.851729,
+    "peak_main_input": 32901,
+    "main_cache_read_fraction": 0.9256700162802448,
+    "median_turn_seconds": 2.092158666520845,
+    "p95_turn_seconds": 3.8000039170728996,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full,summary",
+      "scenario": "inventory_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "3c8932016bd65926fea926e8b30d6acd83cf13189f03334c63c3652ebd3e64fe"
+  },
+  {
+    "label": "v4-control/full/lookup_long_901",
+    "passed": true,
+    "cost": 0.7066625,
+    "peak_main_input": 29872,
+    "main_cache_read_fraction": 0.9124698877654756,
+    "median_turn_seconds": 1.9243554580025375,
+    "p95_turn_seconds": 2.8435860000317916,
+    "turns": 21,
+    "main_calls": 21,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full,summary",
+      "scenario": "lookup_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-control/full/release_long_901",
+    "passed": true,
+    "cost": 0.9646635,
+    "peak_main_input": 39036,
+    "main_cache_read_fraction": 0.9197696901813782,
+    "median_turn_seconds": 2.182891542033758,
+    "p95_turn_seconds": 4.559822291950695,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full",
+      "scenario": "release_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "51e5c29afffde7860274c97b3d4588c2acb394bb17f2db11bfe5f7889a916616",
+    "research_digest": "93683fdf2cf8218cec81837385340cedf060c6a92fb6663c49cbab2a2d2ad127"
+  },
+  {
+    "label": "v4-control/full/workflow_long_901",
+    "passed": true,
+    "cost": 0.380691,
+    "peak_main_input": 13643,
+    "main_cache_read_fraction": 0.9266784870598263,
+    "median_turn_seconds": 5.189149999991059,
+    "p95_turn_seconds": 7.74088399996981,
+    "turns": 14,
+    "main_calls": 26,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 13,
+        "expected": {
+          "north": 422,
+          "south": 128,
+          "completed_count": 10
+        },
+        "actual": {
+          "north": 422,
+          "south": 128,
+          "completed_count": 10
+        },
+        "fields": {
+          "north": true,
+          "south": true,
+          "completed_count": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [
+      2
+    ],
+    "action_check": null,
+    "workflow_check": {
+      "interruption_exercised": true,
+      "each_reference_once": true
+    },
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full",
+      "scenario": "workflow_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "28ecb59f8096ef8ca2a0234da98e60eab47ce740e11d7d39ca5b2517fa38d7b6"
+  },
+  {
+    "label": "v4-control/summary/inventory_long_901",
+    "passed": true,
+    "cost": 0.5295953,
+    "peak_main_input": 5854,
+    "main_cache_read_fraction": 0.6332561018186434,
+    "median_turn_seconds": 2.114769874489866,
+    "p95_turn_seconds": 7.730566750047728,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 5,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full,summary",
+      "scenario": "inventory_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "3c8932016bd65926fea926e8b30d6acd83cf13189f03334c63c3652ebd3e64fe"
+  },
+  {
+    "label": "v4-control/summary/lookup_long_901",
+    "passed": false,
+    "cost": 0.45721025000000004,
+    "peak_main_input": 5263,
+    "main_cache_read_fraction": 0.575406445604087,
+    "median_turn_seconds": 2.2196834579808637,
+    "p95_turn_seconds": 4.406596583081409,
+    "turns": 21,
+    "main_calls": 21,
+    "observer_calls": 5,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": null,
+          "original_endpoint": null,
+          "original_error_code": null,
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": false,
+          "original_endpoint": false,
+          "original_error_code": false,
+          "current_timeout_ms": true
+        },
+        "passed": false
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-control",
+      "modes": "full,summary",
+      "scenario": "lookup_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "cde1bec800635e58517140710c28108926a18525fa7d004535ddcaadcc1e2c07"
+  },
+  {
+    "label": "v4-delta/background/inventory_long_901",
+    "passed": true,
+    "cost": 0.7473848500000001,
+    "peak_main_input": 7448,
+    "main_cache_read_fraction": 0.5875396806164732,
+    "median_turn_seconds": 1.909366499981843,
+    "p95_turn_seconds": 2.752217417000793,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 8,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-delta",
+      "modes": "background",
+      "scenario": "inventory_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "delta",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "afd8a2835b0b760d6929c0b046889fd58c4f90f51cda4dcad47bdd22914c7777",
+    "research_digest": "e8d3b58298a797fb15ce2bb7512fe233db1a1a9b680a9f5bcba9860fb5024375"
+  },
+  {
+    "label": "v4-delta/background/lookup_long_901",
+    "passed": true,
+    "cost": 0.6208966,
+    "peak_main_input": 7195,
+    "main_cache_read_fraction": 0.5690259285213735,
+    "median_turn_seconds": 2.0850632078945637,
+    "p95_turn_seconds": 4.182260541943833,
+    "turns": 21,
+    "main_calls": 22,
+    "observer_calls": 6,
+    "recovery_calls": 1,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-delta",
+      "modes": "background",
+      "scenario": "lookup_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "delta",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "afd8a2835b0b760d6929c0b046889fd58c4f90f51cda4dcad47bdd22914c7777",
+    "research_digest": "e8d3b58298a797fb15ce2bb7512fe233db1a1a9b680a9f5bcba9860fb5024375"
+  },
+  {
+    "label": "v4-eager/background/release_long_901",
+    "passed": true,
+    "cost": 0.78746625,
+    "peak_main_input": 7747,
+    "main_cache_read_fraction": 0.5562159201458434,
+    "median_turn_seconds": 2.06344552047085,
+    "p95_turn_seconds": 2.915641500032507,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 7,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-eager",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "schedule": "eager_input",
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "50e839bd8d6477d9b9b65f63f33352fbb99fc3e76e188a9faef98b1c64a58217",
+    "research_digest": "b6209827344639b6c202330103644f048a1b78bb3623456ab88cd417999079d4"
+  },
+  {
+    "label": "v4-json/background/inventory_long_901",
+    "passed": true,
+    "cost": 0.79162025,
+    "peak_main_input": 7515,
+    "main_cache_read_fraction": 0.605468663747102,
+    "median_turn_seconds": 2.2192536454531364,
+    "p95_turn_seconds": 3.4807944160420448,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 8,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-json",
+      "modes": "background",
+      "scenario": "inventory_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "json",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "e8d3b58298a797fb15ce2bb7512fe233db1a1a9b680a9f5bcba9860fb5024375"
+  },
+  {
+    "label": "v4-json/background/lookup_long_901",
+    "passed": true,
+    "cost": 0.57171015,
+    "peak_main_input": 7401,
+    "main_cache_read_fraction": 0.6699782483242331,
+    "median_turn_seconds": 2.0649382090196013,
+    "p95_turn_seconds": 3.6862285420065746,
+    "turns": 21,
+    "main_calls": 22,
+    "observer_calls": 6,
+    "recovery_calls": 1,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-json",
+      "modes": "background",
+      "scenario": "lookup_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "json",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "e8d3b58298a797fb15ce2bb7512fe233db1a1a9b680a9f5bcba9860fb5024375"
+  },
+  {
+    "label": "v4-layout/background/release_long_901",
+    "passed": true,
+    "cost": 1.42560985,
+    "peak_main_input": 7595,
+    "main_cache_read_fraction": 0.11871586668588542,
+    "median_turn_seconds": 1.9412717709783465,
+    "p95_turn_seconds": 3.2271786669734865,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 7,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-layout",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "delta",
+      "layout": "before_current_request",
+      "stable_notes": true,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "025cbdc1a1b39bba40cc51889d101542bb37d90705973ccfb2c593008c5f129e",
+    "research_digest": "1c39c3e29e49eb1fa72a3f7eb779b8edf64e59631b80593e3163ea26c9dd15ce"
+  },
+  {
+    "label": "v4-luna/full/inventory_long_901",
+    "passed": true,
+    "cost": 0.0175022,
+    "peak_main_input": 33107,
+    "main_cache_read_fraction": 0.9255953910112209,
+    "median_turn_seconds": 1.924909541499801,
+    "p95_turn_seconds": 2.867649874999188,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-luna",
+      "modes": "full",
+      "scenario": "inventory_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "luna",
+      "user_pause": 0
+    },
+    "source_digest": "50e839bd8d6477d9b9b65f63f33352fbb99fc3e76e188a9faef98b1c64a58217",
+    "research_digest": "1c39c3e29e49eb1fa72a3f7eb779b8edf64e59631b80593e3163ea26c9dd15ce"
+  },
+  {
+    "label": "v4-luna/full/lookup_long_901",
+    "passed": true,
+    "cost": 0.01412066,
+    "peak_main_input": 29819,
+    "main_cache_read_fraction": 0.9124993801212921,
+    "median_turn_seconds": 1.619502375018783,
+    "p95_turn_seconds": 2.2985392920672894,
+    "turns": 21,
+    "main_calls": 21,
+    "observer_calls": 0,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-luna",
+      "modes": "full",
+      "scenario": "lookup_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 6000,
+      "memory": 1200,
+      "observation": 12000,
+      "min_observation": 1024,
+      "schedule": "after_response",
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "luna",
+      "user_pause": 0
+    },
+    "source_digest": "50e839bd8d6477d9b9b65f63f33352fbb99fc3e76e188a9faef98b1c64a58217",
+    "research_digest": "b6209827344639b6c202330103644f048a1b78bb3623456ab88cd417999079d4"
+  },
+  {
+    "label": "v4-pause/background/release_long_901",
+    "passed": true,
+    "cost": 0.7242899500000001,
+    "peak_main_input": 7757,
+    "main_cache_read_fraction": 0.6180040829145729,
+    "median_turn_seconds": 1.95702006254578,
+    "p95_turn_seconds": 2.8997007500147447,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 7,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-pause",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 2.0
+    },
+    "source_digest": "50e839bd8d6477d9b9b65f63f33352fbb99fc3e76e188a9faef98b1c64a58217",
+    "research_digest": "1c39c3e29e49eb1fa72a3f7eb779b8edf64e59631b80593e3163ea26c9dd15ce"
+  },
+  {
+    "label": "v4-receipts/background/incidents_long_901",
+    "passed": false,
+    "cost": 0.35931630000000003,
+    "peak_main_input": 3958,
+    "main_cache_read_fraction": 0.657364150479469,
+    "median_turn_seconds": 6.9343514164793305,
+    "p95_turn_seconds": 7.633083375054412,
+    "turns": 6,
+    "main_calls": 19,
+    "observer_calls": 6,
+    "recovery_calls": 0,
+    "error": "ContextBudgetExceeded: Memory could not make room; original history is intact: Memory response was incomplete or empty",
+    "checks": [],
+    "observer_failures": [
+      "Memory response was incomplete or empty"
+    ],
+    "interrupted_turns": [],
+    "action_check": {
+      "all_reviewed": false,
+      "writes": 6,
+      "expected_writes": 12
+    },
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-receipts",
+      "modes": "background",
+      "scenario": "incidents_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 4000,
+      "memory": 640,
+      "observation": 12000,
+      "min_observation": 1024,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "51e5c29afffde7860274c97b3d4588c2acb394bb17f2db11bfe5f7889a916616",
+    "research_digest": "93683fdf2cf8218cec81837385340cedf060c6a92fb6663c49cbab2a2d2ad127"
+  },
+  {
+    "label": "v4-stable/background/release_long_901",
+    "passed": true,
+    "cost": 0.748459,
+    "peak_main_input": 7567,
+    "main_cache_read_fraction": 0.5889016450035726,
+    "median_turn_seconds": 2.1775499584618956,
+    "p95_turn_seconds": 3.6795458330307156,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 7,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-stable",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "delta",
+      "layout": "prefix",
+      "stable_notes": true,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "025cbdc1a1b39bba40cc51889d101542bb37d90705973ccfb2c593008c5f129e",
+    "research_digest": "1c39c3e29e49eb1fa72a3f7eb779b8edf64e59631b80593e3163ea26c9dd15ce"
+  },
+  {
+    "label": "v4-strict/background/release_long_901",
+    "passed": true,
+    "cost": 0.6969487,
+    "peak_main_input": 2400,
+    "main_cache_read_fraction": 0.0,
+    "median_turn_seconds": 4.756024333473761,
+    "p95_turn_seconds": 6.685950250015594,
+    "turns": 24,
+    "main_calls": 24,
+    "observer_calls": 24,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 23,
+        "expected": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "actual": {
+          "owner": "Nadia",
+          "region": "ap-south-1",
+          "retries": 5,
+          "deadline": "Friday 16:00 UTC",
+          "rollback_token": "restore-123170548",
+          "storage": "Postgres"
+        },
+        "fields": {
+          "owner": true,
+          "region": true,
+          "retries": true,
+          "deadline": true,
+          "rollback_token": true,
+          "storage": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-strict",
+      "modes": "background",
+      "scenario": "release_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 1,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 1,
+      "style": "working",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "025cbdc1a1b39bba40cc51889d101542bb37d90705973ccfb2c593008c5f129e",
+    "research_digest": "1c39c3e29e49eb1fa72a3f7eb779b8edf64e59631b80593e3163ea26c9dd15ce"
+  },
+  {
+    "label": "v4-terse/background/inventory_long_901",
+    "passed": true,
+    "cost": 0.7969688500000001,
+    "peak_main_input": 7342,
+    "main_cache_read_fraction": 0.5934507121229113,
+    "median_turn_seconds": 2.012229791493155,
+    "p95_turn_seconds": 3.0726963330525905,
+    "turns": 26,
+    "main_calls": 26,
+    "observer_calls": 8,
+    "recovery_calls": 0,
+    "error": null,
+    "checks": [
+      {
+        "turn": 6,
+        "expected": {
+          "north": 155,
+          "south": 74
+        },
+        "actual": {
+          "north": 155,
+          "south": 74
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 12,
+        "expected": {
+          "north": 155,
+          "south": 75
+        },
+        "actual": {
+          "north": 155,
+          "south": 75
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 18,
+        "expected": {
+          "north": 156,
+          "south": 78
+        },
+        "actual": {
+          "north": 156,
+          "south": 78
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 24,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      },
+      {
+        "turn": 25,
+        "expected": {
+          "north": 160,
+          "south": 76
+        },
+        "actual": {
+          "north": 160,
+          "south": 76
+        },
+        "fields": {
+          "north": true,
+          "south": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-terse",
+      "modes": "background",
+      "scenario": "inventory_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "terse",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "f4da321cc17eb56a0bd6b4f3eb79d782a0177ba8e067550134e83bf89d4de34b",
+    "research_digest": "e8d3b58298a797fb15ce2bb7512fe233db1a1a9b680a9f5bcba9860fb5024375"
+  },
+  {
+    "label": "v4-terse/background/lookup_long_901",
+    "passed": true,
+    "cost": 0.618395,
+    "peak_main_input": 7167,
+    "main_cache_read_fraction": 0.5967629305809315,
+    "median_turn_seconds": 2.057234500069171,
+    "p95_turn_seconds": 3.6195318340323865,
+    "turns": 21,
+    "main_calls": 22,
+    "observer_calls": 6,
+    "recovery_calls": 1,
+    "error": null,
+    "checks": [
+      {
+        "turn": 20,
+        "expected": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "actual": {
+          "original_timeout_ms": 302,
+          "original_endpoint": "/leases/v6/1905460",
+          "original_error_code": "E883921",
+          "current_timeout_ms": 375
+        },
+        "fields": {
+          "original_timeout_ms": true,
+          "original_endpoint": true,
+          "original_error_code": true,
+          "current_timeout_ms": true
+        },
+        "passed": true
+      }
+    ],
+    "observer_failures": [],
+    "interrupted_turns": [],
+    "action_check": null,
+    "workflow_check": null,
+    "configuration": {
+      "output": "research/background_memory/results",
+      "version": "v4-terse",
+      "modes": "background",
+      "scenario": "lookup_long",
+      "seed": 901,
+      "heldout": false,
+      "turns": 0,
+      "context": 8000,
+      "memory": 1000,
+      "observation": 12000,
+      "min_observation": 4000,
+      "style": "terse",
+      "layout": "prefix",
+      "stable_notes": false,
+      "scale": 1,
+      "main_model": "astra",
+      "user_pause": 0
+    },
+    "source_digest": "e06c3c4c3fee148dc0ca35b96483a591e9eea4519a4e65d8e97bb0c1b6f70bf1",
+    "research_digest": "e8d3b58298a797fb15ce2bb7512fe233db1a1a9b680a9f5bcba9860fb5024375"
+  }
+]

@@ -69,6 +69,54 @@ local result files to rebuild both artifacts.
   must inspect state before retrying. The live transfer fixture deliberately
   cancels after committing an action to exercise this distinction.
 
+## Exploratory comparison (seed 901)
+
+Working notes, 8k input budget, 1k note budget, and a 4k observation batch.
+
+| Workflow | Full / background cost | Full / background peak input | Full / background median seconds | Both pass |
+|---|---:|---:|---:|---:|
+| release | $0.965 / $0.746 | 39,036 / 7,866 | 2.18 / 2.12 | True |
+| inventory | $0.852 / $0.775 | 32,901 / 7,352 | 2.09 / 2.07 | True |
+| incidents | $1.092 / $0.697 | 34,478 / 7,420 | 7.50 / 7.53 | True |
+| lookup | $0.707 / $0.627 | 29,872 / 7,267 | 1.92 / 2.53 | True |
+| workflow | $0.381 / $0.370 | 13,643 / 5,579 | 5.19 / 4.86 | True |
+
+These are exploratory observations, not confidence intervals. Fresh-seed and
+longer-horizon validation are in progress in this draft.
+
+### Note format and synchronous control
+
+| Policy | Inventory cost / pass | Late lookup cost / pass |
+|---|---:|---:|
+| Full history | $0.852 / True | $0.707 / True |
+| Synchronous summary | $0.530 / True | $0.457 / False |
+| Working notes | $0.775 / True | $0.627 / True |
+| JSON | $0.792 / True | $0.572 / True |
+| Terse | $0.797 / True | $0.618 / True |
+| Incremental delta | $0.747 / True | $0.621 / True |
+
+Synchronous summarization returned `null` for the three old catalog fields it
+could no longer recover. Every background format recovered all four exact fields.
+Luna-only full-history controls also passed these two tasks at $0.0175 and $0.0141;
+these workloads do not establish that Astra is required for their reasoning.
+
+### Scheduling and cache layout
+
+| Release policy | Cost | Peak input | Median seconds |
+|---|---:|---:|---:|
+| Batched working notes | $0.746 | 7,866 | 2.12 |
+| Delta with stable banner | $0.748 | 7,567 | 2.18 |
+| Notes before current request | $1.426 | 7,595 | 1.94 |
+| Strict one human turn | $0.697 | 2,400 | 4.76 |
+| Two-second user pause | $0.724 | 7,757 | 1.96 |
+
+All five passed. Moving notes near the current request reduced cache reads from
+59% to 12% and nearly doubled cost versus the matching stable-prefix variant.
+The strict turn limit reduced active input further but added waiting. The user
+pause is excluded from reported latency and adds two seconds between each turn.
+For incidents, a 16k cap / 8k observation batch passed at $0.729 and a 12,486-token
+peak, versus $0.697 and 7,420 tokens with the 8k / 4k policy.
+
 ## Interpretation
 
 For a growing transcript, cached full history still reads more tokens on every

@@ -40,3 +40,20 @@ async def delta_observer(request, options, model_kwargs):
     checkpoint = await observe(request, options, model_kwargs)
     usage = combined_usage([u for u in (delta.usage, checkpoint.usage) if u is not None])
     return Observation(checkpoint.memory, usage)
+
+
+def eager_input_scheduler(original_start):
+    """Let observation include the incoming human request while the main model works.
+
+    Publication still pins that request, and all normal coverage and hard-limit
+    checks remain in the SDK. Only when observation starts changes here.
+    """
+    from liteagents import UserMessage
+
+    def start(runtime, history, **kwargs):
+        if (history.messages and isinstance(history.messages[-1], UserMessage)
+                and isinstance(history.messages[-1].content, str)):
+            kwargs["complete_turn"] = True
+        return original_start(runtime, history, **kwargs)
+
+    return start

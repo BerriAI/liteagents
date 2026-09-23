@@ -28,6 +28,10 @@ def matrix(phase):
         yield "v4-pause", "background", "release_long", [*common, "--user-pause", "2"]
         yield "v4-luna", "full", "inventory_long", ["--main-model", "luna"]
         yield "v4-luna", "full", "lookup_long", ["--main-model", "luna"]
+    elif phase == "pipeline":
+        for case in ["release_long", "inventory_long", "workflow_long"]:
+            yield "v4-eager", "background", case, [*common, "--schedule", "eager_input"]
+        yield "v4-eager-strict", "background", "release_long", [*common, "--schedule", "eager_input", "--turns", "1", "--min-observation", "1"]
     elif phase == "holdout":
         yield "v5-short", "full,background", "short", common
         yield "v5-heldout", "full,background", "long", [*common, "--heldout"]
@@ -39,7 +43,7 @@ def matrix(phase):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--private-dir", required=True)
-    parser.add_argument("--phase", choices=["explore", "holdout", "scale"], required=True)
+    parser.add_argument("--phase", choices=["explore", "pipeline", "holdout", "scale"], required=True)
     parser.add_argument("--seed", type=int, default=901)
     parser.add_argument("--output", default="research/background_memory/results")
     args = parser.parse_args()
