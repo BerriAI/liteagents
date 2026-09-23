@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..base import CompactionContext, CompactionError
+from ..._internal.validation import fraction, integer
+from ..base import CompactionError, TriggerContext
 
 
 @dataclass(frozen=True)
@@ -17,12 +18,12 @@ class TokenThreshold:
     def __post_init__(self) -> None:
         if (self.tokens is None) == (self.fraction is None):
             raise ValueError("Set exactly one of tokens or fraction")
-        if self.tokens is not None and self.tokens < 1:
-            raise ValueError("tokens must be positive")
-        if self.fraction is not None and not 0 < self.fraction < 1:
-            raise ValueError("fraction must be between 0 and 1 (exclusive)")
+        if self.tokens is not None:
+            integer(self.tokens, "tokens", minimum=1)
+        if self.fraction is not None:
+            fraction(self.fraction, "fraction")
 
-    def should_compact(self, context: CompactionContext) -> bool:
+    def should_compact(self, context: TriggerContext) -> bool:
         if self.tokens is not None:
             return context.tokens.tokens >= self.tokens
         if context.input_budget is None:

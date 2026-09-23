@@ -2,8 +2,9 @@
 
 from dataclasses import dataclass
 
+from ..._internal.validation import integer
 from ...types import SummaryMessage, ToolResultBlock, UserMessage
-from ..base import CompactionContext
+from ..base import TriggerContext
 
 
 @dataclass(frozen=True)
@@ -11,10 +12,9 @@ class TurnThreshold:
     turns: int
 
     def __post_init__(self) -> None:
-        if self.turns < 1:
-            raise ValueError("turns must be positive")
+        integer(self.turns, "turns", minimum=1)
 
-    def should_compact(self, context: CompactionContext) -> bool:
+    def should_compact(self, context: TriggerContext) -> bool:
         turns = sum(
             isinstance(message, UserMessage) and not isinstance(message, SummaryMessage)
             and (isinstance(message.content, str) or any(

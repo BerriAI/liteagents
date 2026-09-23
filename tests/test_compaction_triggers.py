@@ -5,11 +5,11 @@ from dataclasses import replace
 import pytest
 
 from liteagents import (
-    CompactionContext,
     CompactionError,
     SummaryMessage,
     TextBlock,
     TokenEstimate,
+    TriggerContext,
     TurnThreshold,
     UserMessage,
     all_of,
@@ -21,9 +21,9 @@ from .compaction_helpers import pair
 
 @pytest.fixture
 def context():
-    return CompactionContext(
+    return TriggerContext(
         messages=(UserMessage("goal"),), model="main", tokens=TokenEstimate(100, "test"),
-        input_budget=1000, message_tokens=(100,), boundaries=(0, 1), reason="threshold",
+        input_budget=1000, reason="threshold",
     )
 
 
@@ -61,23 +61,19 @@ def test_composite_trigger_evaluates_in_order(context, factory, values, expected
     pytest.param(all_of, True, id="all"),
 ])
 def test_children_cannot_mutate_each_others_context(context, factory, first_value):
-    context = replace(context, state={"value": "original"})
 
     class Mutator:
         def should_compact(self, context):
             context.messages[0].content = "changed"
-            context.state["value"] = "changed"
             return first_value
 
     class Observer:
         def should_compact(self, context):
             assert context.messages[0].content == "goal"
-            assert context.state == {"value": "original"}
             return True
 
     assert factory([Mutator(), Observer()]).should_compact(context)
     assert context.messages[0].content == "goal"
-    assert context.state == {"value": "original"}
 
 
 @pytest.mark.parametrize("factory", [any_of, all_of], ids=["any", "all"])

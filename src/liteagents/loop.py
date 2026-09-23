@@ -96,7 +96,7 @@ async def run_tool_loop(
             )
         assistant_message = history.add_assistant_response(content_dicts, model=response_model or model)
         assistant_message.stop_reason = stop_reason
-        assistant_message.usage = usage
+        assistant_message.usage = usage.to_dict() if usage is not None else None
         yield deepcopy(assistant_message)
 
         if stop_reason != "tool_use":

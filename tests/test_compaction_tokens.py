@@ -11,19 +11,20 @@ from liteagents import (
     CompactionOptions,
     CompactionResult,
     CompactionSkipped,
-    CompactionUpdate,
+    HistoryEdit,
     LiteAgentClient,
     LiteAgentOptions,
     ReplacePrefix,
     TokenCountRequest,
     TokenEstimate,
     TokenThreshold,
+    TokenUsage,
     UserMessage,
     cascade,
     heuristic_tokens,
 )
 from liteagents._internal.compaction_runtime import CompactionRuntime
-from liteagents._internal.context_tokens import ContextTokens, input_tokens
+from liteagents._internal.context_tokens import ContextTokens
 from liteagents.compaction.tokens import estimate_tokens
 from liteagents.history import ConversationHistory
 
@@ -53,7 +54,7 @@ from .test_streaming import Stream, response_events
     pytest.param({"input_tokens": 100, "cache_read_input_tokens": False}, None, id="boolean-cache"),
 ])
 def test_normalized_messages_usage(usage, expected):
-    assert input_tokens(usage) == expected
+    assert (TokenUsage.from_dict(usage).context_input_tokens if usage is not None else None) == expected
 
 
 @pytest.fixture
@@ -61,7 +62,7 @@ def measured_context():
     request = TokenCountRequest(({"role": "user", "content": "original input"},),
                                 system="instructions", tools=({"name": "echo", "input_schema": {}},))
     meter = ContextTokens()
-    meter.observe("main", request, {"tool_choice": None}, {"input_tokens": 5000}, "end_turn")
+    meter.observe("main", request, {"tool_choice": None}, TokenUsage(input_tokens=5000), "end_turn")
     return meter, request
 
 
@@ -106,22 +107,22 @@ def test_changed_request_invalidates_usage_and_cannot_resurrect_it(measured_cont
 ])
 def test_unusable_response_discards_previous_anchor(measured_context, usage, stop):
     meter, request = measured_context
-    meter.observe("main", request, {}, usage, stop)
+    meter.observe("main", request, {}, TokenUsage.from_dict(usage) if usage is not None else None, stop)
     assert meter.count("main", request, {}, count_chars) == count_chars("main", request)
 
 
 def test_anchor_and_counter_inputs_are_detached(measured_context):
     meter, request = measured_context
     request.messages[0]["content"] = "external edit"
-    assert meter.request.messages[0]["content"] == "original input"
-    snapshot = deepcopy(meter.request)
+    assert meter._anchor.request.messages[0]["content"] == "original input"
+    snapshot = deepcopy(meter._anchor.request)
 
     def mutating_counter(model, candidate):
         candidate.messages[0]["content"] = "plugin edit"
         return TokenEstimate(10, "custom")
 
     meter.count("main", snapshot, {"tool_choice": None}, mutating_counter)
-    assert meter.request.messages[0]["content"] == "original input"
+    assert meter._anchor.request.messages[0]["content"] == "original input"
     assert snapshot.messages[0]["content"] == "original input"
 
 
@@ -220,7 +221,7 @@ async def test_previews_use_local_counts_and_only_real_reductions_commit(composi
 
     class Edit:
         async def compact(self, context):
-            update = CompactionUpdate(len(context.messages))
+            update = HistoryEdit(len(context.messages))
             if change != "noop":
                 update = replace(update, prefix=ReplacePrefix(2, "summary" if change == "shrink" else "x" * 20000))
             observed.append(context.preview(update).tokens)
@@ -234,21 +235,21 @@ async def test_previews_use_local_counts_and_only_real_reductions_commit(composi
     # A large usage/local discrepancy must never make a no-op or growing edit
     # look like a reduction. A shrinking edit must drop the old usage anchor.
     runtime.context_tokens.observe("main", request, {"tool_choice": None},
-                                    {"input_tokens": 90000}, "end_turn")
+                                    TokenUsage(input_tokens=90000), "end_turn")
     events = await run(runtime, history, manual=True)
     assert observed[0].source == "test_chars"
     if change == "shrink":
         assert isinstance(events[-1], CompactionCompleted)
-        assert events[-1].tokens_before == 90000
-        assert events[-1].tokens_after == observed[0].tokens
-        assert events[-1].token_source_after == "test_chars"
-        assert runtime.context_tokens.request is None
+        assert events[-1].before.tokens == 90000
+        assert events[-1].after.tokens == observed[0].tokens
+        assert events[-1].after.source == "test_chars"
+        assert runtime.context_tokens._anchor is None
         after = await run(runtime, history, manual=True)
-        assert after[0].token_source == "test_chars"
+        assert after[0].before.source == "test_chars"
     else:
         assert isinstance(events[-1], CompactionSkipped)
         assert history.raw() == original.raw()
-        assert runtime.context_tokens.request == request
+        assert runtime.context_tokens._anchor.request == request
 
 
 async def test_imported_history_usage_is_not_a_verified_baseline():
@@ -280,6 +281,6 @@ async def test_reported_usage_enforces_hard_budget_even_when_local_estimate_fits
         strategy=NothingToReduce(), trigger=TokenThreshold(tokens=99999) if automatic else None,
         context_windows={"main": 1000},
     ))
-    runtime.context_tokens.observe("main", request, {"tool_choice": None}, {"input_tokens": 10000}, "end_turn")
+    runtime.context_tokens.observe("main", request, {"tool_choice": None}, TokenUsage(input_tokens=10000), "end_turn")
     with pytest.raises(ContextBudgetExceeded):
         await run(runtime, history)

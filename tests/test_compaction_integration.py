@@ -27,6 +27,7 @@ from liteagents import (
     SummaryMessage,
     TextDelta,
     TokenThreshold,
+    TokenUsage,
     UserMessage,
 )
 from liteagents._internal.compaction_runtime import CompactionRuntime
@@ -147,7 +148,7 @@ async def test_conversation_under_context_limit(
     assert len(completed) >= min_compactions
     if compaction is None:
         assert completed == []
-    assert all(event.tokens_after < event.tokens_before for event in completed)
+    assert all(event.after.tokens < event.before.tokens for event in completed)
     assert all("Summary of earlier conversation" in text for text in summary_inputs[1:])
 
 
@@ -214,7 +215,7 @@ async def test_long_tool_loop_compacts_repeatedly_and_executes_each_step_once(lo
     assert executed == list(range(1, LOOKUP_STEPS + 1))
     assert len(sizes) == LOOKUP_STEPS + 1
     assert len(completed) >= 3
-    assert all(event.tokens_after < event.tokens_before for event in completed)
+    assert all(event.after.tokens < event.before.tokens for event in completed)
 
 
 async def test_failed_manual_summary_can_be_retried_then_used_by_next_query(mock_anthropic_messages):
@@ -232,7 +233,7 @@ async def test_failed_manual_summary_can_be_retried_then_used_by_next_query(mock
         assert agent.history == history
         result = await agent.compact()
         assert isinstance(result, CompactionCompleted)
-        assert result.tokens_after < result.tokens_before
+        assert result.after.tokens < result.before.tokens
         events = [event async for event in agent.query("continue")]
         assert events[-1].content[0].text == "Continued successfully"
     assert [call["model"] for call in mock_anthropic_messages.calls] == ["summary", "summary", "main"]
@@ -277,7 +278,7 @@ async def test_shrinking_but_still_oversized_summary_is_rejected_atomically(mock
         with pytest.raises(ContextBudgetExceeded, match="still exceeds") as error:
             await agent.compact()
         assert agent.history == history
-        assert error.value.usage == {"input_tokens": 1, "output_tokens": 1}
+        assert error.value.usage == TokenUsage(input_tokens=1, output_tokens=1)
     assert [call["model"] for call in mock_anthropic_messages.calls] == ["summary"]
 
 

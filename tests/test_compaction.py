@@ -14,9 +14,9 @@ from liteagents import (
     CompactionResult,
     CompactionSkipped,
     CompactionStarted,
-    CompactionUpdate,
     ContextBudgetExceeded,
     FusionOptions,
+    HistoryEdit,
     LiteAgentClient,
     LiteAgentOptions,
     PruneToolResults,
@@ -28,6 +28,7 @@ from liteagents import (
     TextDelta,
     TokenEstimate,
     TokenThreshold,
+    TokenUsage,
     UserMessage,
     apply_compaction,
     query,
@@ -51,9 +52,9 @@ async def test_automatic_summary_preserves_prompt_system_and_usage(mock_anthropi
         events = [event async for event in agent.query("current request")]
         assert [type(event) for event in events] == [CompactionStarted, CompactionCompleted, AssistantMessage]
         completed = events[1]
-        assert completed.tokens_after < completed.tokens_before
-        assert completed.token_source == "test_chars"
-        assert completed.usage == {"input_tokens": 1, "output_tokens": 1}
+        assert completed.after.tokens < completed.before.tokens
+        assert completed.before.source == "test_chars"
+        assert completed.usage == TokenUsage(input_tokens=1, output_tokens=1)
         assert isinstance(agent.history[0], SummaryMessage)
         assert agent.history[1].content == "current request"
         # Stateless consumers can apply exactly the same edit before appending the answer.
@@ -156,7 +157,7 @@ async def test_retained_raw_blocks_survive_prefix_and_tool_edits():
     history.add_assistant_response(raw, "main")
     history.add_user_tool_results([{"type": "tool_result", "tool_use_id": "t", "content": "x" * 2000,
                                    "is_error": True, "provider_metadata": {"keep": 1}}])
-    update = CompactionUpdate(len(history.messages), prefix=ReplacePrefix(2, "checkpoint"),
+    update = HistoryEdit(len(history.messages), prefix=ReplacePrefix(2, "checkpoint"),
                               tool_results=(ReplaceToolResult(4, "t", "pruned"),))
     candidate = history.compacted(update)
     history.commit(candidate, expected_version=history.version)
@@ -166,16 +167,15 @@ async def test_retained_raw_blocks_survive_prefix_and_tool_edits():
 
 
 @pytest.mark.parametrize("update", [
-    pytest.param(CompactionUpdate(3, prefix=ReplacePrefix(2, "summary")), id="splits-tool-pair"),
-    pytest.param(CompactionUpdate(3, prefix=ReplacePrefix(4, "summary")), id="prefix-out-of-range"),
-    pytest.param(CompactionUpdate(3, prefix=ReplacePrefix(1, "")), id="empty-summary"),
-    pytest.param(CompactionUpdate(3, tool_results=(ReplaceToolResult(1, "a"),)), id="edit-addresses-tool-call"),
-    pytest.param(CompactionUpdate(3, tool_results=(ReplaceToolResult(2, "missing"),)), id="unknown-tool-id"),
-    pytest.param(CompactionUpdate(3, tool_results=(ReplaceToolResult(2, "a"), ReplaceToolResult(2, "a"))),
+    pytest.param(HistoryEdit(3, prefix=ReplacePrefix(2, "summary")), id="splits-tool-pair"),
+    pytest.param(HistoryEdit(3, prefix=ReplacePrefix(4, "summary")), id="prefix-out-of-range"),
+    pytest.param(HistoryEdit(3, tool_results=(ReplaceToolResult(1, "a"),)), id="edit-addresses-tool-call"),
+    pytest.param(HistoryEdit(3, tool_results=(ReplaceToolResult(2, "missing"),)), id="unknown-tool-id"),
+    pytest.param(HistoryEdit(3, tool_results=(ReplaceToolResult(2, "a"), ReplaceToolResult(2, "a"))),
                  id="duplicate-result-edit"),
-    pytest.param(CompactionUpdate(3, prefix=ReplacePrefix(3, "summary"), tool_results=(ReplaceToolResult(2, "a"),)),
+    pytest.param(HistoryEdit(3, prefix=ReplacePrefix(3, "summary"), tool_results=(ReplaceToolResult(2, "a"),)),
                  id="prefix-overlaps-result-edit"),
-    pytest.param(CompactionUpdate(2, prefix=ReplacePrefix(1, "summary")), id="wrong-history-length"),
+    pytest.param(HistoryEdit(2, prefix=ReplacePrefix(1, "summary")), id="wrong-history-length"),
 ])
 def test_invalid_edits_do_not_mutate_history(update):
     history = ConversationHistory([UserMessage("goal"), *pair("a", "result")])
@@ -201,7 +201,7 @@ async def test_failed_summaries_leave_history_untouched(mock_anthropic_messages,
             events.append(event)
     assert isinstance(events[0], CompactionStarted)
     assert isinstance(events[-1], CompactionFailed)
-    assert events[-1].usage == {"input_tokens": 1, "output_tokens": 1}
+    assert events[-1].usage == TokenUsage(input_tokens=1, output_tokens=1)
     assert history.raw() == before
 
 
@@ -211,7 +211,7 @@ async def test_larger_summary_is_skipped_without_committing(mock_anthropic_messa
     before = deepcopy(history.raw())
     events = await run(CompactionRuntime(policy()), history)
     assert isinstance(events[-1], CompactionSkipped)
-    assert events[-1].usage == {"input_tokens": 1, "output_tokens": 1}
+    assert events[-1].usage == TokenUsage(input_tokens=1, output_tokens=1)
     assert history.raw() == before
 
 
@@ -241,7 +241,7 @@ async def test_model_switch_rechecks_budget_before_next_call(mock_anthropic_mess
         events = [event async for event in agent.query("current request")]
     completed = next(event for event in events if isinstance(event, CompactionCompleted))
     assert completed.reason == "budget" and completed.model == "small"
-    assert completed.tokens_after <= 1400
+    assert completed.after.tokens <= 1400
     assert selections == [1, 1]
     assert [call["model"] for call in mock_anthropic_messages.calls] == ["main", "summary", "small"]
 
@@ -289,7 +289,7 @@ async def test_custom_strategy_state_isolated_and_committed_atomically():
             state["compactions"] += 1
             # Mutation of the detached view must not affect the actual retained message.
             context.messages[-1].content = "plugin mutation"
-            return CompactionResult(CompactionUpdate(len(context.messages), prefix=ReplacePrefix(2, "short")),
+            return CompactionResult(HistoryEdit(len(context.messages), prefix=ReplacePrefix(2, "short")),
                                     state=state)
 
     shared = policy(strategy=Strategy())
@@ -308,7 +308,7 @@ async def test_stale_results_and_state_rejected():
     class Strategy:
         async def compact(self, context):
             history.add_user_text("new arrival")
-            return CompactionResult(CompactionUpdate(len(context.messages), prefix=ReplacePrefix(2, "short")),
+            return CompactionResult(HistoryEdit(len(context.messages), prefix=ReplacePrefix(2, "short")),
                                     state={"must_not_commit": True})
 
     runtime = CompactionRuntime(policy(strategy=Strategy()))

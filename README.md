@@ -240,7 +240,7 @@ options = LiteAgentOptions(
 async with LiteAgentClient(options=options) as agent:
     async for event in agent.query("Continue the migration"):
         if isinstance(event, CompactionCompleted):
-            print(event.tokens_before, event.tokens_after, event.usage)
+            print(event.before.tokens, event.after.tokens, event.usage)
 
     result = await agent.compact(instructions="Focus on remaining migration work.")
 ```
@@ -292,10 +292,12 @@ Custom counters now implement
 `token_counter(model, request: TokenCountRequest) -> TokenEstimate`. The detached
 request exposes `messages` and `tools` as tuples of Anthropic-format dictionaries,
 plus `system`; connection credentials are excluded. This replaces the previous
-serialized-text callback. Counters must be deterministic. `token_source` identifies
-the pre-compaction estimate; completed events also expose `token_source_after`
-because edited context is counted afresh. Reduction checks compare both histories
-using the same local estimator, so changing counting methods cannot make a no-op
+serialized-text callback. Counters must be deterministic. Events expose
+`before: TokenEstimate` and completed events also expose `after: TokenEstimate`;
+each estimate carries its own `tokens` and `source` because edited context is
+counted afresh. Request counts are cached within one compaction attempt, and
+per-message counts are computed only when a strategy needs them. Reduction checks
+compare both histories using the same local estimator, so changing counting methods cannot make a no-op
 look like a reduction.
 
 The usable input budget is the model's LiteLLM input limit minus
@@ -371,8 +373,9 @@ need not achieve it. The SDK always enforces the hard model budget.
 Cascade configuration copies the child sequence. Per-conversation state is
 stored separately for each child's position, including nested cascades; it
 commits with history and rolls back on failure. Treat stage order as fixed for
-a client session. Usage includes summed reported token fields and a `stages`
-list retaining each returned usage record, including non-shrinking proposals.
+a client session. Compaction usage is a `TokenUsage` record with optional typed
+counts, provider-specific `details`, and a `stages` tuple retaining each child's
+usage, including non-shrinking proposals. Only reported counts are summed.
 Nested cascade usage retains its nested records. More than one stage can incur
 model costs; a later failure still reports earlier stages' returned usage.
 
@@ -398,16 +401,18 @@ exported. Inside the live client, retained raw provider blocks are preserved.
 Custom strategies implement `async compact(context) -> CompactionResult | None`:
 
 ```python
-from liteagents import CompactionResult, CompactionUpdate, ReplacePrefix
+from liteagents import (
+    CompactionContext, CompactionResult, HistoryEdit, RecentTokens, ReplacePrefix,
+)
 
 class TaskSummary:
-    async def compact(self, context):
+    async def compact(self, context: CompactionContext) -> CompactionResult | None:
         stop = RecentTokens(8_000).boundary(context)
         if stop == 0:
             return None
         summary = await summarize_for_my_domain(context.messages[:stop])
         return CompactionResult(
-            update=CompactionUpdate(
+            update=HistoryEdit(
                 message_count=len(context.messages),
                 prefix=ReplacePrefix(stop=stop, summary=summary),
             ),
@@ -417,20 +422,38 @@ class TaskSummary:
 
 `summarize_for_my_domain` above is application-owned. `CompactionContext` provides
 a detached typed snapshot, valid cut boundaries, per-message estimates, selected
-model, input budget, reason, instructions, and optional state. A custom trigger
-implements `should_compact(context) -> bool`. `CompactionUpdate` accepts a prefix
-replacement and/or `ReplaceToolResult` edits indexed against the original
-snapshot, or a `steps` tuple of sequential updates. Each step's indices and
-`message_count` refer to the preceding candidate. Batch steps cannot be mixed
-with direct edits; `apply_compaction` replays either form. Strategies can use
-`context.preview(update)` to validate and recount a detached candidate, including
-retained raw provider blocks. This method never commits history and is available
-on runtime-provided contexts. The SDK validates and atomically applies the final
-result, retaining original raw entries outside edits. Keep bookkeeping in the result's
-`state`, not on shared strategy/trigger instances; state is copied and committed
-only with a successful update. Custom strategies own their additional model calls
-and should return their usage with the result (or on `CompactionError` when a call
-fails). Triggers should be stateless; mutating their context does not persist state.
+model, input budget, reason, instructions, and optional state. It is a protocol
+implemented by the runtime, rather than a configuration dataclass callers construct.
+Triggers receive a smaller `TriggerContext` with history, model, tokens, input
+budget, and reason. It exposes no credentials, strategy state, or execution services.
+A custom trigger implements `should_compact(context: TriggerContext) -> bool`.
+
+`CompactionUpdate` is the union `HistoryEdit | BatchUpdate`. `HistoryEdit` contains
+a prefix replacement and/or `ReplaceToolResult` edits against one snapshot.
+`BatchUpdate(message_count=..., steps=(...))` contains only sequential updates;
+each step's indices and `message_count` refer to the preceding candidate.
+`apply_compaction` replays either variant. Strategies use `context.preview(update)`
+to validate and recount a detached candidate, including retained raw provider blocks.
+`context.local_tokens` exposes the comparable local estimate; `context.tokens`
+may instead use a provider-usage baseline. `message_tokens` is computed lazily.
+
+`context.count_tokens(request, model=...)` counts structured content.
+`context.generate_summary(text, system=..., model=..., max_tokens=..., model_kwargs=...)`
+checks the summary budget, inherits connection settings, and returns summary text
+plus `TokenUsage`. These services keep provider configuration out of strategy data.
+`context.with_state(state)` creates an isolated child context for composition.
+
+The SDK validates and atomically applies the final result, retaining raw entries
+outside edits. Keep bookkeeping in the result's `state`, not on shared strategy
+instances; state commits only with a successful update. Custom strategies making
+their own model calls should return `TokenUsage` with the result (or attach it to
+`CompactionError`). Use `TokenUsage.from_dict(provider_usage)` to normalize provider
+data and `usage.to_dict()` when a dictionary is needed. Ordinary
+`AssistantMessage.usage` retains its dictionary API.
+
+Numeric configuration rejects booleans, fractional counts, and nonfinite values.
+Configuration mappings own their values; changing caller dictionaries or values
+read from a mapping cannot alter an existing configuration.
 
 Fusion has independent opt-in `FusionOptions.sidekick_compaction` configuration
 and runtime state. Main-agent policy is not implicitly applied to the sidekick;

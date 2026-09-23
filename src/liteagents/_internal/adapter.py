@@ -14,6 +14,7 @@ from collections.abc import Iterable, Iterator
 from typing import Any
 
 from ..types import ContentBlock, TextBlock, ToolUseBlock
+from ..usage import TokenUsage
 
 
 def _get(obj: Any, key: str, default: Any = None) -> Any:
@@ -71,14 +72,14 @@ def dicts_to_content_blocks(raw: list[dict[str, Any]]) -> list[ContentBlock]:
 
 def extract_response_fields(
     response: Any,
-) -> tuple[list[dict[str, Any]], str | None, str | None, dict[str, Any] | None]:
+) -> tuple[list[dict[str, Any]], str | None, str | None, TokenUsage | None]:
     content_as_dicts = content_blocks_to_dicts(_get(response, "content", []))
     stop_reason = _get(response, "stop_reason")
     model = _get(response, "model")
     usage = _get(response, "usage")
     if hasattr(usage, "model_dump"):
         usage = usage.model_dump()
-    return content_as_dicts, stop_reason, model, usage
+    return content_as_dicts, stop_reason, model, TokenUsage.from_dict(usage) if usage is not None else None
 
 
 def tool_result_block(tool_use_id: str, content: str | list[dict[str, Any]],

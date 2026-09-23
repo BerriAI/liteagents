@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 
+from .._internal.validation import OwnedMapping, integer, nonempty
 from .base import CompactionStrategy, CompactionTrigger
 from .strategies import Summarize
 from .tokens import TokenCounter, estimate_tokens
@@ -21,7 +22,10 @@ class CompactionOptions:
     target_tokens: int | None = None
 
     def __post_init__(self) -> None:
-        if self.safety_margin < 0 or any(window < 1 for window in self.context_windows.values()):
-            raise ValueError("Context windows must be positive and safety_margin nonnegative")
-        if self.target_tokens is not None and self.target_tokens < 1:
-            raise ValueError("target_tokens must be positive")
+        integer(self.safety_margin, "safety_margin")
+        for model, window in self.context_windows.items():
+            nonempty(model, "model")
+            integer(window, "context window", minimum=1)
+        if self.target_tokens is not None:
+            integer(self.target_tokens, "target_tokens", minimum=1)
+        object.__setattr__(self, "context_windows", OwnedMapping(self.context_windows))

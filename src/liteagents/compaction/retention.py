@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .._internal.validation import integer
 from .base import CompactionContext
 
 
@@ -12,8 +13,7 @@ class RecentTokens:
     tokens: int = 12_000
 
     def __post_init__(self) -> None:
-        if self.tokens < 1:
-            raise ValueError("RecentTokens must be positive")
+        integer(self.tokens, "RecentTokens", minimum=1)
 
     def boundary(self, context: CompactionContext) -> int:
         """Keep at least this token estimate and the entire most recent tool group."""

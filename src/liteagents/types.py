@@ -8,7 +8,12 @@ history; custom token counters receive detached wire content in TokenCountReques
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Literal, TypeAlias
+from typing import Any, Literal, TypeAlias, TypedDict
+
+from typing_extensions import NotRequired
+
+from ._internal.validation import integer, nonempty
+from .usage import TokenUsage
 
 
 @dataclass
@@ -73,6 +78,10 @@ class ReplacePrefix:
     stop: int
     summary: str
 
+    def __post_init__(self) -> None:
+        integer(self.stop, "stop", minimum=1)
+        nonempty(self.summary, "summary")
+
 
 @dataclass(frozen=True)
 class ReplaceToolResult:
@@ -80,19 +89,60 @@ class ReplaceToolResult:
     tool_use_id: str
     content: str = "[Earlier tool output removed to reduce context.]"
 
+    def __post_init__(self) -> None:
+        integer(self.message_index, "message_index")
+        nonempty(self.tool_use_id, "tool_use_id")
+        if not isinstance(self.content, str):
+            raise TypeError("replacement content must be a string")
+
 
 @dataclass(frozen=True)
-class CompactionUpdate:
-    """Replayable edits against a history with `message_count` messages.
-
-    A batch contains only `steps`; each step addresses the preceding candidate,
-    not the original history. The entire batch is validated before committing.
-    """
+class HistoryEdit:
+    """Direct edits against one history snapshot; indices refer to that snapshot."""
 
     message_count: int
     prefix: ReplacePrefix | None = None
     tool_results: tuple[ReplaceToolResult, ...] = ()
-    steps: tuple[CompactionUpdate, ...] = ()
+
+    def __post_init__(self) -> None:
+        integer(self.message_count, "message_count")
+        object.__setattr__(self, "tool_results", tuple(self.tool_results))
+
+
+@dataclass(frozen=True)
+class BatchUpdate:
+    """Atomic sequence; each step addresses the preceding candidate history."""
+
+    message_count: int
+    steps: tuple[CompactionUpdate, ...]
+
+    def __post_init__(self) -> None:
+        integer(self.message_count, "message_count")
+        object.__setattr__(self, "steps", tuple(self.steps))
+
+
+CompactionUpdate: TypeAlias = HistoryEdit | BatchUpdate
+
+
+@dataclass(frozen=True)
+class TokenEstimate:
+    tokens: int
+    source: str
+
+    def __post_init__(self) -> None:
+        integer(self.tokens, "tokens")
+        nonempty(self.source, "source")
+
+
+class WireMessage(TypedDict):
+    role: Literal["user", "assistant", "system"]
+    content: str | list[dict[str, Any]]
+
+
+class WireTool(TypedDict):
+    name: str
+    description: NotRequired[str]
+    input_schema: dict[str, Any]
 
 
 CompactionReason: TypeAlias = Literal["manual", "threshold", "budget"]
@@ -102,20 +152,17 @@ CompactionReason: TypeAlias = Literal["manual", "threshold", "budget"]
 class CompactionStarted:
     reason: CompactionReason
     model: str
-    tokens_before: int
-    token_source: str
+    before: TokenEstimate
 
 
 @dataclass(frozen=True)
 class CompactionCompleted:
     reason: CompactionReason
     model: str
-    tokens_before: int
-    tokens_after: int
-    token_source: str
+    before: TokenEstimate
+    after: TokenEstimate
     update: CompactionUpdate
-    usage: dict[str, Any] | None = None
-    token_source_after: str | None = None
+    usage: TokenUsage | None = None
 
 
 @dataclass(frozen=True)
@@ -123,7 +170,7 @@ class CompactionSkipped:
     reason: CompactionReason
     model: str
     detail: str
-    usage: dict[str, Any] | None = None
+    usage: TokenUsage | None = None
 
 
 @dataclass(frozen=True)
@@ -131,7 +178,7 @@ class CompactionFailed:
     reason: CompactionReason
     model: str
     error: str
-    usage: dict[str, Any] | None = None
+    usage: TokenUsage | None = None
 
 
 CompactionEvent: TypeAlias = (

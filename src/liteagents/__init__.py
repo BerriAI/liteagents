@@ -25,6 +25,7 @@ from .compaction import (
     TokenCountRequest,
     TokenEstimate,
     TokenThreshold,
+    TriggerContext,
     TurnThreshold,
     all_of,
     any_of,
@@ -39,6 +40,7 @@ from .tools import Tool
 from .types import (
     AgentEvent,
     AssistantMessage,
+    BatchUpdate,
     CompactionCompleted,
     CompactionEvent,
     CompactionFailed,
@@ -47,6 +49,7 @@ from .types import (
     CompactionStarted,
     CompactionUpdate,
     ContentBlock,
+    HistoryEdit,
     Message,
     ReplacePrefix,
     ReplaceToolResult,
@@ -58,12 +61,14 @@ from .types import (
     TurnContext,
     UserMessage,
 )
+from .usage import TokenUsage
 
 __all__ = [
     "AgentEvent",
     "AllOf",
     "AnyOf",
     "AssistantMessage",
+    "BatchUpdate",
     "Cascade",
     "CompactionCompleted",
     "CompactionContext",
@@ -81,6 +86,7 @@ __all__ = [
     "ContentBlock",
     "ContextBudgetExceeded",
     "FusionOptions",
+    "HistoryEdit",
     "JevAgent",
     "JevModelRouter",
     "JevTier",
@@ -104,9 +110,11 @@ __all__ = [
     "TokenCounter",
     "TokenEstimate",
     "TokenThreshold",
+    "TokenUsage",
     "Tool",
     "ToolResultBlock",
     "ToolUseBlock",
+    "TriggerContext",
     "TurnContext",
     "TurnThreshold",
     "UserMessage",

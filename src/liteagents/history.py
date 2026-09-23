@@ -9,6 +9,7 @@ from typing import Any
 from ._internal import adapter
 from .types import (
     AssistantMessage,
+    BatchUpdate,
     CompactionUpdate,
     ContentBlock,
     Message,
@@ -17,6 +18,7 @@ from .types import (
     ToolResultBlock,
     ToolUseBlock,
     UserMessage,
+    WireMessage,
 )
 
 
@@ -29,7 +31,7 @@ class ConversationHistory:
     """
 
     def __init__(self, messages: Sequence[Message] = ()) -> None:
-        self._raw: list[dict[str, Any]] = []
+        self._raw: list[WireMessage] = []
         self.messages: list[Message] = []
         self.version = 0
         for message in deepcopy(messages):
@@ -55,7 +57,7 @@ class ConversationHistory:
                               "content": content})
             self.messages.append(message)
 
-    def raw(self) -> list[dict[str, Any]]:
+    def raw(self) -> list[WireMessage]:
         return self._raw
 
     def add_user_text(self, text: str) -> UserMessage:
@@ -95,9 +97,7 @@ class ConversationHistory:
         """Validate an edit proposal and build a candidate without changing this history."""
         if update.message_count != len(self.messages):
             raise ValueError("Compaction update does not match the history length")
-        if update.steps:
-            if update.prefix is not None or update.tool_results:
-                raise ValueError("Batch steps cannot be combined with direct edits")
+        if isinstance(update, BatchUpdate):
             candidate = self.snapshot()
             for step in update.steps:
                 candidate = candidate.compacted(step)
@@ -126,7 +126,9 @@ class ConversationHistory:
             if len(matches) != 1:
                 raise ValueError("Tool-result edit must identify exactly one result")
             matches[0].content = edit.content
-            for block in candidate._raw[edit.message_index]["content"]:
+            raw_content = candidate._raw[edit.message_index]["content"]
+            assert isinstance(raw_content, list)
+            for block in raw_content:
                 if block.get("type") == "tool_result" and block.get("tool_use_id") == edit.tool_use_id:
                     block["content"] = edit.content
         if update.prefix is not None:
@@ -142,6 +144,7 @@ class ConversationHistory:
                 ):
                     raise ValueError("Cannot split a mixed user/tool-result message from its tool call")
                 indices.insert(0, latest)
+            assert isinstance(summary.content, str)
             candidate._raw = [{"role": "user", "content": summary.content},
                               *[candidate._raw[i] for i in indices]]
             candidate.messages = [summary, *[candidate.messages[i] for i in indices]]

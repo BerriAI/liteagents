@@ -11,15 +11,7 @@ from typing import Any, Protocol, cast
 
 import litellm
 
-
-@dataclass(frozen=True)
-class TokenEstimate:
-    tokens: int
-    source: str
-
-    def __post_init__(self) -> None:
-        if self.tokens < 0 or not self.source:
-            raise ValueError("Token estimates require nonnegative tokens and a source")
+from ..types import TokenEstimate, WireMessage, WireTool
 
 
 @dataclass(frozen=True)
@@ -30,9 +22,9 @@ class TokenCountRequest:
     Counters must be deterministic and must not mutate the supplied content.
     """
 
-    messages: tuple[dict[str, Any], ...]
+    messages: tuple[WireMessage, ...]
     system: str | None = None
-    tools: tuple[dict[str, Any], ...] = ()
+    tools: tuple[WireTool, ...] = ()
 
 
 class TokenCounter(Protocol):

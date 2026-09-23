@@ -6,13 +6,14 @@ from copy import deepcopy
 import pytest
 
 from liteagents import (
+    BatchUpdate,
     CompactionCompleted,
     CompactionError,
     CompactionFailed,
     CompactionResult,
     CompactionSkipped,
-    CompactionUpdate,
     ContextBudgetExceeded,
+    HistoryEdit,
     LiteAgentClient,
     LiteAgentOptions,
     PruneToolResults,
@@ -22,6 +23,7 @@ from liteagents import (
     Summarize,
     SummaryMessage,
     TokenCountRequest,
+    TokenUsage,
     TurnThreshold,
     UserMessage,
     any_of,
@@ -71,7 +73,7 @@ async def test_cascade_reduces_before_main_request_and_replays_as_one_update(
         assert len(completed) == 1
         update = completed[0].update
         assert len(update.steps) == stage_count
-        assert completed[0].tokens_after <= min(target, window - 100)
+        assert completed[0].after.tokens <= min(target, window - 100)
         mirror = apply_compaction([*initial, UserMessage("current request")], update)
         assert [*mirror, events[-1]] == agent.history
     assert [call["model"] for call in mock_anthropic_messages.calls] == expected_models
@@ -86,8 +88,8 @@ async def test_no_reduction_does_not_block_later_strategy_or_commit_its_state(fi
             if first == "none":
                 return None
             return CompactionResult(
-                CompactionUpdate(len(context.messages), prefix=ReplacePrefix(2, "bigger " * 2000)),
-                state="must not commit", usage={"input_tokens": 7, "output_tokens": 9},
+                HistoryEdit(len(context.messages), prefix=ReplacePrefix(2, "bigger " * 2000)),
+                state="must not commit", usage=TokenUsage(input_tokens=7, output_tokens=9),
             )
 
     class Second:
@@ -95,8 +97,8 @@ async def test_no_reduction_does_not_block_later_strategy_or_commit_its_state(fi
             observed.append(context)
             assert context.state is None
             return CompactionResult(
-                CompactionUpdate(len(context.messages), prefix=ReplacePrefix(2, "short")),
-                state="committed", usage={"input_tokens": 3, "output_tokens": 2},
+                HistoryEdit(len(context.messages), prefix=ReplacePrefix(2, "short")),
+                state="committed", usage=TokenUsage(input_tokens=3, output_tokens=2),
             )
 
     runtime = CompactionRuntime(policy(strategy=cascade([First(), Second()]), target_tokens=1000))
@@ -105,8 +107,8 @@ async def test_no_reduction_does_not_block_later_strategy_or_commit_its_state(fi
     assert isinstance(events[-1], CompactionCompleted)
     assert observed[0].messages == (*old_history(), UserMessage("current"))
     assert runtime.state == (None, "committed")
-    assert events[-1].usage["input_tokens"] == (10 if first == "growing" else 3)
-    assert events[-1].usage["output_tokens"] == (11 if first == "growing" else 2)
+    assert events[-1].usage.input_tokens == (10 if first == "growing" else 3)
+    assert events[-1].usage.output_tokens == (11 if first == "growing" else 2)
 
 
 @pytest.mark.parametrize("failure", ["error", "invalid-edit", "no-fit"])
@@ -118,8 +120,8 @@ async def test_later_failure_rolls_back_all_history_and_state(failure):
         async def compact(self, context):
             context.state["count"] += 1
             return CompactionResult(
-                CompactionUpdate(len(context.messages), prefix=ReplacePrefix(2, "checkpoint " * 100)),
-                state=context.state, usage=paid,
+                HistoryEdit(len(context.messages), prefix=ReplacePrefix(2, "checkpoint " * 100)),
+                state=context.state, usage=TokenUsage.from_dict(paid),
             )
 
     class Second:
@@ -128,9 +130,9 @@ async def test_later_failure_rolls_back_all_history_and_state(failure):
             assert isinstance(context.messages[0], SummaryMessage)
             assert context.state == {"count": 0}
             if failure == "error":
-                raise CompactionError("summary failed", usage={"input_tokens": 3, "output_tokens": 1})
+                raise CompactionError("summary failed", usage=TokenUsage(input_tokens=3, output_tokens=1))
             if failure == "invalid-edit":
-                return CompactionResult(CompactionUpdate(99), usage={"input_tokens": 3, "output_tokens": 1})
+                return CompactionResult(HistoryEdit(99), usage=TokenUsage(input_tokens=3, output_tokens=1))
             return None
 
     class MustNotRun:
@@ -149,15 +151,15 @@ async def test_later_failure_rolls_back_all_history_and_state(failure):
     assert history.raw() == before
     assert runtime.state == ({"count": 0}, {"count": 0}, None)
     assert isinstance(events[-1], CompactionFailed)
-    assert events[-1].usage["stages"][0] == paid
+    assert events[-1].usage.stages[0].to_dict() == paid
     assert error.value.usage == events[-1].usage
     if failure == "no-fit":
         assert isinstance(error.value, ContextBudgetExceeded)
         assert calls == ["second", "fallback"]
-        assert error.value.usage["input_tokens"] == 7
+        assert error.value.usage.input_tokens == 7
     else:
         assert calls == ["second"]
-        assert error.value.usage["input_tokens"] == 10
+        assert error.value.usage.input_tokens == 10
 
 
 async def test_reused_child_has_independent_state_per_position_and_client():
@@ -169,7 +171,7 @@ async def test_reused_child_has_independent_state_per_position_and_client():
                 if isinstance(message, UserMessage) and isinstance(message.content, list):
                     result = message.content[0]
                     if len(result.content) > 100:
-                        return CompactionResult(CompactionUpdate(len(context.messages), tool_results=(
+                        return CompactionResult(HistoryEdit(len(context.messages), tool_results=(
                             ReplaceToolResult(index, result.tool_use_id, "short"),
                         )), state=state)
             return None
@@ -207,7 +209,7 @@ async def test_preview_counts_raw_blocks_system_and_tools_without_modifying_hist
     expected = count_chars("main", TokenCountRequest(tuple(history.raw()), "system " * 100,
                                                        tuple(tool.to_anthropic_tool() for tool in tools)))
     assert observed[0].tokens == expected
-    assert events[-1].tokens_after == expected.tokens
+    assert events[-1].after.tokens == expected.tokens
     assert history.raw()[1]["content"] == raw
     assert observed[0].message_tokens[1] == count_chars("main", TokenCountRequest((history.raw()[1],))).tokens
 
@@ -253,11 +255,9 @@ async def test_cascade_requires_a_target_and_does_no_work_when_already_met(targe
 
 
 @pytest.mark.parametrize("update", [
-    pytest.param(CompactionUpdate(2, steps=(CompactionUpdate(3),)), id="wrong-batch-length"),
-    pytest.param(CompactionUpdate(3, prefix=ReplacePrefix(2, "summary"), steps=(CompactionUpdate(3),)),
-                 id="mixed-batch-and-direct-edits"),
-    pytest.param(CompactionUpdate(3, steps=(CompactionUpdate(3, prefix=ReplacePrefix(2, "summary")),
-                                          CompactionUpdate(3))), id="stale-child-indices"),
+    pytest.param(BatchUpdate(2, steps=(HistoryEdit(3),)), id="wrong-batch-length"),
+    pytest.param(BatchUpdate(3, steps=(HistoryEdit(3, prefix=ReplacePrefix(2, "summary")),
+                                          HistoryEdit(3))), id="stale-child-indices"),
 ])
 def test_invalid_batch_leaves_history_unchanged(update):
     history = ConversationHistory([*old_history(), UserMessage("current")])

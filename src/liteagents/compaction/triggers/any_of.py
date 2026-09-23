@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 
-from ..base import CompactionContext, CompactionTrigger
+from ..base import CompactionTrigger, TriggerContext
 
 
 @dataclass(frozen=True)
@@ -16,7 +16,7 @@ class AnyOf:
         if not self.triggers:
             raise ValueError("any_of requires at least one trigger")
 
-    def should_compact(self, context: CompactionContext) -> bool:
+    def should_compact(self, context: TriggerContext) -> bool:
         return any(trigger.should_compact(deepcopy(context)) for trigger in self.triggers)
 
 

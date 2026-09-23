@@ -4,19 +4,16 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from copy import deepcopy
-from dataclasses import replace
 from typing import Any
 
 from ..compaction import (
-    CompactionContext,
     CompactionError,
     CompactionOptions,
     ContextBudgetExceeded,
-    TokenCountRequest,
-    TokenEstimate,
+    TriggerContext,
     context_window,
 )
-from ..history import ConversationHistory, safe_boundaries
+from ..history import ConversationHistory
 from ..tools import Tool
 from ..types import (
     CompactionCompleted,
@@ -26,6 +23,8 @@ from ..types import (
     CompactionSkipped,
     CompactionStarted,
 )
+from ..usage import TokenUsage
+from .compaction_context import HistorySnapshot, RuntimeContext, SummaryService, TokenMeasurements
 from .context_tokens import ContextTokens
 
 
@@ -44,22 +43,14 @@ class CompactionRuntime:
     ) -> AsyncGenerator[CompactionEvent, None]:
         self.last_model = model
         options = self.options
-        snapshot = history.snapshot()
-        schemas = [tool.to_anthropic_tool() for tool in tools] or None
-
+        measurements = TokenMeasurements(options)
+        snapshot = HistorySnapshot(history.snapshot(), model, system,
+            tuple(tool.to_anthropic_tool() for tool in tools), measurements)
         settings = {"tool_choice": tool_choice, **(model_kwargs or {})}
-
-        def request(candidate: ConversationHistory) -> TokenCountRequest:
-            return TokenCountRequest(tuple(deepcopy(candidate.raw())), system,
-                                     tuple(deepcopy(schemas or [])))
-
-        def count(candidate: ConversationHistory) -> TokenEstimate:
-            return options.token_counter(model, request(candidate))
-
         reason: CompactionReason = "manual" if manual else "threshold"
-        usage: dict[str, Any] | None = None
+        usage: TokenUsage | None = None
         try:
-            before = self.context_tokens.count(model, request(snapshot), settings, options.token_counter)
+            before = self.context_tokens.count(model, snapshot.request, settings, measurements.count)
             window = context_window(model, options.context_windows)
             budget = window - max_tokens - options.safety_margin if window is not None else None
             if budget is not None and budget <= 0:
@@ -75,32 +66,17 @@ class CompactionRuntime:
             if target is not None and budget is not None:
                 target = min(target, budget)
 
-            def make_context(candidate: ConversationHistory) -> CompactionContext:
-                return CompactionContext(
-                    messages=tuple(deepcopy(candidate.messages)), model=model,
-                    tokens=before if candidate is snapshot else count(candidate), input_budget=budget,
-                    message_tokens=tuple(options.token_counter(
-                        model, TokenCountRequest((deepcopy(message),))
-                    ).tokens for message in candidate.raw()),
-                    boundaries=safe_boundaries(candidate.messages), reason=reason,
-                    system=system, instructions=instructions, state=deepcopy(self.state),
-                    model_kwargs=deepcopy(model_kwargs or {}),
-                    context_windows=dict(options.context_windows), token_counter=options.token_counter,
-                    safety_margin=options.safety_margin, target_tokens=target,
-                    _preview=lambda update: make_context(candidate.compacted(update)),
-                )
-
-            context = make_context(snapshot)
             if not manual and not over_budget:
                 assert options.trigger is not None
-                # Triggers receive their own detached state/history, just like strategies.
-                if not options.trigger.should_compact(replace(
-                    context, messages=tuple(deepcopy(context.messages)), state=deepcopy(context.state),
-                    model_kwargs=deepcopy(context.model_kwargs),
-                    context_windows=dict(context.context_windows),
-                )):
+                trigger_context = TriggerContext(tuple(deepcopy(snapshot.history.messages)),
+                                                 model, before, budget, reason)
+                if not options.trigger.should_compact(trigger_context):
                     return
-            yield CompactionStarted(reason, model, before.tokens, before.source)
+            # Validate complete tool groups before handing history to a strategy.
+            _ = snapshot.boundaries
+            context = RuntimeContext(snapshot, SummaryService(options, measurements, model_kwargs or {}),
+                                     before, budget, reason, target, instructions, deepcopy(self.state))
+            yield CompactionStarted(reason, model, before)
             result = await options.strategy.compact(context)
             if result is None:
                 if over_budget:
@@ -108,9 +84,9 @@ class CompactionRuntime:
                 yield CompactionSkipped(reason, model, "No applicable reduction")
                 return
             usage = deepcopy(result.usage)
-            candidate = snapshot.compacted(result.update)
-            after = count(candidate)
-            if after.tokens >= count(snapshot).tokens:
+            candidate = snapshot.apply(result.update)
+            after = candidate.local_tokens
+            if after.tokens >= snapshot.local_tokens.tokens:
                 if over_budget:
                     raise ContextBudgetExceeded("Compaction did not reduce the oversized context")
                 yield CompactionSkipped(reason, model, "Proposed context was not smaller", usage)
@@ -119,10 +95,9 @@ class CompactionRuntime:
                 raise ContextBudgetExceeded("Compacted context still exceeds the selected model's input budget")
             # Everything that can fail is prepared before either history or state is committed.
             state = deepcopy(result.state)
-            event = CompactionCompleted(reason, model, before.tokens, after.tokens, before.source,
-                                        deepcopy(result.update), deepcopy(result.usage),
-                                        token_source_after=after.source)
-            history.commit(candidate, expected_version=snapshot.version)
+            event = CompactionCompleted(reason, model, before, after,
+                                        deepcopy(result.update), deepcopy(result.usage))
+            history.commit(candidate.history, expected_version=snapshot.history.version)
             self.context_tokens.clear()
             self.state = state
             yield event
