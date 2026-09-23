@@ -99,3 +99,27 @@ private repositories are sent to the research gateway.
 Research policy variants patch the boundary only inside the harness process.
 They are not extra SDK features or defaults. The final report distinguishes
 exploratory settings, failed attempts, controls, and fresh-seed validation.
+
+The `codex_review` scenario uses six real public source files from Codex 0.153.4,
+with their license and provenance in `fixtures/`. It checks current gateway
+eligibility, reset semantics, read-only history, search behavior and exact limits.
+The code is passed as review evidence and is never executed.
+
+Serial matrices are available through `sweep.py --phase explore|holdout|scale`.
+Use a fresh `--seed` for holdouts and the same private ledger directory across
+phases. The report explains why the exploratory versions are not all directly
+comparable. Complete local JSON files can be packaged with:
+
+```sh
+python research/background_memory/analyze.py
+```
+
+To read the committed complete traces without running any models:
+
+```python
+import gzip, json
+from pathlib import Path
+traces = json.loads(gzip.decompress(Path(
+    "research/background_memory/results/traces.json.gz"
+).read_bytes()))
+```

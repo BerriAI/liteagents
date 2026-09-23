@@ -10,7 +10,7 @@ from typing_extensions import Self
 
 from ._internal.compaction_runtime import make_compaction_runtime
 from ._internal.memory_runtime import BackgroundMemoryRuntime
-from .compaction import CompactionOptions
+from .compaction import CompactionError, CompactionOptions
 from .compaction.background import BackgroundMemoryOptions, MemorySnapshot
 from .fusion import FusionOptions, FusionRuntime
 from .history import ConversationHistory
@@ -160,10 +160,13 @@ class LiteAgentClient:
         if target is None:
             raise ValueError("Pass model= when compacting before the router's first selection")
         self._busy = True
+        checkpoint = None
+        completed: list[CompactionCompleted] = []
         try:
+            if isinstance(self._compaction, BackgroundMemoryRuntime):
+                checkpoint = self._compaction.checkpoint(self._history)
             tools = self._fusion.tools_for_main_loop() if self._fusion else self._options.tools
             outcome: CompactionCompleted | CompactionSkipped | None = None
-            completed: list[CompactionCompleted] = []
             async with aclosing(self._compaction.run(
                 history=self._history, model=target, system=self._options.system, tools=tools,
                 max_tokens=self._options.max_tokens, model_kwargs=self._options.model_kwargs,
@@ -183,6 +186,13 @@ class LiteAgentClient:
                 )
             assert outcome is not None
             return outcome
+        except BaseException as exc:
+            if checkpoint is not None and isinstance(self._compaction, BackgroundMemoryRuntime):
+                await self._compaction.rollback(self._history, checkpoint)
+            if isinstance(exc, CompactionError):
+                exc.usage = TokenUsage.combine([e.usage for e in completed if e.usage is not None]
+                                               + ([exc.usage] if exc.usage is not None else []))
+            raise
         finally:
             self._busy = False
 

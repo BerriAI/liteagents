@@ -24,6 +24,8 @@ def summary(result):
             "turns": len(latencies), "main_calls": len(main), "observer_calls": len(calls) - len(main),
             "recovery_calls": sum(c["name"].startswith("memory_") for c in result.get("tool_calls", [])),
             "error": result.get("error"), "checks": result["checks"],
+            "observer_failures": result.get("failures", []),
+            "interrupted_turns": result.get("interruptions", []),
             "action_check": result.get("action_check"), "workflow_check": result.get("workflow_check"),
             "configuration": result.get("configuration"), "source_digest": result.get("source_digest"),
             "research_digest": result.get("research_digest")}
@@ -43,8 +45,10 @@ def main():
     print("| Run | Pass | Cost | Peak input | Cache read | Median / p95 seconds |")
     print("|---|---:|---:|---:|---:|---:|")
     for r in rows:
+        median = f"{r['median_turn_seconds']:.2f}" if r["median_turn_seconds"] is not None else "—"
+        p95 = f"{r['p95_turn_seconds']:.2f}" if r["p95_turn_seconds"] is not None else "—"
         print(f"| {r['label']} | {r['passed']} | ${r['cost']:.4f} | {r['peak_main_input']:,} | "
-              f"{r['main_cache_read_fraction']:.0%} | {r['median_turn_seconds']:.2f} / {r['p95_turn_seconds']:.2f} |")
+              f"{r['main_cache_read_fraction']:.0%} | {median} / {p95} |")
 
 
 if __name__ == "__main__":

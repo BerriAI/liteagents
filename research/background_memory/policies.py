@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 
-from liteagents.compaction.tokens import TokenCountRequest
 from liteagents._internal.memory_observer import Observation, combined_usage, observe
+from liteagents.compaction.tokens import TokenCountRequest
 
 JSON_STATE = """Represent working memory as one compact JSON object with keys goal,
 constraints, current_state, decisions, open_work, evidence_index. Use maps for current facts,

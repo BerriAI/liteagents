@@ -12,16 +12,24 @@ from contextlib import aclosing
 from pathlib import Path
 
 import litellm
+from gateway import MAIN, MEMORY, Gateway
+from policies import JSON_STATE, TERSE_STATE, delta_observer
+from scenarios import SetStatus, scenarios
 
 from liteagents import (
-    AssistantMessage, BackgroundMemoryOptions, CompactionCompleted, CompactionFailed,
-    CompactionOptions, LiteAgentClient, LiteAgentOptions, RecentTokens, Summarize,
-    TextBlock, TokenThreshold, ToolUseBlock,
+    AssistantMessage,
+    BackgroundMemoryOptions,
+    CompactionCompleted,
+    CompactionFailed,
+    CompactionOptions,
+    LiteAgentClient,
+    LiteAgentOptions,
+    RecentTokens,
+    Summarize,
+    TextBlock,
+    TokenThreshold,
+    ToolUseBlock,
 )
-
-from gateway import Gateway, MAIN, MEMORY
-from scenarios import SetStatus, scenarios
-from policies import JSON_STATE, TERSE_STATE, delta_observer
 
 SYSTEM = """Complete the user's tasks accurately across this conversation. Later user corrections
 supersede earlier requirements. Distinguish proposals from approved changes. Use available tools
@@ -118,7 +126,7 @@ async def run_case(gateway, scenario, mode, args):
                     await asyncio.sleep(args.user_pause)
             if mode == "background" and agent._compaction._task is not None:
                 await agent.compact()  # settle the already-started final observation for billing
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 -- failures are measured outcomes
             result["error"] = type(exc).__name__ + ": " + str(exc)
         result["final_memory"] = agent.memory.notes if agent.memory else None
         for tool in scenario.tools:
@@ -154,7 +162,7 @@ async def main(args):
     output.mkdir(parents=True, exist_ok=True)
     gateway = Gateway(root)
     gateway.layout, gateway.stable_notes = args.layout, args.stable_notes
-    import liteagents._internal.memory_runtime as memory_runtime
+    from liteagents._internal import memory_runtime
     original_observer = memory_runtime.observe
     if args.style == "delta":
         memory_runtime.observe = delta_observer

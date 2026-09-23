@@ -92,7 +92,8 @@ def make_inventory(seed: int, long: bool, *, scale: int = 1) -> Scenario:
 class ReadRecord(Tool):
     name = "read_record"
     description = "Read an incident record and its diagnostic log."
-    input_schema = {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}
+    input_schema = {  # noqa: RUF012 -- Tool supports class schemas
+"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}
 
     def __init__(self, records):
         self.records = records
@@ -104,7 +105,8 @@ class ReadRecord(Tool):
 class SetStatus(Tool):
     name = "set_status"
     description = "Set an incident's status. This changes a disposable in-memory fixture only."
-    input_schema = {"type": "object", "properties": {"id": {"type": "string"}, "status": {"type": "string"}},
+    input_schema = {  # noqa: RUF012 -- Tool supports class schemas
+"type": "object", "properties": {"id": {"type": "string"}, "status": {"type": "string"}},
                     "required": ["id", "status"]}
 
     def __init__(self, records):
@@ -162,6 +164,10 @@ def make_lookup(seed: int, long: bool, *, scale: int = 1) -> Scenario:
 
 
 def scenarios(seed: int, selected: str = "all", heldout: bool = False, scale: int = 1):
+    if selected == "codex_review":
+        from source_review import make_source_review
+        yield make_source_review(seed)
+        return
     from workflows import make_workflow
     factories = {"release": make_release, "inventory": make_inventory,
                  "incidents": make_incidents, "lookup": make_lookup, "workflow": make_workflow}

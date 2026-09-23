@@ -269,6 +269,22 @@ class BackgroundMemoryRuntime:
                 yield CompactionSkipped("manual", self.options.model, "No unprocessed prefix")
             return
 
+    def checkpoint(self, history: ConversationHistory) -> tuple[
+        ConversationHistory, MemorySnapshot, list[int | None], int,
+    ]:
+        """Manual compact() withholds events, so its multi-chunk edit is atomic."""
+        self.capture(history)
+        return history.snapshot(), self.memory, list(self._ids), self._seen
+
+    async def rollback(self, history: ConversationHistory, checkpoint: tuple[
+        ConversationHistory, MemorySnapshot, list[int | None], int,
+    ]) -> None:
+        await self.cancel_pending()
+        snapshot, self.memory, self._ids, self._seen = checkpoint
+        history.commit(snapshot, expected_version=history.version)
+        self.context_tokens.clear()
+        self._error = None
+
     async def cancel_pending(self) -> None:
         task, self._task = self._task, None
         if task is not None:

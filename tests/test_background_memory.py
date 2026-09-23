@@ -581,3 +581,79 @@ async def test_output_truncation_gets_one_same_source_repair_with_usage(monkeypa
         assert requests[0]["messages"] == requests[1]["messages"]
         assert "incomplete" in requests[1]["system"]
         assert client.memory.notes == "Verified current state"
+
+
+async def test_fusion_observer_is_independent_and_closed_with_runtime(provider):
+    from liteagents import FusionOptions
+    from liteagents.fusion import FusionRuntime
+    runtime = FusionRuntime(main_tools=[], options=FusionOptions(
+        sidekick_model="sidekick", sidekick_compaction=memory_options(),
+    ))
+    answer = await runtime.delegate("independent subtask")
+    assert answer
+    await asyncio.wait_for(provider.started.wait(), 1)
+    assert runtime._compaction.archive.messages[0].content == "independent subtask"
+    await runtime.close()
+    assert provider.cancelled.is_set()
+
+
+async def test_closing_streamed_followup_cancels_observer_and_provider(monkeypatch):
+    from liteagents import TextDelta
+
+    from .test_streaming import Stream, response_events
+    started, cancelled = asyncio.Event(), asyncio.Event()
+    streams = []
+    async def provider(**kwargs):
+        if kwargs["model"] == "memory":
+            started.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+        stream = Stream(response_events(text="response"))
+        streams.append(stream)
+        return stream
+
+    monkeypatch.setattr("litellm.anthropic_messages", provider)
+    async with LiteAgentClient(options=LiteAgentOptions(
+        model="main", stream=True, compaction=memory_options(),
+    )) as client:
+        await collect(client, "first")
+        await asyncio.wait_for(started.wait(), 1)
+        async with aclosing(client.query("followup")) as events:
+            async for event in events:
+                if isinstance(event, TextDelta):
+                    break
+        assert cancelled.is_set()
+        assert all(stream.closed for stream in streams)
+        # Incomplete streamed messages are not committed, matching the SDK's
+        # existing streaming contract. The incoming human request survives.
+        assert client.transcript[-1] == UserMessage("followup")
+
+
+async def test_manual_multi_observation_failure_rolls_back_and_accounts_for_completed_work(monkeypatch):
+    from liteagents import TextBlock
+    calls = 0
+    async def provider(**kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise ConnectionError("second chunk failed")
+        return text_response("Current state", model="memory")
+
+    monkeypatch.setattr("litellm.anthropic_messages", provider)
+    history = [item for i in range(5) for item in (
+        UserMessage(f"instruction {i} " + "x" * 700),
+        AssistantMessage([TextBlock("answer " * 100)], "main"),
+    )]
+    async with LiteAgentClient(options=LiteAgentOptions(
+        model="main", compaction=memory_options(max_context_tokens=3500, max_observation_tokens=3200),
+    ), history=history) as client:
+        with pytest.raises(ContextBudgetExceeded, match="second chunk failed") as error:
+            await client.compact()
+        assert client.history == client.transcript == history
+        assert client.memory.version == 0
+        assert error.value.usage.input_tokens == 1
+        result = await client.compact()
+        assert replay_events(history, [result]) == client.history
