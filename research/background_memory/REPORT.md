@@ -37,6 +37,15 @@ simulated user pause. A final already-running observation is settled for cost
 accounting after the last answer, outside turn latency. All trials use the same
 reasoning setting; low temperature or deterministic sampling is not assumed.
 
+**Measurement correction:** v1–v6 allowed gateway whole-response caching. A v7
+diagnostic reproduced identical response IDs and a 0.09-second repeated response,
+even though the cache-hit header was absent. Those early cost/latency comparisons
+are exploratory and potentially contaminated. Starting with v7, whole-response
+reuse is explicitly disabled, while provider prompt-prefix caching remains
+enabled. Response-ID hashes provide an additional audit trail. Costs are gateway
+reported charges or usage-based estimates, plus reservations for ambiguous calls;
+they are not independently reconciled account invoices.
+
 The shared private ledger enforces a $190 ceiling under the authorized $200
 maximum. Its credentials and raw account metadata are excluded from this PR.
 `results/summary.json` contains compact metrics and exact checks;
@@ -74,7 +83,7 @@ local result files to rebuild both artifacts.
   must inspect state before retrying. The live transfer fixture deliberately
   cancels after committing an action to exercise this distinction.
 
-## Exploratory comparison (seed 901)
+## Exploratory comparison (seed 901; response caching not controlled)
 
 Working notes, 8k input budget, 1k note budget, and a 4k observation batch.
 
@@ -86,8 +95,8 @@ Working notes, 8k input budget, 1k note budget, and a 4k observation batch.
 | lookup | $0.707 / $0.627 | 29,872 / 7,267 | 1.92 / 2.53 | True |
 | workflow | $0.381 / $0.370 | 13,643 / 5,579 | 5.19 / 4.86 | True |
 
-These are exploratory observations, not confidence intervals. Fresh-seed and
-longer-horizon validation are in progress in this draft.
+These are exploratory observations, not confidence intervals or the final
+performance comparison. Fresh-seed validation uses the corrected v7 harness.
 
 ### Note format and synchronous control
 

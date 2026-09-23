@@ -94,3 +94,23 @@ all these artifacts.
 - Next: fresh short/long validation, scaled histories, real public-source review,
   and the aggressive tool-receipt regression. Preserve the $200 authorization as
   a ceiling, with the harness limited to $190; spend is not a target.
+
+## 2026-09-23 UTC: v6 measurement correction and v7 cache control
+
+- All ten v6 short trials passed, with no observer calls. However, two background
+  cases had median latencies near 0.1 seconds. Their response-cache header was
+  absent, so its absence could not establish that requests were fresh.
+- Stopped the owned v6 long sweep to investigate; the interrupted full-release
+  case is automatically retained as `research-aborted`, with its reservation.
+- A four-request Luna diagnostic confirmed whole-response reuse: two identical
+  requests with caching allowed returned the same response-ID hash, and the
+  second completed in 0.09 seconds. With gateway `no-cache` / `no-store` controls,
+  subsequent requests returned distinct hashes at 0.79 and 0.89 seconds.
+- Decision: all regular research calls now disable gateway whole-response reuse
+  and record response-ID hashes. Provider prompt-prefix caching stays enabled.
+  Earlier v1–v6 latency/cost comparisons remain exploratory and potentially
+  contaminated; they are not the final performance evidence. Earlier costs are
+  reported/estimated usage charges and conservative reservations, not a verified
+  account invoice. Source, outcomes and failed attempts remain unchanged.
+- v7 reruns short/long matched controls, scaled histories, real source review,
+  and the aggressive receipt case with this corrected measurement boundary.

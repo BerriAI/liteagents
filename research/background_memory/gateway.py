@@ -7,6 +7,7 @@ continues to call LiteLLM. Credentials are read from a caller-owned private file
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import re
 import time
@@ -27,7 +28,7 @@ class BudgetExceeded(RuntimeError):
 
 
 class Gateway:
-    def __init__(self, root: Path, *, budget: float = 190.0):
+    def __init__(self, root: Path, *, budget: float = 190.0, allow_response_cache: bool = False):
         self.root = root
         self.budget = min(budget, 190.0)  # leave headroom below the user's $200 ceiling
         self.ledger_path = root / "ledger.json"
@@ -43,6 +44,7 @@ class Gateway:
         self.fail_memory = False
         self.layout = "prefix"
         self.stable_notes = False
+        self.allow_response_cache = allow_response_cache  # diagnostic probe only
 
     def write(self):
         temp = self.ledger_path.with_suffix(".tmp")
@@ -65,6 +67,10 @@ class Gateway:
                    if kwargs.get(k) is not None}
         payload["model"] = model
         payload["stream"] = False
+        # Disable whole-response reuse at the gateway. Provider prompt-prefix
+        # caching remains enabled and is measured through provider token usage.
+        if not self.allow_response_cache:
+            payload["cache"] = {"no-cache": True, "no-store": True}
         if role == "main" and (self.stable_notes or self.layout != "prefix"):
             messages = deepcopy(payload["messages"])
             if messages and isinstance(messages[0].get("content"), str) and messages[0]["content"].startswith("Summary of earlier conversation"):
@@ -85,7 +91,8 @@ class Gateway:
                    + payload["max_tokens"] * output_rate * 1.5)
         record = {"id": str(uuid.uuid4()), "label": self.label, "model": model, "role": role,
                   "charged_or_reserved": reserve, "reserve": reserve, "status": "pending",
-                  "request_bytes": serialized_bytes, "max_tokens": payload["max_tokens"]}
+                  "request_bytes": serialized_bytes, "max_tokens": payload["max_tokens"],
+                  "gateway_response_cache": "allowed" if self.allow_response_cache else "disabled"}
         async with self.lock:
             if self.committed + reserve > self.budget:
                 raise BudgetExceeded(f"Research spend ceiling reached: ${self.committed:.2f}")
@@ -93,7 +100,8 @@ class Gateway:
             self.write()
         start = time.monotonic()
         try:
-            response = await self.client.post("/v1/messages", json=payload)
+            response = await self.client.post("/v1/messages", json=payload,
+                headers={} if self.allow_response_cache else {"Cache-Control": "no-cache, no-store"})
             record["http_status"] = response.status_code
             if response.status_code != 200:
                 # Never put request headers or raw credentials in error reports.
@@ -101,6 +109,8 @@ class Gateway:
                 record["error_type"] = detail.get("type") if isinstance(detail, dict) else "gateway_error"
                 raise RuntimeError(f"Gateway HTTP {response.status_code}: {record['error_type']}")
             data = response.json()
+            if data.get("id"):
+                record["response_id_sha256"] = hashlib.sha256(data["id"].encode()).hexdigest()
             record["stop_reason"] = data.get("stop_reason")
             record["tool_names"] = [b.get("name") for b in data.get("content", []) if b.get("type") == "tool_use"]
             usage = data.get("usage", {})
@@ -113,6 +123,9 @@ class Gateway:
                                         + cache_tokens * cache_rate + creation_tokens * input_rate * 1.25)
             record["header_cost"] = response.headers.get("x-litellm-response-cost")
             record["response_cache_hit"] = response.headers.get("x-litellm-cache-hit")
+            record["cache_headers"] = {k: response.headers[k] for k in (
+                "x-cache", "x-litellm-cache-hit", "x-litellm-cached-response",
+            ) if k in response.headers}
             actual = float(record["header_cost"]) if record["header_cost"] is not None else record["estimated_cost"]
             if not usage or actual <= 0:
                 actual = reserve  # missing accounting must never create free budget

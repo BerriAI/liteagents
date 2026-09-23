@@ -109,6 +109,11 @@ Research policy variants patch the boundary only inside the harness process.
 They are not extra SDK features or defaults. The final report distinguishes
 exploratory settings, failed attempts, controls, and fresh-seed validation.
 
+The gateway disables whole-response caching with `no-cache` and `no-store`;
+provider prompt-prefix caching remains enabled and measured. v1–v6 did not
+control whole-response reuse and must not be treated as final performance
+comparisons. v7 records response-ID hashes to audit fresh generation.
+
 The `codex_review` scenario uses six real public source files from Codex 0.153.4,
 with their license and provenance in `fixtures/`. It checks current gateway
 eligibility, reset semantics, read-only history, search behavior and exact limits.
