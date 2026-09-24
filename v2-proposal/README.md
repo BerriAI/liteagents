@@ -116,6 +116,70 @@ model_kwargs:
 
 The profile combines these settings with the model’s proxy configuration. Settings such as reasoning effort can be changed here without separately editing the proxy’s `config.yaml`.
 
+## Tools
+
+Tools come from three places:
+
+| Source | Definition and execution |
+| --- | --- |
+| Harness | Built-in tools supplied by the selected framework. For example, DeepAgents supplies `read_file` and `edit_file`. |
+| Application | A `Tool` implementation supplied by your code, such as `run_tests`. The adapter exposes it to the selected harness. |
+| MCP server | Tools discovered from a configured server and called through MCP. The server supplies their names, descriptions, and input schemas. |
+
+Names such as `read_file` are framework-specific. MCP standardizes how tools are discovered and called; it does not standardize their names or behavior.
+
+### Define an application tool
+
+A `Tool` has a name, a description, a JSON input schema, and an async `execute()` method:
+
+```python
+# my_app/tools.py
+import asyncio
+import sys
+
+from liteagents import Tool
+
+
+class RunTestsTool(Tool):
+    name = "run_tests"
+    description = "Run pytest on a test file or directory."
+    input_schema = {
+        "type": "object",
+        "properties": {"path": {"type": "string"}},
+        "required": ["path"],
+        "additionalProperties": False,
+    }
+
+    async def execute(self, input: dict) -> str:
+        process = await asyncio.create_subprocess_exec(
+            sys.executable, "-m", "pytest", "--", input["path"],
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+        )
+        output, _ = await process.communicate()
+        return f"Exit code: {process.returncode}\n{output.decode(errors='replace')}"
+```
+
+For an in-process run, supply the implementation alongside the profile:
+
+```python
+from liteagents import LiteAgentOptions, ProfileOptions
+from my_app.tools import RunTestsTool
+
+options = LiteAgentOptions(
+    profile=ProfileOptions(
+        harness="deepagents",
+        model="openai/gpt-5.4-mini",
+        tools=["run_tests"],
+    ),
+    tools=[RunTestsTool()],
+)
+```
+
+The profile selects the tool by name; `options.tools` supplies its implementation. Saved YAML/JSON profiles contain names, not executable code. Unknown or ambiguous tool names raise a configuration error.
+
+For Temporal runs, supply application tools to the worker instead. The application and its workers must provide the tool’s dependencies and workspace; this example requires pytest in the environment where it executes.
+
 ## Temporal
 
 Add `temporal` settings to the profile to run the agent through Temporal. Start a worker against an existing Temporal service:
@@ -124,9 +188,13 @@ Add `temporal` settings to the profile to run the agent through Temporal. Start 
 # worker.py
 from liteagents import ProfileOptions
 from liteagents.temporal import LiteAgentWorker
+from my_app.tools import RunTestsTool
 
 profile = ProfileOptions.from_yaml("agent.yaml")
-await LiteAgentWorker(profile=profile).run()
+await LiteAgentWorker(
+    profile=profile,
+    tools=[RunTestsTool()],
+).run()
 ```
 
 From the application, run the agent with an ID:
