@@ -24,7 +24,7 @@ async with LiteAgentClient(options=options) as agent:
 
 ## Harnesses
 
-The harness runs the agent loop. Select it through the profile and keep the same application code.
+The harness runs the agent loop. Select it through the profile.
 
 | Framework | `harness` |
 | --- | --- |
@@ -35,7 +35,9 @@ The harness runs the agent loop. Select it through the profile and keep the same
 | OpenCode v1 | `opencode-v1` |
 | OpenCode v2 | `opencode-v2` |
 
-Models and tools must be supported by the selected harness. Its native MCP support, subagents, and framework options remain accessible through the SDK.
+The client and `query()` interface stay the same. Each harness returns the same liteagents message types for text, tool calls, and tool results, so your message-handling code carries over.
+
+For example, switching from DeepAgents to Pydantic AI may require registering file tools through Pydantic AI and changing `harness_options`. An MCP server can be reused if both harnesses support it. Models and tools still need to be compatible with the selected harness.
 
 ## Profiles
 
@@ -162,8 +164,10 @@ async with LiteAgentClient(options=options) as agent:
 The profile’s `recovery` settings control what happens when an operation fails:
 
 - `retries.max_attempts`: maximum attempts for an eligible model or tool operation, including the first attempt.
-- `model_fallbacks`: alternative models to try after a model request exhausts its retries.
-- `harness_fallbacks`: alternative harnesses to try when an agent attempt fails.
+- `model_fallbacks`: try another model after a model request exhausts its retries, keeping the conversation and tool definitions.
+- `harness_fallbacks`: start the original task with another harness and a fresh conversation.
+
+By default, harness fallback is automatic only before the first tool call. After a tool starts, recovery stays with the current harness. Fallback models and harnesses must support the configured tools and options.
 
 With Temporal enabled, retries use recorded progress. A tool that changes external state must tolerate being retried. If the configured recovery options are exhausted, the failure is returned to the caller.
 
