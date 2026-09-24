@@ -4,27 +4,44 @@ A proposed Python SDK for running agents across frameworks, with Temporal for ch
 
 ## Usage
 
-Pick a harness, define a profile, and call `query()`.
+This example gives DeepAgents access to a local project and renames a function. Set `OPENAI_API_KEY` before running.
 
 ```python
+import asyncio
+from pathlib import Path
+
+from deepagents.backends import FilesystemBackend
 from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
 
-options = LiteAgentOptions(
-    profile=ProfileOptions(
+
+async def main():
+    project = Path("example-project").resolve()
+    project.mkdir(exist_ok=True)
+    source = project / "greeting.py"
+    source.write_text("def greet():\n    return 'hello'\n")
+
+    profile = ProfileOptions(
         harness="deepagents",
         model="openai/gpt-5.4-mini",
-        model_kwargs={"reasoning_effort": "high"},
+        tools=["read_file", "edit_file"],
+        harness_options={
+            "backend": FilesystemBackend(root_dir=project, virtual_mode=True),
+        },
     )
-)
+    async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as agent:
+        async for message in agent.query("Rename greet to welcome in /greeting.py."):
+            print(message)
+    print(source.read_text())
 
-async with LiteAgentClient(options=options) as agent:
-    async for message in agent.query("Rename this function"):
-        print(message)
+
+asyncio.run(main())
 ```
+
+The backend maps `/greeting.py` to the real file at `example-project/greeting.py`.
 
 ## Harnesses
 
-The harness runs the agent loop. Select it through the profile and keep the same application code.
+The harness runs the agent loop. The client, `query()` call, and message types stay the same when you switch.
 
 | Framework | `harness` |
 | --- | --- |
@@ -35,71 +52,24 @@ The harness runs the agent loop. Select it through the profile and keep the same
 | OpenCode v1 | `opencode-v1` |
 | OpenCode v2 | `opencode-v2` |
 
-Models and tools must be supported by the selected harness. Its native MCP support, subagents, and framework options remain accessible through the SDK.
+`query()` yields shared `AssistantMessage` and `UserMessage` types containing text, tool calls, and tool results. With streaming enabled, it also yields `TextDelta` events. Each adapter maps its harness's output into these types.
+
+Switching this example to Pydantic AI keeps the prompt, client, and message-handling code. Replace DeepAgents' backend and built-in tools with Pydantic AI tools, or connect both to the same MCP server. Models and native options must be supported by the chosen harness.
 
 ## Profiles
 
-A profile holds the agent’s configuration: harness, model parameters, tools, MCP servers, subagents, feature toggles, and recovery settings. Define it in Python or save it as YAML or JSON.
-
-```python
-profile = ProfileOptions.from_yaml("agent.yaml")
-options = LiteAgentOptions(profile=profile)
-```
+Profiles can be Python, YAML, or JSON. Start with three fields and add the settings below as needed.
 
 ```yaml
 # agent.yaml
 harness: deepagents
 model: openai/gpt-5.4-mini
-model_kwargs:
-  reasoning_effort: high
-
-tools:
-  - read_file
-  - edit_file
-  - run_tests
-
-mcp_servers:
-  project_tools:
-    url: ${MCP_SERVER_URL}
-
-subagents:
-  reviewer:
-    description: Review the changes for correctness.
-    model: anthropic/claude-sonnet-4-6
-    tools:
-      - read_file
-  test_runner:
-    description: Run tests and report failures.
-    model: openai/gpt-5.4-mini
-    model_kwargs:
-      reasoning_effort: low
-    tools:
-      - read_file
-      - run_tests
-
-features:
-  streaming: true
-  subagents: true
-
-temporal:
-  address: ${TEMPORAL_ADDRESS}
-  namespace: default
-  task_queue: liteagents
-
-recovery:
-  retries:
-    max_attempts: 3
-  model_fallbacks:
-    - anthropic/claude-sonnet-4-6
-  harness_fallbacks:
-    - pydantic-ai
-
-harness_options: {}
+tools: [read_file, edit_file]
 ```
 
-`ProfileOptions` validates the shared fields and passes native options to the selected harness. Tool names refer to implementations provided by the application or harness. `${NAME}` reads an environment variable.
+Load YAML with `ProfileOptions.from_yaml("agent.yaml")`. Pass Python objects, like the filesystem backend, through `profile.harness_options`. `${NAME}` reads an environment variable.
 
-Each subagent can use a different model/provider, tool set, and model configuration. The harness determines how subagents are created and run.
+Tool names refer to implementations supplied by the harness, registered through its native API, or exposed by an MCP server.
 
 ### LiteLLM proxy settings
 
@@ -114,76 +84,125 @@ model_kwargs:
   temperature: 0.2
 ```
 
-The profile combines these settings with the model’s proxy configuration. Settings such as reasoning effort can be changed here without separately editing the proxy’s `config.yaml`.
+Profile settings override the model's proxy defaults, so reasoning effort can change without editing the proxy's `config.yaml`.
+
+### MCP servers
+
+Add a server's tools. The same server can be used by harnesses that support its connection type.
+
+```yaml
+mcp_servers:
+  project_tools:
+    url: ${MCP_SERVER_URL}
+```
+
+### Subagents
+
+Each subagent can have its own model, parameters, and tools. The selected harness controls how it runs.
+
+```yaml
+subagents:
+  reviewer:
+    description: Review the changes for correctness.
+    model: anthropic/claude-sonnet-4-6
+    tools: [read_file]
+features:
+  subagents: true
+```
+
+### Streaming
+
+Enable incremental text alongside completed messages:
+
+```yaml
+features:
+  streaming: true
+```
 
 ## Temporal
 
-Add `temporal` settings to the profile to run the agent through Temporal. Start a worker against an existing Temporal service:
+Add Temporal settings to run through an existing Temporal service:
+
+```yaml
+temporal:
+  address: ${TEMPORAL_ADDRESS}
+  namespace: default
+  task_queue: liteagents
+```
+
+Start a worker with access to the project. Here, the project is mounted at `/srv/projects/example-project`:
 
 ```python
 # worker.py
+import asyncio
+
+from deepagents.backends import FilesystemBackend
 from liteagents import ProfileOptions
 from liteagents.temporal import LiteAgentWorker
 
 profile = ProfileOptions.from_yaml("agent.yaml")
-await LiteAgentWorker(profile=profile).run()
+profile.harness_options["backend"] = FilesystemBackend(
+    root_dir="/srv/projects/example-project", virtual_mode=True
+)
+asyncio.run(LiteAgentWorker(profile=profile).run())
 ```
 
 From the application, run the agent with an ID:
 
 ```python
-from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
-
-profile = ProfileOptions.from_yaml("agent.yaml")
-options = LiteAgentOptions(profile=profile)
-
+options = LiteAgentOptions(profile=ProfileOptions.from_yaml("agent.yaml"))
 async with LiteAgentClient(options=options) as agent:
     async for message in agent.query(
-        "Rename this function and run the tests",
-        run_id="rename-function-123",
+        "Rename greet to welcome in /greeting.py.",
+        run_id="rename-greeting-123",
     ):
         print(message)
 ```
 
-Temporal records the results of model and tool calls. When a worker restarts, recovery reuses recorded results and continues the run. Interrupted operations follow the retry policy. Closing the application’s client leaves the durable run running on the worker.
+The adapter records model and tool results through Temporal. For a task that edits a file and then runs tests, a worker crash between those steps has two cases:
 
-Reconnect to an existing run to retrieve its result:
+- **The edit result was recorded:** recovery reuses it and continues to the next step. The completed edit is not repeated.
+- **The file changed, but the result was not recorded:** the edit may run again. The tool must recognize an already-applied change or otherwise tolerate retries.
+
+Replacement workers need access to the same persistent project files. Temporal records execution history; it does not back up the workspace.
+
+Closing the client leaves the run on the worker. Reconnect with its ID to retrieve the result without submitting the task again:
 
 ```python
 async with LiteAgentClient(options=options) as agent:
-    run = await agent.get_run("rename-function-123")
+    run = await agent.get_run("rename-greeting-123")
     result = await run.result()
 ```
 
-`get_run()` attaches to the existing run. It does not submit the task again. Temporal executes the agent through the selected harness’s adapter, which connects model and tool calls to durable steps.
-
 ## Retries and fallbacks
 
-The profile’s `recovery` settings control what happens when an operation fails:
+Configure retries and compatible fallbacks in the profile:
 
-- `retries.max_attempts`: maximum attempts for an eligible model or tool operation, including the first attempt.
-- `model_fallbacks`: alternative models to try after a model request exhausts its retries.
-- `harness_fallbacks`: alternative harnesses to try when an agent attempt fails.
+```yaml
+recovery:
+  retries:
+    max_attempts: 3
+  model_fallbacks: [anthropic/claude-sonnet-4-6]
+  harness_fallbacks: [pydantic-ai]
+```
 
-With Temporal enabled, retries use recorded progress. A tool that changes external state must tolerate being retried. If the configured recovery options are exhausted, the failure is returned to the caller.
+`max_attempts` limits eligible model/tool operations to three total attempts here. A model fallback then retries the model request with the same conversation and tools.
+
+A harness fallback starts over with the original prompt and a fresh conversation. By default, it is automatic only before the first tool call. After that, recovery uses the existing harness and returns an error if exhausted.
+
+Fallbacks must pass compatibility checks before the run. The example's DeepAgents backend cannot carry over to Pydantic AI; shared MCP tools are an option for both.
 
 ## Framework-specific controls
 
-Use `harness_options` for the selected framework’s own configuration. Python profiles can pass native objects, such as DeepAgents middleware:
+Use `harness_options` for native controls. For example, add DeepAgents middleware and pause before editing files:
 
 ```python
 from my_app.middleware import tool_budget
 
-profile = ProfileOptions(
-    harness="deepagents",
-    model="openai/gpt-5.4-mini",
-    harness_options={
-        "middleware": [tool_budget],
-        "interrupt_on": {"edit_file": True},
-    },
+profile.harness_options.update(
+    middleware=[tool_budget],
+    interrupt_on={"edit_file": True},
 )
 ```
 
-Here, `tool_budget` is a native middleware instance supplied by the application, and `interrupt_on` asks DeepAgents to pause before editing a file. Other harnesses expose their own options through the same field.
-
-This applies to loop behavior, tools, and subagent configuration. Unsupported options should raise an error. Callbacks and other executable controls stay in application code; saved profiles can reference them.
+`tool_budget` is application-provided middleware. Native loop, tool, and subagent options stay accessible; unsupported options raise an error.
