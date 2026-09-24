@@ -53,9 +53,7 @@ model: openai/gpt-5.4-mini
 model_kwargs:
   reasoning_effort: high
 
-tools:
-  - read_file
-  - edit_file
+tools: # Application tools registered in Python
   - run_tests
 
 mcp_servers:
@@ -66,15 +64,13 @@ subagents:
   reviewer:
     description: Review the changes for correctness.
     model: anthropic/claude-sonnet-4-6
-    tools:
-      - read_file
+    tools: []
   test_runner:
     description: Run tests and report failures.
     model: openai/gpt-5.4-mini
     model_kwargs:
       reasoning_effort: low
     tools:
-      - read_file
       - run_tests
 
 features:
@@ -97,7 +93,7 @@ recovery:
 harness_options: {}
 ```
 
-`ProfileOptions` validates the shared fields and passes native options to the selected harness. Tool names refer to implementations provided by the application or harness. `${NAME}` reads an environment variable.
+`ProfileOptions` validates the shared fields and passes native options to the selected harness. `${NAME}` reads an environment variable.
 
 Each subagent can use a different model/provider, tool set, and model configuration. The harness determines how subagents are created and run.
 
@@ -118,67 +114,24 @@ The profile combines these settings with the model’s proxy configuration. Sett
 
 ## Tools
 
-Tools come from three places:
+- **Application tools:** define a [`Tool`](../src/liteagents/tools.py) in Python with a name, description, JSON input schema, and async `execute()` method. The profile's `tools` list selects these implementations by name, including for subagents.
+- **Native tools:** use the selected harness's built-ins and configure them through `harness_options`. Names such as `read_file` and `edit_file` are harness-specific.
+- **MCP tools:** configure servers in `mcp_servers`. Each server supplies its tools, schemas, and execution. MCP standardizes how tools are discovered and called; names and behavior come from the server.
 
-| Source | Definition and execution |
-| --- | --- |
-| Harness | Built-in tools supplied by the selected framework. For example, DeepAgents supplies `read_file` and `edit_file`. |
-| Application | A `Tool` implementation supplied by your code, such as `run_tests`. The adapter exposes it to the selected harness. |
-| MCP server | Tools discovered from a configured server and called through MCP. The server supplies their names, descriptions, and input schemas. |
-
-Names such as `read_file` are framework-specific. MCP standardizes how tools are discovered and called; it does not standardize their names or behavior.
-
-### Define an application tool
-
-A `Tool` has a name, a description, a JSON input schema, and an async `execute()` method:
-
-```python
-# my_app/tools.py
-import asyncio
-import sys
-
-from liteagents import Tool
-
-
-class RunTestsTool(Tool):
-    name = "run_tests"
-    description = "Run pytest on a test file or directory."
-    input_schema = {
-        "type": "object",
-        "properties": {"path": {"type": "string"}},
-        "required": ["path"],
-        "additionalProperties": False,
-    }
-
-    async def execute(self, input: dict) -> str:
-        process = await asyncio.create_subprocess_exec(
-            sys.executable, "-m", "pytest", "--", input["path"],
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
-        )
-        output, _ = await process.communicate()
-        return f"Exit code: {process.returncode}\n{output.decode(errors='replace')}"
-```
-
-For an in-process run, supply the implementation alongside the profile:
+For `tools: [run_tests]` in YAML, register a Python implementation whose `name` is `"run_tests"`:
 
 ```python
 from liteagents import LiteAgentOptions, ProfileOptions
 from my_app.tools import RunTestsTool
 
-options = LiteAgentOptions(
-    profile=ProfileOptions(
-        harness="deepagents",
-        model="openai/gpt-5.4-mini",
-        tools=["run_tests"],
-    ),
-    tools=[RunTestsTool()],
-)
+# In-process run: omit temporal settings from agent.yaml.
+profile = ProfileOptions.from_yaml("agent.yaml")
+options = LiteAgentOptions(profile=profile, tools=[RunTestsTool()])
 ```
 
-The profile selects the tool by name; `options.tools` supplies its implementation. Saved YAML/JSON profiles contain names, not executable code. Unknown or ambiguous tool names raise a configuration error.
+For Temporal runs, register application tools on the worker, as shown below. Missing or duplicate tool names raise a configuration error.
 
-For Temporal runs, supply application tools to the worker instead. The application and its workers must provide the tool’s dependencies and workspace; this example requires pytest in the environment where it executes.
+Application and MCP tools can be reused across models with tool-calling support and harnesses with compatible adapters. The adapter handles registration and invocation for its harness. Native tools keep the harness's own names and behavior.
 
 ## Temporal
 
