@@ -1,14 +1,6 @@
-# liteagents v2
+# liteagents v2 proposal
 
-A Python SDK for running agents across frameworks, with Temporal for checkpointing and recovery.
-
-## Installation
-
-```shell
-pip install liteagents
-```
-
-Requires Python 3.10+ and credentials for the model providers you use.
+A proposed Python SDK for running agents across frameworks, with Temporal for checkpointing and recovery.
 
 ## Usage
 
