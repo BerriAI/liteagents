@@ -53,7 +53,9 @@ model: openai/gpt-5.4-mini
 model_kwargs:
   reasoning_effort: high
 
-tools: # Application tools registered in Python
+tools:
+  - read_file
+  - edit_file
   - run_tests
 
 mcp_servers:
@@ -64,13 +66,15 @@ subagents:
   reviewer:
     description: Review the changes for correctness.
     model: anthropic/claude-sonnet-4-6
-    tools: []
+    tools:
+      - read_file
   test_runner:
     description: Run tests and report failures.
     model: openai/gpt-5.4-mini
     model_kwargs:
       reasoning_effort: low
     tools:
+      - read_file
       - run_tests
 
 features:
@@ -93,7 +97,7 @@ recovery:
 harness_options: {}
 ```
 
-`ProfileOptions` validates the shared fields and passes native options to the selected harness. `${NAME}` reads an environment variable.
+`ProfileOptions` validates the shared fields and passes native options to the selected harness. Tool names refer to implementations provided by the application or harness. `${NAME}` reads an environment variable.
 
 Each subagent can use a different model/provider, tool set, and model configuration. The harness determines how subagents are created and run.
 
@@ -112,27 +116,6 @@ model_kwargs:
 
 The profile combines these settings with the model’s proxy configuration. Settings such as reasoning effort can be changed here without separately editing the proxy’s `config.yaml`.
 
-## Tools
-
-- **Application tools:** define a [`Tool`](../src/liteagents/tools.py) in Python with a name, description, JSON input schema, and async `execute()` method. The profile's `tools` list selects these implementations by name, including for subagents.
-- **Native tools:** use the selected harness's built-ins and configure them through `harness_options`. Names such as `read_file` and `edit_file` are harness-specific.
-- **MCP tools:** configure servers in `mcp_servers`. Each server supplies its tools, schemas, and execution. MCP standardizes how tools are discovered and called; names and behavior come from the server.
-
-For `tools: [run_tests]` in YAML, register a Python implementation whose `name` is `"run_tests"`:
-
-```python
-from liteagents import LiteAgentOptions, ProfileOptions
-from my_app.tools import RunTestsTool
-
-# In-process run: omit temporal settings from agent.yaml.
-profile = ProfileOptions.from_yaml("agent.yaml")
-options = LiteAgentOptions(profile=profile, tools=[RunTestsTool()])
-```
-
-For Temporal runs, register application tools on the worker, as shown below. Missing or duplicate tool names raise a configuration error.
-
-Application and MCP tools can be reused across models with tool-calling support and harnesses with compatible adapters. The adapter handles registration and invocation for its harness. Native tools keep the harness's own names and behavior.
-
 ## Temporal
 
 Add `temporal` settings to the profile to run the agent through Temporal. Start a worker against an existing Temporal service:
@@ -141,13 +124,9 @@ Add `temporal` settings to the profile to run the agent through Temporal. Start 
 # worker.py
 from liteagents import ProfileOptions
 from liteagents.temporal import LiteAgentWorker
-from my_app.tools import RunTestsTool
 
 profile = ProfileOptions.from_yaml("agent.yaml")
-await LiteAgentWorker(
-    profile=profile,
-    tools=[RunTestsTool()],
-).run()
+await LiteAgentWorker(profile=profile).run()
 ```
 
 From the application, run the agent with an ID:
