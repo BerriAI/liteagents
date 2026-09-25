@@ -92,7 +92,8 @@ class ProfileOptions(StrictOptions):
     model: str = Field(min_length=1)
     model_kwargs: dict[str, Any] = Field(default_factory=dict, repr=False)
     system_prompt: str | None = None
-    tools: list[str] = Field(default_factory=list)
+    # None keeps defaults; [] disables tools; a list is an explicit selection.
+    tools: list[str] | None = None
     mcp_servers: dict[str, dict[str, Any]] = Field(default_factory=dict, repr=False)
     subagents: dict[str, SubagentOptions] = Field(default_factory=dict)
     features: FeatureOptions = Field(default_factory=FeatureOptions)
@@ -103,7 +104,9 @@ class ProfileOptions(StrictOptions):
 
     @field_validator("tools")
     @classmethod
-    def unique_tools(cls, names: list[str]) -> list[str]:
+    def unique_tools(cls, names: list[str] | None) -> list[str] | None:
+        if names is None:
+            return None
         if any(not name.strip() for name in names) or len(set(names)) != len(names):
             raise ValueError("Tool names must be nonempty and unique")
         return names
@@ -119,6 +122,9 @@ class ProfileOptions(StrictOptions):
     @field_validator("mcp_servers")
     @classmethod
     def validate_mcp_servers(cls, servers: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        from .mcp_config import normalize_servers
+
+        servers = normalize_servers(servers)
         for name, config in servers.items():
             if not name or ("url" in config) == ("command" in config):
                 raise ValueError("Each named MCP server needs exactly one of url or command")

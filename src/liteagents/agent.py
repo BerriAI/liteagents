@@ -64,6 +64,13 @@ class LiteAgentClient:
                 yield event
 
     @property
+    def capabilities(self):
+        """Capabilities for this profile, including its registered application tools."""
+        from .harnesses import get_capabilities
+
+        return get_capabilities(self._options.profile, tools=self._options.tools)
+
+    @property
     def history(self) -> list[Message]:
         return list(self._runtime.history)
 

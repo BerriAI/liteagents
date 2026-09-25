@@ -104,8 +104,8 @@ class ClaudeAdapter(HarnessAdapter):
         registered = {tool.name: tool for tool in self.tools}
         if len(registered) != len(self.tools):
             raise ConfigurationError("Duplicate registered tool names")
-        selected = [registered[name] for name in self.profile.tools if name in registered]
-        if not self.profile.tools:
+        selected = [registered[name] for name in self.profile.tools or [] if name in registered]
+        if self.profile.tools is None:
             selected = self.tools
         if selected:
             if "liteagents" in servers:
@@ -117,12 +117,12 @@ class ClaudeAdapter(HarnessAdapter):
             )
         native = [
             _NATIVE_TOOLS.get(name, name)
-            for name in self.profile.tools
+            for name in self.profile.tools or []
             if name not in registered and not name.startswith("mcp__")
         ]
         allowed = list(options.pop("allowed_tools", []))
         allowed += native + [f"mcp__liteagents__{tool.name}" for tool in selected]
-        allowed += [name for name in self.profile.tools if name.startswith("mcp__")]
+        allowed += [name for name in self.profile.tools or [] if name.startswith("mcp__")]
         model = self.profile.model
         if model.startswith(("anthropic/", "litellm_proxy/")):
             model = model.split("/", 1)[1]
@@ -136,7 +136,7 @@ class ClaudeAdapter(HarnessAdapter):
             env=env,
             mcp_servers=servers,
             strict_mcp_config=True,
-            tools=native if self.profile.tools else None,
+            tools=native if self.profile.tools is not None else None,
             allowed_tools=allowed,
             system_prompt=self.profile.system_prompt,
             max_turns=(self.profile.max_turns or 20),

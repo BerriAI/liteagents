@@ -1,6 +1,6 @@
 [project]
 name = "liteagents"
-version = "0.2.0a1"
+version = "0.2.0"
 description = "A shared Python SDK for native agent harnesses and durable runs"
 readme = "README.md"
 license = {text = "MIT"}

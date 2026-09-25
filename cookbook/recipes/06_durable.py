@@ -68,7 +68,7 @@ async def main():
     args = cli.parse_args()
     cwd, profile = setup(args, "durable", tools=["save_receipt", "slow_check"])
     profile.temporal = TemporalOptions(
-        profile_id=f"recipes-v2-{args.harness}-{args.delay}",
+        profile_id=f"recipes-v2a2-{args.harness}-{args.delay}",
         checkpoint_path=str(cwd / "checkpoints.sqlite"),
         heartbeat_timeout_seconds=3,
         activity_timeout_seconds=180,

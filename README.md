@@ -8,19 +8,31 @@ Each harness runs its own agent loop. LiteAgents adds shared tools and MCP,
 named subagents, operation retries, model and harness fallback, approval gates,
 streaming, and durable run handles.
 
+Follow the [getting-started guide](docs/getting-started.md) for a first agent,
+application tools, MCP, and optional durable execution.
+
 ## Install
 
-Python 3.11+; Python 3.12 is recommended. From this checkout:
+Python 3.11+; Python 3.12 is recommended. Install the **0.2.0** release:
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[all]'
+python -m pip install 'liteagents[deepagents] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
 ```
 
-Or install the extras you need: `deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
+This installs the first harness. A simple agent needs no Temporal or PostgreSQL
+service. Replace `[deepagents]` with `[all]` to compare all harnesses, or add the
+extras you need:
+`deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
 `mcp`, `temporal`, and `postgres`. The Claude and Codex extras supply their native
 runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
+
+Use the release URL above: the `liteagents` name on PyPI currently serves a
+different package. This SDK is distributed through
+[GitHub Releases](https://github.com/BerriAI/liteagents/releases/tag/v0.2.0).
+For a source checkout and the cookbooks, follow the
+[getting-started guide](docs/getting-started.md).
 
 ## Run an agent
 
@@ -40,11 +52,10 @@ async def main():
             "api_base": os.environ["LITEAGENTS_API_BASE"],
             "api_key": os.environ["LITELLM_API_KEY"],
         },
-        tools=["read_file"],
-        recovery={"retries": {"max_attempts": 3}},
+        tools=[],
     )
     async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=".")) as agent:
-        run = await agent.start_run("Read README.md and summarize this project.")
+        run = await agent.start_run("Reply with exactly READY.")
         print((await run.result()).text)
 
 asyncio.run(main())
@@ -52,9 +63,12 @@ asyncio.run(main())
 
 Use `agent.query(prompt)` to consume normalized text/tool messages as they
 arrive. Set `profile.features.streaming = True` to receive `TextDelta` events.
-Repeated direct queries share a conversation. YAML and JSON profiles support
-`${ENVIRONMENT_VARIABLE}` references through `ProfileOptions.from_yaml()` and
-`from_json()`.
+Repeated direct queries share a conversation.
+
+Omit `tools` (or use `None`) for defaults, set `tools=[]` for no tools, or select
+tools explicitly, such as `tools=["read_file"]`. Application tools and MCP work
+without enabling retries or Temporal. Shared tools on CLI harnesses automatically
+use the managed adapter and require the explicit model endpoint shown above.
 
 | Harness | Gateway protocol | Durable recovery |
 | --- | --- | --- |
@@ -75,6 +89,33 @@ tools, and forwarded MCP tools pass through LiteAgents' recording gateway;
 uncontrolled native tools are excluded. See the [SDK contract](docs/sdk.md) for
 configuration differences and supported native options.
 
+## Configure with JSON or YAML
+
+Profiles can live in files instead of Python code. For example, `agent.yaml`:
+
+```yaml
+harness: deepagents
+model: litellm_proxy/${LITEAGENTS_MODEL}
+model_kwargs:
+  api_base: ${LITEAGENTS_API_BASE}
+  api_key: ${LITELLM_API_KEY}
+tools: []
+```
+
+Load it and pass the resulting profile to the same client:
+
+```python
+profile = ProfileOptions.from_yaml("agent.yaml")
+# Or: profile = ProfileOptions.from_json("agent.json")
+options = LiteAgentOptions(profile=profile, cwd=".")
+```
+
+The loaders accept file paths, expand `${ENVIRONMENT_VARIABLE}` values, and
+validate the same options as the Python constructor. Missing variables and
+unknown fields fail before execution. See the [JSON/YAML guide](docs/profiles.md)
+for equivalent JSON, MCP and Temporal configuration, and a
+[runnable example](cookbook/recipes/09_profile_files.py) with both file formats.
+
 ## Try the cookbooks
 
 The [guided recipes](cookbook/recipes/README.md) contain setup, runnable commands,
@@ -82,7 +123,10 @@ and expected results. Every recipe accepts `--harness` so you can compare behavi
 
 | Recipe | Demonstrates |
 | --- | --- |
+| [Simple agent](cookbook/recipes/00_agent.py) | A first response with no tools or durability setup |
 | [Quickstart](cookbook/recipes/01_quickstart.py) | File tools, live text, and conversation follow-up |
+| [Application tools](cookbook/recipes/08_application_tools.py) | Register a Python tool and use stable names across harnesses |
+| [JSON/YAML profiles](cookbook/recipes/09_profile_files.py) | Load the same agent from either format, with environment variables |
 | [MCP](cookbook/recipes/02_mcp.py) | Discover and call a real local MCP server |
 | [Subagents](cookbook/recipes/03_subagents.py) | Named delegation, a child model, and restricted tools |
 | [Approvals](cookbook/recipes/04_approvals.py) | Inspect and approve an edit before it runs |
@@ -102,6 +146,7 @@ workers run separately. You can also self-host the open-source service.
 For local development:
 
 ```sh
+python -m pip install 'liteagents[deepagents,temporal] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
 brew install temporal
 mkdir -p .liteagents
 temporal server start-dev --ip 127.0.0.1 --db-filename .liteagents/temporal.sqlite

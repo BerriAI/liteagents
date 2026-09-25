@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import AsyncGenerator
-from dataclasses import dataclass
+from collections.abc import AsyncGenerator, Sequence
+from dataclasses import dataclass, replace
 from importlib import import_module
 from pathlib import Path
 from typing import Any
@@ -20,6 +20,7 @@ class HarnessCapabilities:
     mcp: bool = True
     temporal: bool = False
     recovery: str = "session"
+    execution_mode: str = "native"
 
 
 _ADAPTERS = {
@@ -36,22 +37,22 @@ _ADAPTERS = {
     "claude-sdk": (
         "claude_sdk",
         "ClaudeAdapter",
-        HarnessCapabilities(temporal=True, recovery="operations"),
+        HarnessCapabilities(temporal=True),
     ),
     "codex": (
         "codex",
         "CodexAdapter",
-        HarnessCapabilities(custom_tools=False, temporal=True, recovery="operations"),
+        HarnessCapabilities(custom_tools=False, temporal=True),
     ),
     "opencode-v1": (
         "opencode",
         "OpenCodeAdapter",
-        HarnessCapabilities(custom_tools=False, temporal=True, recovery="operations"),
+        HarnessCapabilities(custom_tools=False, temporal=True),
     ),
     "opencode-v2": (
         "opencode",
         "OpenCodeAdapter",
-        HarnessCapabilities(custom_tools=False, temporal=True, recovery="operations"),
+        HarnessCapabilities(custom_tools=False, temporal=True),
     ),
 }
 
@@ -60,10 +61,32 @@ def available_harnesses() -> tuple[str, ...]:
     return tuple(_ADAPTERS)
 
 
-def get_capabilities(name: str) -> HarnessCapabilities:
+def uses_managed_execution(profile: ProfileOptions, *, tools: Sequence[Tool] = ()) -> bool:
+    return profile.harness not in ("deepagents", "pydantic-ai") and bool(
+        profile.temporal
+        or profile.recovery
+        or profile.tools is not None
+        or profile.mcp_servers
+        or tools
+        or profile.harness_options.get("interrupt_on")
+        or profile.features.subagents
+    )
+
+
+def get_capabilities(
+    profile: str | ProfileOptions, *, tools: Sequence[Tool] = ()
+) -> HarnessCapabilities:
+    """Pass a profile and registered tools for the effective execution capabilities.
+
+    A harness name alone describes its ordinary native adapter.
+    """
+    name = profile if isinstance(profile, str) else profile.harness
     if name not in _ADAPTERS:
         raise UnsupportedFeatureError(f"Unknown harness {name!r}")
-    return _ADAPTERS[name][2]
+    result = _ADAPTERS[name][2]
+    if isinstance(profile, ProfileOptions) and uses_managed_execution(profile, tools=tools):
+        return replace(result, custom_tools=True, recovery="operations", execution_mode="managed")
+    return result
 
 
 class HarnessAdapter(ABC):
@@ -94,6 +117,8 @@ class HarnessAdapter(ABC):
             raise UnsupportedFeatureError(
                 "Set features.subagents=true with at least one named subagent"
             )
+        if self.profile.tools == [] and self.profile.features.subagents:
+            raise UnsupportedFeatureError("tools=[] disables tools; remove subagents or select tools")
         if self.profile.recovery is not None and self.profile.harness not in (
             "deepagents",
             "pydantic-ai",
@@ -130,13 +155,7 @@ class HarnessAdapter(ABC):
 
 
 def create_adapter(profile: ProfileOptions, **kwargs: Any) -> HarnessAdapter:
-    if profile.harness not in ("deepagents", "pydantic-ai") and (
-        profile.temporal
-        or profile.recovery
-        or profile.harness_options.get("interrupt_on")
-        or profile.features.subagents
-        or kwargs.get("tool_allowlist") is not None
-    ):
+    if uses_managed_execution(profile, tools=kwargs.get("tools", ())):
         from .managed import ManagedAdapter
 
         return ManagedAdapter(profile, **kwargs)

@@ -30,26 +30,16 @@ HARNESSES = ["deepagents", "pydantic-ai", "claude-sdk", "codex", "opencode-v1", 
 def live_profile(harness, *, mcp=False):
     model = os.environ["LITEAGENTS_CLAUDE_MODEL" if harness == "claude-sdk" else "LITEAGENTS_MODEL"]
     options = {"timeout_seconds": 120} if harness in HARNESSES[2:] else {}
-    tools = [] if harness == "codex" else ["read_file"]
+    tools = ["read_file"]
     servers = {}
     if mcp:
         config = {
             "command": sys.executable,
             "args": [str(Path(__file__).with_name("mcp_fixture_server.py"))],
+            "allowed_tools": ["read_memory"],
         }
-        if harness == "codex":
-            config["enabled_tools"] = ["read_memory"]
-            config["tools"] = {"read_memory": {"approval_mode": "approve"}}
-        if harness in HARNESSES[:2]:
-            config["allowed_tools"] = ["read_memory"]
         servers = {"evidence": config}
-        tools = (
-            ["evidence_read_memory"]
-            if harness in HARNESSES[:2]
-            else ["mcp__evidence__read_memory"]
-            if harness == "claude-sdk"
-            else []
-        )
+        tools = ["evidence_read_memory"]
     return ProfileOptions(
         harness=harness,
         model="litellm_proxy/" + model,
@@ -80,6 +70,10 @@ async def test_live_tool_stream_and_followup(harness, tmp_path):
             ]
             result = await (await client.get_run("read")).result()
             assert "CORAL-731" in result.text
+            if harness in ("claude-sdk", "codex"):
+                # These runtimes report turn usage after yielding their final message.
+                # Other providers may omit usage from streaming responses entirely.
+                assert result.usage.get("native_reports"), "Final usage must survive normalization"
             calls = [
                 b.id
                 for e in events
@@ -122,7 +116,7 @@ async def test_live_native_mcp(harness, tmp_path):
             result = await (await client.get_run("mcp")).result()
             assert "evidence:mcp-verified" in result.text
             assert any(
-                isinstance(b, ToolUseBlock) and "read_memory" in b.name
+                isinstance(b, ToolUseBlock) and b.name == "evidence_read_memory"
                 for e in events
                 if isinstance(e, AssistantMessage)
                 for b in e.content

@@ -22,6 +22,7 @@ class ToolUseBlock:
     id: str
     name: str
     input: dict[str, Any]
+    native_name: str | None = None
 
 
 @dataclass
