@@ -1,5 +1,38 @@
 # Release validation — September 25, 2026
 
+## 0.2.0a2 developer preview
+
+The [Mindfort handoff](mindfort-handoff.md) pins SDK revision
+`61cddea73a7057a5e5ae912ea432e64c91c2a1d3`. Validation used Python 3.12.14 and
+the runtime versions in `constraints-tested.txt`.
+
+- **66 focused checks passed:** 42 real-harness cases for application tools,
+  shared MCP, selection defaults/empty/explicit lists, stable tool names, direct
+  execution and Temporal reconnects; 24 configuration/capability checks.
+- **18 live-provider checks passed:** file tools, streaming and conversation
+  follow-up, shared MCP, and durable MCP/reconnects across all six harnesses.
+- **Fresh non-editable installation passed:** DeepAgents-only extra, with no
+  Temporal SDK or PostgreSQL driver installed; simple agent, file/conversation,
+  and application-tool recipes. Adding only the MCP extra enabled its recipe.
+- **Cookbook checks passed:** simple-agent and application-tool recipes on all
+  six harnesses; DeepAgents retries and model fallback. A live-model run of the
+  durable recipe survived a killed worker and restart with exactly one receipt.
+- **PostgreSQL checks passed:** seven shared-worker/storage checks, including
+  approval reconnect and lost ownership. One SQLite parameter was skipped
+  because that assertion specifically requires PostgreSQL.
+- Lint, type checks, the source-size limit, wheel/sdist builds and wheel contents
+  passed. [PR #8 checks](https://github.com/BerriAI/liteagents/pull/8/checks) run
+  the complete regression suite and Linux native/Temporal/PostgreSQL matrix.
+
+The application-tool/MCP matrix uses one profile shape, changing the harness and
+Temporal configuration. Executable application tools are registered on the
+client for direct execution and on the worker for Temporal. Deterministic
+provider responses exercise actual native loops; the live checks separately
+exercise compatible real gateway model aliases. This does not establish that
+every native model setting or tool default is interchangeable.
+
+## Earlier 0.2.0a1 release verification
+
 The release branch replaces the v1 public API with the profile-driven SDK.
 Validation uses actual native harness runtimes. Deterministic provider fixtures
 make failure injection reproducible; paid gateway checks separately verify real
