@@ -122,6 +122,7 @@ async def test_same_application_tools_mcp_and_events(harness, durable, selection
                    if isinstance(m, UserMessage) and isinstance(m.content, list)
                    for b in m.content if isinstance(b, ToolResultBlock)]
         assert result.text == "Validated USD 12"
+        assert result.usage.get("native_reports"), "Final native usage must survive normalization"
         assert [b.name for b in calls] == ([] if selection == "none" else ["lookup", "external_slow"])
         assert all(b.id in returns for b in calls)
         assert tool.calls == (0 if selection == "none" else 1)

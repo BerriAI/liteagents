@@ -70,6 +70,10 @@ async def test_live_tool_stream_and_followup(harness, tmp_path):
             ]
             result = await (await client.get_run("read")).result()
             assert "CORAL-731" in result.text
+            if harness in ("claude-sdk", "codex"):
+                # These runtimes report turn usage after yielding their final message.
+                # Other providers may omit usage from streaming responses entirely.
+                assert result.usage.get("native_reports"), "Final usage must survive normalization"
             calls = [
                 b.id
                 for e in events

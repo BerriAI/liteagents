@@ -80,3 +80,15 @@ def test_automatic_native_tools_explain_required_endpoint(tmp_path):
     profile = ProfileOptions(harness="codex", model="openai/test")
     with pytest.raises(ConfigurationError, match="api_base"):
         LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=tmp_path, tools=[Lookup()]))
+
+
+def test_normalized_message_receives_native_turn_completion_usage():
+    from liteagents import AssistantMessage, TextBlock, ToolUseBlock
+    from liteagents.runtime.tool_names import normalize_tool_names
+
+    for content in ([TextBlock("done")], [ToolUseBlock("call", "liteagents/lookup", {})]):
+        native = AssistantMessage(content, "test")
+        displayed = normalize_tool_names(native, {"liteagents/lookup": "lookup"})
+        # Claude and Codex attach usage to the yielded message at turn completion.
+        native.usage = {"input_tokens": 100, "output_tokens": 20}
+        assert displayed.usage == native.usage

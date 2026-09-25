@@ -14,4 +14,7 @@ def normalize_tool_names(event: AgentEvent, names: dict[str, str]) -> AgentEvent
         else block
         for block in event.content
     ]
-    return replace(event, content=blocks)
+    # Native adapters can attach turn usage after yielding this message. Keep
+    # that identity so the completed RunResult receives the final usage report.
+    event.content = blocks
+    return event
