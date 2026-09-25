@@ -6,31 +6,56 @@ on:
   pull_request:
 
 jobs:
-  test:
+  core:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
         mcp-version: ["1.12.0", "2.2.0"]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev,mcp]" "mcp==${{ matrix.mcp-version }}"
+      - run: python scripts/check_loc.py
+      - run: ruff check src/ tests/
+      - run: mypy src/liteagents --ignore-missing-imports
+      - run: pytest -q
+      - run: python -m build
 
-      - name: Install package
-        run: pip install -e ".[dev,mcp]" "mcp==${{ matrix.mcp-version }}"
-
-      - name: Enforce file line-count budget
-        run: python scripts/check_loc.py
-
-      - name: Lint
-        run: ruff check src/ tests/
-
-      - name: Type check
-        run: mypy src/liteagents --ignore-missing-imports
-
-      - name: Test
-        run: pytest tests/
+  native-and-temporal:
+    runs-on: ubuntu-latest
+    env:
+      LANGSMITH_TRACING: "false"
+      LANGCHAIN_TRACING_V2: "false"
+      PYDANTIC_AI_NO_BANNER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,all]"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install -g opencode-ai@1.18.29
+      - name: Start a disposable Temporal service
+        run: |
+          docker run -d --name temporal -p 7233:7233 temporalio/temporal:1.9.1 server start-dev --ip 0.0.0.0
+          python - <<'PY'
+          import socket, time
+          for _ in range(60):
+              try:
+                  with socket.create_connection(("127.0.0.1", 7233), timeout=1):
+                      break
+              except OSError:
+                  time.sleep(1)
+          else:
+              raise SystemExit("Temporal did not start")
+          PY
+      - run: mypy src/liteagents --ignore-missing-imports
+      - run: pytest -q --cov=liteagents --cov-report=term-missing
+      - name: Temporal diagnostics
+        if: failure()
+        run: docker logs temporal

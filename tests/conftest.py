@@ -1,6 +1,6 @@
-"""Shared fixtures. Every test mocks litellm.anthropic_messages -- it's the
-one boundary the whole package calls across, so every behavior the loop,
-routers, and fusion exhibit is a function of what that call returns.
+"""Shared fixtures for the legacy LiteLLM loop regression tests.
+
+The v2 tests separately exercise native harnesses, MCP, and Temporal.
 """
 
 from __future__ import annotations

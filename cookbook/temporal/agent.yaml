@@ -1,0 +1,13 @@
+harness: deepagents
+model: litellm_proxy/${LITEAGENTS_MODEL}
+model_kwargs:
+  api_base: ${LITEAGENTS_API_BASE}
+  api_key: ${LITELLM_API_KEY}
+tools: [read_file, edit_file, run_tests]
+temporal:
+  address: localhost:7233
+  namespace: default
+  task_queue: liteagents
+  profile_id: local-coding-v1
+  checkpoint_path: .liteagents/checkpoints.sqlite
+  worker_recovery_attempts: 3

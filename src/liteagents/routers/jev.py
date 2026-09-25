@@ -8,10 +8,9 @@ from __future__ import annotations
 import os
 from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 import httpx
-from typing_extensions import Self
 
 from ..tools import Tool
 from ..types import AgentEvent, Message, TurnContext

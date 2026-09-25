@@ -1,212 +1,155 @@
-# liteagents
+# LiteAgents
 
-A provider-independent agent SDK with the same query() interface as the Claude Agent SDK, **allowing you to use the right model for every turn**. Auto-routing automatically selects the best-fit model for each step across providers, balancing quality, speed, and cost. Use OpenAI, Anthropic, Deepseek, Gemini, xAI all within one agent run.
+One Python client for DeepAgents, Pydantic AI, Claude Agent SDK, Codex, and
+OpenCode. Each framework runs its own agent loop; LiteAgents supplies profiles,
+common text/tool messages, run handles, and optional DeepAgents durability.
 
-<img width="1540" height="1080" alt="area3" src="https://github.com/user-attachments/assets/5fd27ec5-1de0-4d69-af4c-87f819dcacea" />
+**v0.2 alpha implements milestones 1 and 2 of the [v2 plan](v2-proposal/IMPLEMENTATION_PLAN.md).**
+All six harness names are usable. Temporal recovery is enabled for DeepAgents.
+Subagent configuration, operation/model/harness fallback, durable streaming, and
+approval/resume remain milestone 3 and raise explicit errors when requested.
 
+## Install
 
-## Features
+Python 3.11+ (3.12 recommended). From this checkout:
 
-- cross-provider: mix OpenAI, Anthropic, Gemini, Bedrock, Azure in one agent run
-- JEV-native routing: auto-pick the cheapest model tier per turn
-- fusion mode: a frontier model plus a cheap sidekick, running in parallel
-- write your own router instead, no classifier required
-- same `query()` / `AssistantMessage` / `TextBlock` shapes as the Claude Agent SDK
-- MCP client tools from initialized stdio or remote sessions (`pip install 'liteagents[mcp]'`)
-- opt-in text streaming, per-client gateway options, and typed initial history
-
-## Installation
-
-```shell
-pip install liteagents
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e '.[all,dev]'
 ```
 
-requires Python 3.10+ and credentials for at least one [LiteLLM-supported provider](https://docs.litellm.ai/docs/providers).
+For one harness, install `.[deepagents]`, `.[pydantic-ai]`, `.[claude-sdk]`, or
+`.[codex]`; add `temporal` for durable DeepAgents and `mcp` for Python MCP tools.
+OpenCode uses the base HTTP client plus an installed **OpenCode 1.18.29** CLI
+(`npm install -g opencode-ai@1.18.29`) or an existing compatible server.
+The official Codex Python SDK supplies its pinned executable. Claude's SDK
+supplies its runtime; `harness_options.cli_path` can select an installed CLI.
 
-## One agent, any provider, per turn
+## Run an agent
 
 ```python
-from liteagents import LiteAgentClient, LiteAgentOptions, TurnContext
-
-
-class CodeRouter:
-    async def route(self, context: TurnContext) -> str:
-        if "architecture" in context.prompt.lower():
-            return "anthropic/claude-opus-4-8"
-        return "openai/gpt-5.4-mini"
-
-
-options = LiteAgentOptions(model="openai/gpt-5.4-mini", model_router=CodeRouter())
-
-async with LiteAgentClient(options=options) as agent:
-    async for message in agent.query("Rename this function"):
-        print(message)  # openai/gpt-5.4-mini
-
-    async for message in agent.query("Now review the architecture"):
-        print(message)  # anthropic/claude-opus-4-8
-```
-
-history stays intact across the switch. `AssistantMessage.model` records which model handled each turn.
-
-## JevAgent picks the best model for every turn
-
-```python
-from liteagents import JevAgent, JevTier
-
-async with JevAgent(
-    tiers=(
-        JevTier(name="FAST", model="openai/gpt-5.4-mini", description="Routine edits and extraction"),
-        JevTier(name="BALANCED", model="anthropic/claude-sonnet-4-6", description="Everyday coding"),
-        JevTier(name="REASONING", model="anthropic/claude-opus-4-8", description="Architecture, hard debugging"),
-    ),
-    fallback_model="anthropic/claude-opus-4-8",
-) as agent:
-    async for message in agent.query("Review this pull request"):
-        print(message)
-```
-
-```shell
-export TYPESAFE_API_KEY="..."
-```
-
-`JevAgent` is a `LiteAgentClient` pre-wired with [JEV](https://docs.typesafe.ai/models) routing: it classifies each turn against your tiers before running it. A tier can be a direct provider model, a LiteLLM proxy alias, or a Router model group.
-
-Need JEV routing alongside other `LiteAgentOptions` (fusion, a custom `tool_choice`, etc.)? Use `JevModelRouter` directly as a `model_router`:
-
-```python
-from liteagents import JevModelRouter, JevTier, LiteAgentOptions, query
-
-router = JevModelRouter(
-    tiers=(JevTier(name="FAST", model="openai/gpt-5.4-mini", description="Routine edits and extraction"),),
-    fallback_model="anthropic/claude-opus-4-8",
-)
-options = LiteAgentOptions(model_router=router)
-
-async for message in query(prompt="Review this pull request", options=options):
-    print(message)
-```
-
-## Fusion: a frontier main agent with a cheap sidekick
-
-```python
-from liteagents import FusionOptions, LiteAgentClient, LiteAgentOptions
-
-options = LiteAgentOptions(
-    model="anthropic/claude-opus-4-8",
-    fusion=FusionOptions(sidekick_model="openai/gpt-5.4-mini"),
-)
-
-async with LiteAgentClient(options=options) as agent:
-    async for message in agent.query("Modernize search.js to ES6 and verify with the full test suite"):
-        print(message)  # diff from the main model, test run delegated to the sidekick
-```
-
-the main model plans, resolves ambiguity, and reviews. the sidekick executes what gets delegated. both keep their own cached context, so delegating a subtask doesn't cost a cache miss the way calling another model as a tool does.
-
-## Basic usage: `query()`
-
-```python
-from liteagents import AssistantMessage, LiteAgentOptions, TextBlock, query
-
-options = LiteAgentOptions(model="openai/gpt-5.4-mini")
-
-async for message in query(prompt="Hello", options=options):
-    if isinstance(message, AssistantMessage):
-        for block in message.content:
-            if isinstance(block, TextBlock):
-                print(block.text)
-```
-
-## Migrating from the Claude Agent SDK
-
-| Claude Agent SDK | LiteAgents SDK |
-| --- | --- |
-| `query()` | `query()` |
-| `ClaudeAgentOptions` | `LiteAgentOptions` |
-| `ClaudeSDKClient` | `LiteAgentClient` |
-| one model family | any LiteLLM model, JEV router, or fusion |
-
-mostly an import and model-config change.
-
-## MCP tools
-
-Install `liteagents[mcp]`, create and initialize an MCP `ClientSession`, then
-adapt its tools. The application owns the transport, credentials and session
-lifetime. The same adapter works with stdio, Streamable HTTP and SSE sessions.
-
-```python
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
-from liteagents import LiteAgentOptions, query
-from liteagents.mcp import load_mcp_tools
-
-params = StdioServerParameters(command="python", args=["memory_server.py"])
-async with stdio_client(params) as (read, write):
-    async with ClientSession(read, write) as session:
-        await session.initialize()
-        tools = await load_mcp_tools(
-            session,
-            allowed_tool_names=["search_memories", "read_memory"],
-            prefix="memory_",  # optional; disambiguates tools from multiple servers
-        )
-        options = LiteAgentOptions(model="openai/gpt-5.4-mini", tools=tools)
-        async for message in query(prompt="What did I work on?", options=options):
-            print(message)
-```
-
-`allowed_tool_names` matches remote names before adding a prefix. `None` exposes
-all discovered tools; `[]` exposes none. Discovery follows pagination and rejects
-duplicate names. Tool schemas, text, images, structured results and resource data
-are preserved; MCP tool failures become error results the model can handle.
-Keep the session open for the full query and rediscover tools explicitly if the
-server's catalog changes. Cancellation propagates to MCP calls. This is a client
-adapter; it does not host MCP servers or manage authentication/approvals.
-
-## Gateways, streaming and existing chat history
-
-`model_kwargs` forwards connection and provider settings to LiteLLM on every
-round, including fusion sidekick calls. Core fields such as `model`, `tools` and
-`stream` belong on `LiteAgentOptions` and cannot be overridden through this dict.
-Use `litellm_proxy/<alias>` for opaque LiteLLM gateway model names.
-
-```python
+import asyncio
 import os
-from contextlib import aclosing
-from liteagents import (
-    AssistantMessage, LiteAgentClient, LiteAgentOptions, TextBlock, TextDelta, UserMessage,
-)
+from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
 
-options = LiteAgentOptions(
-    model="litellm_proxy/my-agent-model",
-    model_kwargs={
-        "api_base": "https://my-gateway.example/v1",
-        "api_key": os.environ["LITELLM_API_KEY"],
-        "timeout": 90,
-        "num_retries": 0,
-        "extra_headers": {"x-litellm-enable-message-redaction": "true"},
-        "extra_body": {"no-log": True},
-        "no-log": True,
-    },
-    stream=True,
-)
-history = [UserMessage("Earlier question"), AssistantMessage([TextBlock("Earlier answer")], model="")]
-async with LiteAgentClient(options=options, history=history) as agent:
-    async with aclosing(agent.query("A follow-up question")) as events:
-        async for event in events:
-            if isinstance(event, TextDelta):
-                print(event.text, end="", flush=True)
-            elif isinstance(event, AssistantMessage):
-                print(event.stop_reason, event.usage)
+async def main():
+    profile = ProfileOptions(
+        harness="deepagents",
+        model="litellm_proxy/your-model-alias",
+        model_kwargs={
+            "api_base": os.environ["LITEAGENTS_API_BASE"],  # https://gateway/v1
+            "api_key": os.environ["LITELLM_API_KEY"],
+        },
+        tools=["read_file", "edit_file", "run_tests"],
+    )
+    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=".")) as agent:
+        async for message in agent.query("Read README.md and summarize this project", run_id="intro"):
+            print(message)
+        result = await (await agent.get_run("intro")).result()
+        print(result.text)
+        # A second query shares this client's native conversation.
+        async for message in agent.query("What would you test first?"):
+            print(message)
+
+asyncio.run(main())
 ```
 
-Streaming defaults to off. When enabled, `TextDelta` events provide incremental
-display text; complete `AssistantMessage` and tool-result messages still follow.
-Do not append both deltas and completed text to the same answer. Only completed
-messages enter history. Usage is per model response. A truncated or failed stream
-raises instead of yielding a completed response. Use `aclosing` when consuming a
-query that may stop early, so the provider stream closes promptly.
+Save the same profile as YAML/JSON and load it with `ProfileOptions.from_yaml`
+or `from_json`. `${VARIABLE}` is expanded by those loaders; missing variables
+are errors. Credentials and native configuration are omitted from profile reprs.
 
-Initial history is copied and remains in memory for this client only. When
-`max_turns` is reached during tool use, no final answer is produced: the last
-assistant message has `stop_reason="tool_use"`. Applications should detect this
-instead of delivering tool-planning text as a finished answer.
+| Harness | Gateway protocol | Python tools | MCP | Persistent execution |
+| --- | --- | --- | --- | --- |
+| `deepagents` | Chat Completions; native Anthropic also supported | Yes | Yes | Temporal + LangGraph SQLite |
+| `pydantic-ai` | Chat Completions or Anthropic | Yes | Yes | Conversation for client lifetime |
+| `claude-sdk` | Anthropic Messages | Yes, via SDK MCP | Yes | Native session resume |
+| `codex` | Responses | Use MCP | Yes | Native thread resume |
+| `opencode-v1` | OpenAI-compatible or native provider | Use MCP | Yes | Native session resume |
+| `opencode-v2` | Same OpenCode server | Use MCP | Yes | Native session resume |
+
+OpenCode's two names represent upstream SDK API generations, **not two different
+agent engines**. Both use the tested 1.18.x HTTP/SSE server adapter. Model aliases
+must support the selected protocol; a Chat Completions alias alone does not
+establish Responses or Anthropic compatibility.
+
+## Compare all six
+
+The [comparison cookbook](cookbook/compare_harnesses/README.md) includes profiles
+and a small broken calculator. It gives each harness a separate workspace and
+records the answer, file diff, test output, duration, and available native usage.
+Missing usage stays unavailable. Your source workspace is unchanged.
+
+```sh
+python cookbook/compare_harnesses/compare.py \
+  cookbook/compare_harnesses/profiles/*.yaml \
+  --output /tmp/liteagents-comparison
+```
+
+Set the four environment values documented in that cookbook before running it.
+These runs use your model account and execute tools in the copied workspace.
+
+## Run durably with Temporal
+
+Temporal Cloud hosts the Temporal service on Temporal's infrastructure. You can
+also self-host the open-source service. Your workers run separately in either
+case. Start locally with the persistent development server:
+
+```sh
+brew install temporal
+mkdir -p .liteagents
+temporal server start-dev --ip 127.0.0.1 --db-filename .liteagents/temporal.sqlite
+```
+
+The UI is at <http://localhost:8233>. In another terminal, start the SDK worker:
+
+```sh
+python cookbook/temporal/sdk_worker.py cookbook/temporal/agent.yaml --cwd .
+```
+
+Then submit and attach using the public SDK:
+
+```sh
+python cookbook/temporal/sdk_client.py cookbook/temporal/agent.yaml start demo-1 \
+  --prompt 'Read README.md and summarize this project'
+python cookbook/temporal/sdk_client.py cookbook/temporal/agent.yaml result demo-1
+```
+
+Set the gateway environment values first. The worker retains one local SQLite
+checkpoint file; restart it with the same profile version, database, and workspace.
+Completed graph steps are reused. An interrupted tool can execute again.
+Temporal stores coordination and final results; LangGraph stores internal graph
+checkpoints. The Temporal UI shows one agent activity, rather than an activity
+for every model/tool call.
+
+`start_run()` returns immediately. Closing the client leaves the durable run
+running. `get_run()` attaches without resubmitting. Duplicate IDs are rejected
+within Temporal's retention window. Each durable query is independent; direct
+queries share a conversation. See [SDK details](docs/sdk.md) and the
+[checkpoint explanation](cookbook/temporal/README.md).
+
+This worker is for one host with persistent local storage. A file lock prevents
+two workers from owning its checkpoint store. Distributed checkpoints, workspace
+recovery after machine loss, production deployment, and mTLS are later work.
+
+## Validation and migration
+
+```sh
+pytest -q                              # includes native Python/MCP integration
+pytest -q tests/test_temporal_sdk.py   # needs localhost:7233
+ruff check src/ tests/
+mypy src/liteagents --ignore-missing-imports
+python scripts/check_loc.py
+python -m build
+```
+
+Provider tests are opt-in; see the comparison cookbook for the live test command.
+The automated Temporal tests kill a worker mid-tool, restart it, and replay its
+workflow history. Tests distinguish real native loops with scripted providers
+from paid live-provider checks.
+
+Existing `LiteAgentOptions(model=...)`, router, and fusion APIs remain available
+for migration and have regression coverage. Use `profile=...` for the v2 API;
+legacy and profile options cannot be mixed. See [legacy API](docs/legacy-api.md).
+The [proposal](v2-proposal/README.md) describes the full future scope; the support
+matrix here and in [SDK details](docs/sdk.md) describes the implemented behavior.
