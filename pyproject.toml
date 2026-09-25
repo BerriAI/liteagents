@@ -1,19 +1,32 @@
 [project]
 name = "liteagents"
-version = "0.1.0"
-description = "Provider-independent agent SDK built on LiteLLM"
+version = "0.2.0a1"
+description = "A shared Python SDK for native agent harnesses and durable runs"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "litellm>=1.55.0",
     "httpx>=0.24.0",
     "typing_extensions>=4.5.0",
+    "pydantic>=2.12,<3",
+    "PyYAML>=6,<7",
+    "filelock>=3.16,<4",
+    "aiohttp>=3.10,<4",
 ]
 
 [project.optional-dependencies]
+legacy = ["litellm>=1.55.0"]
+opencode-v1 = []
+opencode-v2 = []
 mcp = ["mcp>=1.12,<3"]
-dev = ["pytest>=7.4", "pytest-asyncio>=0.23", "mypy>=1.8", "ruff>=0.4"]
+dev = ["liteagents[legacy]","pytest>=8", "pytest-asyncio>=0.23", "mypy>=1.8", "ruff>=0.4", "pytest-cov", "types-PyYAML", "build"]
+deepagents = ["deepagents>=0.7.19,<0.8", "langchain-openai>=1.6.6,<2", "langgraph-checkpoint-sqlite>=3.1.1,<4"]
+pydantic-ai = ["pydantic-ai-slim[openai,anthropic,mcp]>=2.50,<3"]
+claude-sdk = ["claude-agent-sdk>=0.2.159,<0.3"]
+codex = ["openai-codex>=0.157,<0.158"]
+temporal = ["temporalio>=1.33,<2"]
+postgres = ["psycopg[binary,pool]>=3.3,<4", "langgraph-checkpoint-postgres>=3.1,<4"]
+all = ["liteagents[deepagents,pydantic-ai,claude-sdk,codex,temporal,mcp]"]
 
 [project.urls]
 Homepage = "https://github.com/BerriAI/liteagents"
@@ -27,13 +40,17 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/liteagents"]
 
+[tool.hatch.build]
+exclude = ["**/.state/**", "**/.liteagents/**", "**/.venv/**", "**/.env*", "**/*.sqlite*"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = ["integration: runs an installed native harness or Temporal service", "live: makes bounded real model calls (opt-in)"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"

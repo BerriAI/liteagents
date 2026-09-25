@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from typing import Any, ClassVar
 
-from liteagents import AssistantMessage, LiteAgentOptions, Tool, ToolResultBlock, UserMessage, query
+from liteagents.legacy import (
+    AssistantMessage,
+    LiteAgentOptions,
+    Tool,
+    ToolResultBlock,
+    UserMessage,
+    query,
+)
 
 from .conftest import text_response, tool_use_response
 

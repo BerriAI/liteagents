@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
-from liteagents import LiteAgentOptions, TurnContext, query
+from liteagents.legacy import LiteAgentOptions, TurnContext, query
 
 from .conftest import text_response
 
@@ -38,7 +38,7 @@ async def test_router_called_with_correct_context(mock_anthropic_messages):
 
 
 async def test_router_reselects_each_round(mock_anthropic_messages):
-    from liteagents import Tool
+    from liteagents.legacy import Tool
 
     from .conftest import tool_use_response
 

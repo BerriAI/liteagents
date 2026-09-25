@@ -1,0 +1,11 @@
+harness: pydantic-ai
+model: litellm_proxy/${LITEAGENTS_MODEL}
+model_kwargs:
+  api_base: ${LITEAGENTS_API_BASE}
+  api_key: ${LITELLM_API_KEY}
+system_prompt: Complete the task using tools in the current workspace. Do not change
+  test files. Use python3 when running Python tests. Be concise.
+tools:
+- read_file
+- edit_file
+- run_tests

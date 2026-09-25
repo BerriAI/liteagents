@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from liteagents import AssistantMessage, TextBlock, ToolResultBlock, UserMessage
-from liteagents.history import ConversationHistory
+from liteagents.legacy import AssistantMessage, TextBlock, ToolResultBlock, UserMessage
+from liteagents.legacy.history import ConversationHistory
 
 
 def test_add_user_text_updates_raw_and_messages():

@@ -1,0 +1,6 @@
+harness: deepagents
+model: litellm_proxy/${LITEAGENTS_MODEL}
+temporal:
+  address: localhost:17233
+  profile_id: self-hosted-reader-v1
+  state_url: ${LITEAGENTS_CLIENT_STATE_URL}
