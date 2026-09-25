@@ -19,43 +19,39 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev,mcp]" "mcp==${{ matrix.mcp-version }}"
       - run: python scripts/check_loc.py
-      - run: ruff check src/ tests/
+      - run: ruff check src/ tests/ cookbook/recipes/
       - run: mypy src/liteagents --ignore-missing-imports
       - run: pytest -q
       - run: python -m build
 
   native-and-temporal:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
       LANGSMITH_TRACING: "false"
       LANGCHAIN_TRACING_V2: "false"
       PYDANTIC_AI_NO_BANNER: "1"
+      TEMPORAL_PORT: "7233"
+      LITEAGENTS_TEST_POSTGRES_URL: postgresql://temporal:local-development-only@localhost:15433/liteagents
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e ".[dev,all]"
+      - run: pip install -e ".[dev,all,postgres]" -c constraints-tested.txt
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - run: npm install -g opencode-ai@1.18.29
-      - name: Start a disposable Temporal service
-        run: |
-          docker run -d --name temporal -p 7233:7233 temporalio/temporal:1.9.1 server start-dev --ip 0.0.0.0
-          python - <<'PY'
-          import socket, time
-          for _ in range(60):
-              try:
-                  with socket.create_connection(("127.0.0.1", 7233), timeout=1):
-                      break
-              except OSError:
-                  time.sleep(1)
-          else:
-              raise SystemExit("Temporal did not start")
-          PY
+      - name: Start self-hosted Temporal and PostgreSQL
+        run: docker compose -f deployment/compose.yaml up -d --wait postgres temporal temporal-ui
       - run: mypy src/liteagents --ignore-missing-imports
       - run: pytest -q --cov=liteagents --cov-report=term-missing
-      - name: Temporal diagnostics
+      - name: Build the deployment worker
+        run: docker compose -f deployment/compose.yaml build worker
+      - name: Service diagnostics
         if: failure()
-        run: docker logs temporal
+        run: docker compose -f deployment/compose.yaml logs --tail=100 postgres temporal
+      - name: Stop disposable services
+        if: always()
+        run: docker compose -f deployment/compose.yaml down -v

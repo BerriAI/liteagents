@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 import pytest
 from mcp.types import CallToolResult, ListToolsResult
 
-from liteagents import LiteAgentOptions, ToolResultBlock, query
+from liteagents.legacy import LiteAgentOptions, ToolResultBlock, query
 from liteagents.mcp import load_mcp_tools
 
 from .conftest import text_response, tool_use_response

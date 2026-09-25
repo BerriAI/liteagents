@@ -6,8 +6,7 @@ from collections.abc import Sequence
 from copy import deepcopy
 from typing import Any
 
-from ._internal import adapter
-from .types import (
+from ..types import (
     AssistantMessage,
     ContentBlock,
     Message,
@@ -16,6 +15,7 @@ from .types import (
     ToolUseBlock,
     UserMessage,
 )
+from ._internal import adapter
 
 
 class ConversationHistory:

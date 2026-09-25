@@ -28,11 +28,31 @@ _ADAPTERS = {
         "DeepAgentsAdapter",
         HarnessCapabilities(temporal=True, recovery="graph"),
     ),
-    "pydantic-ai": ("pydantic_ai", "PydanticAIAdapter", HarnessCapabilities(recovery="memory")),
-    "claude-sdk": ("claude_sdk", "ClaudeAdapter", HarnessCapabilities()),
-    "codex": ("codex", "CodexAdapter", HarnessCapabilities(custom_tools=False)),
-    "opencode-v1": ("opencode", "OpenCodeAdapter", HarnessCapabilities(custom_tools=False)),
-    "opencode-v2": ("opencode", "OpenCodeAdapter", HarnessCapabilities(custom_tools=False)),
+    "pydantic-ai": (
+        "pydantic_ai",
+        "PydanticAIAdapter",
+        HarnessCapabilities(temporal=True, recovery="operations"),
+    ),
+    "claude-sdk": (
+        "claude_sdk",
+        "ClaudeAdapter",
+        HarnessCapabilities(temporal=True, recovery="operations"),
+    ),
+    "codex": (
+        "codex",
+        "CodexAdapter",
+        HarnessCapabilities(custom_tools=False, temporal=True, recovery="operations"),
+    ),
+    "opencode-v1": (
+        "opencode",
+        "OpenCodeAdapter",
+        HarnessCapabilities(custom_tools=False, temporal=True, recovery="operations"),
+    ),
+    "opencode-v2": (
+        "opencode",
+        "OpenCodeAdapter",
+        HarnessCapabilities(custom_tools=False, temporal=True, recovery="operations"),
+    ),
 }
 
 
@@ -57,23 +77,29 @@ class HarnessAdapter(ABC):
         tools: list[Tool],
         session_id: str,
         resume_session: bool = False,
+        tool_allowlist: set[str] | None = None,
     ):
         self.profile = profile
         self.cwd = cwd
         self.tools = tools
         self.session_id = session_id
+        self.tool_allowlist = tool_allowlist
         self.resume_session = resume_session
         self.native_session_id: str | None = None
         self.validate()
 
     def validate(self) -> None:
         capabilities = get_capabilities(self.profile.harness)
-        if self.profile.subagents or self.profile.features.subagents:
-            raise UnsupportedFeatureError("Subagent configuration is a milestone 3 feature")
-        if self.profile.recovery is not None:
+        if bool(self.profile.subagents) != self.profile.features.subagents:
             raise UnsupportedFeatureError(
-                "Per-operation retries/model/harness fallbacks are a milestone 3 feature; "
-                "Temporal worker recovery is configured separately"
+                "Set features.subagents=true with at least one named subagent"
+            )
+        if self.profile.recovery is not None and self.profile.harness not in (
+            "deepagents",
+            "pydantic-ai",
+        ):
+            raise UnsupportedFeatureError(
+                "Native operation recovery requires the managed execution adapter"
             )
         if self.profile.temporal and not capabilities.temporal:
             raise UnsupportedFeatureError(
@@ -104,6 +130,16 @@ class HarnessAdapter(ABC):
 
 
 def create_adapter(profile: ProfileOptions, **kwargs: Any) -> HarnessAdapter:
+    if profile.harness not in ("deepagents", "pydantic-ai") and (
+        profile.temporal
+        or profile.recovery
+        or profile.harness_options.get("interrupt_on")
+        or profile.features.subagents
+        or kwargs.get("tool_allowlist") is not None
+    ):
+        from .managed import ManagedAdapter
+
+        return ManagedAdapter(profile, **kwargs)
     module, name, _ = _ADAPTERS[profile.harness]
     try:
         cls = getattr(import_module(f"liteagents.harnesses.{module}"), name)

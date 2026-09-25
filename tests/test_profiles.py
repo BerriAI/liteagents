@@ -66,7 +66,7 @@ def test_invalid_profiles_rejected(change):
 
 def test_profile_and_legacy_settings_cannot_mix():
     profile = ProfileOptions(harness="deepagents", model="openai/test")
-    with pytest.raises(ValueError, match="legacy"):
+    with pytest.raises(TypeError, match="model"):
         LiteAgentOptions(profile=profile, model="another")
 
 

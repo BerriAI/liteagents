@@ -181,3 +181,37 @@ async def test_live_deepagents_temporal(tmp_path):
         async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as attached:
             result = await (await attached.get_run(run.run_id)).result()
             assert "CORAL-731" in result.text
+
+
+@pytest.mark.parametrize("harness", HARNESSES)
+async def test_live_durable_mcp_and_reconnectable_stream(harness, tmp_path):
+    from uuid import uuid4
+
+    from liteagents import TemporalOptions
+    from liteagents.temporal import LiteAgentWorker
+
+    config = live_profile(harness, mcp=True)
+    config.mcp_servers = {
+        "evidence": {
+            "command": sys.executable,
+            "args": [str(Path(__file__).with_name("mcp_fixture_server.py"))],
+            "allowed_tools": ["read_memory"],
+        }
+    }
+    config.tools = ["evidence_read_memory"]
+    config.features.streaming = True
+    config.temporal = TemporalOptions(
+        profile_id="live-managed-" + uuid4().hex, checkpoint_path=str(tmp_path / "graph.sqlite")
+    )
+    async with asyncio.timeout(150), LiteAgentWorker(profile=config, cwd=tmp_path).running():
+        async with LiteAgentClient(options=LiteAgentOptions(profile=config)) as client:
+            run = await client.start_run(
+                'Call evidence_read_memory with query="durable-mcp-verified". Report the exact returned evidence.',
+                run_id="live-managed-" + uuid4().hex,
+            )
+        async with LiteAgentClient(options=LiteAgentOptions(profile=config)) as client:
+            attached = await client.get_run(run.run_id)
+            events = [e async for e in attached.events()]
+            result = await attached.result()
+            assert "evidence:durable-mcp-verified" in result.text
+            assert any(e.kind == "text_delta" for e in events)

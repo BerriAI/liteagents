@@ -116,7 +116,7 @@ async def test_real_harness_tool_loop_and_history(harness, factory, tmp_path):
 
 @pytest.mark.parametrize(
     "field,value",
-    [("features", {"subagents": True}), ("recovery", {}), ("harness_options", {"typo": True})],
+    [("features", {"subagents": True}), ("harness_options", {"typo": True})],
 )
 def test_unimplemented_features_fail_before_execution(field, value, tmp_path):
     from liteagents import UnsupportedFeatureError

@@ -13,7 +13,7 @@ import json
 from collections.abc import Iterable, Iterator
 from typing import Any
 
-from ..types import ContentBlock, TextBlock, ToolUseBlock
+from ...types import ContentBlock, TextBlock, ToolUseBlock
 
 
 def _get(obj: Any, key: str, default: Any = None) -> Any:

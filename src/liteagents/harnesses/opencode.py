@@ -11,7 +11,9 @@ import asyncio
 import json
 import os
 import re
+import shutil
 import socket
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import aclosing, suppress
 from pathlib import Path
@@ -205,6 +207,10 @@ class OpenCodeAdapter(HarnessAdapter):
         provider, model = self.profile.model.split("/", 1)
         self.model_spec = {"providerID": provider, "modelID": model}
         if not base_url:
+            if not shutil.which(options.get("binary", "opencode")):
+                raise MissingDependencyError(
+                    "Install the OpenCode CLI or configure harness_options.base_url"
+                )
             env = dict(os.environ)
             env.update(options.get("env", {}))
             state_dir = Path(
@@ -230,13 +236,19 @@ class OpenCodeAdapter(HarnessAdapter):
                 listener.bind(("127.0.0.1", 0))
                 port = listener.getsockname()[1]
             try:
-                self.process = await asyncio.create_subprocess_exec(
+                command = [
                     options.get("binary", "opencode"),
                     "serve",
                     "--hostname",
                     "127.0.0.1",
                     "--port",
                     str(port),
+                ]
+                if os.name == "posix":
+                    command = [sys.executable, "-m", "liteagents.runtime.supervise", *command]
+                self.process = await asyncio.create_subprocess_exec(
+                    *command,
+                    stdin=asyncio.subprocess.PIPE,
                     cwd=self.cwd,
                     env=env,
                     stdout=asyncio.subprocess.PIPE,

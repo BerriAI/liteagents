@@ -8,7 +8,7 @@ import pytest
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from liteagents import LiteAgentOptions, query
+from liteagents.legacy import LiteAgentOptions, query
 from liteagents.mcp import load_mcp_tools
 
 from .conftest import text_response, tool_use_response

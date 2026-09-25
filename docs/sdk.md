@@ -1,179 +1,236 @@
-# SDK contract and supported configuration
+# SDK contract
 
-## Runs and conversations
+## Profiles and native loops
 
-`LiteAgentClient` is an async context manager. `query(prompt, run_id=...)` yields
-`AssistantMessage`, `UserMessage` (tool results), and optional `TextDelta`.
-`ToolUseBlock.id` correlates with `ToolResultBlock.tool_use_id`. Completed
-assistant messages include full text even when deltas were emitted; display
-one or the other to avoid duplicated text. `RunResult.text` returns the final
-assistant response; `messages` retains intermediate tool exchanges.
+`LiteAgentOptions(profile=..., cwd=..., tools=..., session_id=...)` configures a
+client. The profile selects one of the six harness names. Each selected harness
+runs its native loop; LiteAgents manages execution boundaries and normalizes
+messages. `cwd` must exist.
 
-Direct runs execute while `query()` is consumed. One client owns one native
-conversation. Concurrent queries are rejected. Run IDs are unique within that
-client; handles cannot be recovered from another client. `LocalRun.status` is
-an attribute; `await LocalRun.result()` returns or raises the original failure.
-Wrap a partially consumed query in `contextlib.aclosing` to interrupt it and
-release resources. Cancelling a query cancels that direct invocation.
+A profile contains `harness`, `model`, `model_kwargs`, `system_prompt`, `tools`,
+`mcp_servers`, `subagents`, `features`, `recovery`, `temporal`, `harness_options`,
+and `max_turns`. Unknown profile fields fail validation. Environment expansion
+happens when loading YAML/JSON, including nested settings. Missing variables fail
+without printing the resolved profile. Keep configuration files free of secrets.
 
-Claude, Codex, and OpenCode results expose a native `session_id`. Pass it as
-`LiteAgentOptions(session_id=..., cwd=...)` with the same native storage and
-workspace to reopen a conversation. This resumes history for a **new** query;
-it does not attach to or recover an interrupted operation. DeepAgents and
-Pydantic AI direct history only lasts for the client; they reject session IDs.
+Python harnesses support `openai/`, `anthropic/`, and `litellm_proxy/` model names.
+They also accept local native model objects through `harness_options.model_instance`.
+Those objects stay on the application/worker; Temporal arguments contain only a
+profile version reference and the prompt. Profiles with native objects need an
+explicit, stable `temporal.profile_id`.
 
-Temporal `start_run()` submits a detached workflow. `query()` submits and waits
-for the final messages; no token streaming is provided on this path.
-`get_run(id)` only attaches. `await run.status()` queries Temporal. Closing a
-client or cancelling its wait leaves the workflow running. New durable queries
-use independent graph threads. Public durable cancellation is deferred.
+## Direct and durable execution
 
-Duplicate Temporal IDs are rejected while the workflow remains in namespace
-retention. A run handle's result may contain prompts, tool outputs, and model
-responses; Temporal and checkpoint databases should be treated as application
-data stores. Large results over 1.5 MB are rejected; use external artifacts for
-large tool outputs.
-
-## Models, limits, and native options
-
-`model_kwargs` is deliberately validated per adapter. The SDK never changes
-process-global credentials. Environment references expand only when loading a
-YAML/JSON file; direct Python profiles accept ordinary values/native objects.
-
-| Harness | Supported common model settings | Selected native options |
+| Behavior | Direct | Temporal |
 | --- | --- | --- |
-| DeepAgents | Native LangChain model fields; `api_base` → `base_url` | `model_instance`, `middleware`, `backend`, `skills`, `memory`, `debug` |
-| Pydantic AI | OpenAI/Anthropic model settings; `api_base`, `api_key`; `reasoning_effort` → `openai_reasoning_effort` | `model_instance`, `tool_timeout` |
-| Claude | `api_base`, `api_key`, `reasoning_effort` | `permission_mode`, `allowed_tools`, `disallowed_tools`, `cli_path`, `env`, `max_budget_usd`, `setting_sources`, `timeout_seconds`, `stderr`, `sandbox` |
-| Codex | `api_base`, `api_key`, `reasoning_effort` | `sandbox`, `approval_mode`, `config`, `env`, `codex_bin`, `timeout_seconds`, `ephemeral`, `state_dir` |
-| OpenCode | `api_base`, `api_key`, `temperature`, `top_p`, `reasoning_effort` | `base_url`, `binary`, `env`, `config`, `agent`, `timeout_seconds`, `username`, `password`, `state_dir` |
+| Conversation | Consecutive queries on one client share history | Each submission is independent |
+| Client exit | Cancels active local work | Leaves the workflow running |
+| `start_run()` | Starts work and returns a local handle | Submits once and returns a durable handle |
+| `get_run(id)` | Finds a run belonging to that client | Attaches to an existing workflow |
+| Worker loss | No durable recovery | Restores recorded operations/checkpoints |
+| Application tools | Pass on `LiteAgentOptions` | Register on `LiteAgentWorker` |
 
-Python harnesses accept `openai/model`, `anthropic/model`, and
-`litellm_proxy/alias`; DeepAgents can also use LangChain's provider factory.
-Other Pydantic AI providers use an explicitly constructed `model_instance`.
-The application owns supplied model objects; the adapter closes clients it
-creates. Claude needs an Anthropic-compatible model. Codex needs Responses.
-OpenCode can use its native providers or the configured OpenAI-compatible gateway.
+One direct conversation permits one active query. Closing a direct query stream
+cancels that run. Closing a Temporal query subscription leaves execution with the
+worker; call `run.cancel()` to request cancellation explicitly.
 
-`max_turns` is optional; an unspecified limit uses 20 model calls/steps where supported. DeepAgents uses
-native model-call middleware and Pydantic AI uses request limits. Claude and
-owned OpenCode servers receive their native turn/step limits. Codex exposes no
-model-call budget; explicitly setting `max_turns` raises an error. Bound it with
-`timeout_seconds` (default 300). Attached OpenCode servers must configure their
-own models, MCP, agent options, and limits; the SDK never changes shared server
-configuration. Supported OpenCode server versions are 1.18.x, tested on 1.18.29.
+Native Claude/Codex/OpenCode session IDs can reopen ordinary direct conversations
+using `session_id`. DeepAgents and Pydantic AI direct conversations last for the
+client lifetime. Native session resume alone is not checkpoint recovery.
 
-Codex state defaults to `cwd/.liteagents/codex`. Set `state_dir` to a dedicated
-persistent directory to share native sessions between application clients.
-This scopes its personal configuration, plugins, authentication and history to
-the SDK. Authenticate through the profile or configure that directory for your
-native use case. `approval_mode` defaults to `deny_all`; native actions needing
-permission can fail. `auto_review` delegates decisions to Codex's native reviewer.
-Human approval/resume through LiteAgents is not implemented.
+Run handles expose the same asynchronous methods:
 
-Owned OpenCode servers use `cwd/.liteagents/<harness>` for their XDG data,
-configuration, cache, and state directories. `state_dir` overrides that location.
-A lock prevents simultaneous servers from opening the same native SQLite store;
-use separate directories for independent servers or `base_url` to attach to one
-shared server. Resume a native session with the same harness and state directory.
-The SDK uses dedicated ports so concurrently starting servers do not race for
-OpenCode's default port.
+```python
+result = await run.result()
+status = await run.status()
+pending = await run.approvals()
+await run.approve(pending[0]["id"], allow=True)
+await run.cancel()
+```
 
-Do not combine legacy `LiteAgentOptions(model=..., stream=..., system=...)` or
-nondefault legacy token/turn limits with `profile=...`.
+`RunResult` contains `run_id`, the actual `harness`, normalized `messages`, native
+`session_id`, and available `usage`. `result.text` selects the final assistant
+answer. Usage retains native reports; incompatible units are not added together.
 
-## Tools and MCP
+## Events and streaming
 
-For DeepAgents/Pydantic AI, register `Tool` objects with
-`LiteAgentOptions(tools=[...])`, then select their names in `profile.tools`.
-With an empty selection, all registered tools are included. Shared workspace
-implementations are available for `read_file`, `edit_file`, and `run_tests`.
-The file tools reject paths outside the workspace; the test tool executes an
-argument array with a 120-second timeout. It is not an OS sandbox.
+`query()` yields `AssistantMessage`, `UserMessage`, and, when enabled,
+`TextDelta`. A complete assistant message still follows its incremental text;
+render deltas for live display and use the complete message for final content.
 
-DeepAgents includes its native toolset, excluding native delegation, when no selection is supplied. Claude
-maps these three names to Read, Edit, and Bash. OpenCode maps them to read, edit,
-and bash. Native shell tools have their native behavior and permissions.
-Codex uses its native toolset; it rejects `profile.tools` and Python tool objects.
-Use MCP for custom Codex/OpenCode tools. Unknown adapter options fail explicitly;
-`config` itself is a native configuration escape hatch validated by that runtime.
+Run subscriptions expose lifecycle information and reconnectable cursors:
 
-Python profiles support managed MCP stdio, Streamable HTTP, and SSE sessions:
+```python
+async for event in run.events(after=last_cursor):
+    last_cursor = event.cursor
+    if event.kind == "text_delta":
+        print(event.data["text"], end="", flush=True)
+    elif event.kind == "approval_requested":
+        print(event.data["tool"], event.data["arguments"])
+```
+
+Events include messages, text deltas, operation retries, model/harness fallback,
+approval requests, and subagent start/event/completion. Child events carry their
+scope and identity; `event.message` exposes top-level normalized messages.
+Persist the cursor on the consuming side to reconnect without re-reading earlier
+stored events. Subscribing does not submit another query.
+
+Final results do not depend on a subscriber. Token events are stored outside
+Temporal history. A partially emitted model response may produce replacement
+text when that interrupted operation retries; completed operation responses are
+replayed without another provider request. Consumers should use completed
+messages/results as authoritative output.
+
+## Tools, MCP, and subagents
+
+Application tools implement `Tool.name`, `description`, `input_schema`, and
+`async execute(input)`. Tool results must be JSON serializable for durability.
+Use `operation_id()` while a tool runs to obtain an idempotency key stable across
+its retries and worker recovery.
+
+Shared workspace tools are `read_file`, `edit_file` (one unique text replacement),
+and `run_tests` (an argument array, with a bounded timeout). File tools resolve
+paths within `cwd`. They are conveniences, not a security sandbox: a test command
+can run arbitrary programs with the worker's permissions.
+
+In Python harnesses and managed native execution, MCP uses the shared schema:
 
 ```yaml
 mcp_servers:
-  evidence:
-    command: python3
-    args: ["/absolute/path/to/server.py"]
-    allowed_tools: [read_memory]
-tools: [evidence_read_memory]
+  orders:
+    command: python
+    args: [orders_server.py]
+    allowed_tools: [lookup_order]
+tools: [orders_lookup_order]
 ```
 
-For a remote server, replace `command`/`args` with `url`, optional `headers`, and
-`transport: http` (default) or `sse`. Python tools use `server_tool` names.
-Connections stay open throughout the client and close with it. MCP 1.12 and
-2.2 transport APIs are covered. Duplicate tool names are rejected.
+MCP tools receive a `<server>_` prefix. An explicit allowlist is checked against
+remote names before exposure. HTTP servers use `url`, optional `headers`, and
+`transport: http` or `sse`. Stdio servers use `command`, optional `args` and `env`.
+The SDK owns the sessions until the run/client closes. `load_mcp_tools` also
+adapts caller-owned, initialized MCP sessions. MCP 1.12 and 2.2 transports are
+covered separately.
 
-Claude uses native MCP names such as `mcp__evidence__read_memory`. It accepts
-`command/args/env` or `url/headers/transport`; restrict names through
-`profile.tools`. Python tools become an SDK MCP server named `liteagents`.
-
-Codex MCP configuration uses native fields: `command/args/env` or `url`,
-`http_headers`, `bearer_token_env_var`, `enabled_tools`, `disabled_tools`,
-`startup_timeout_sec`, `tool_timeout_sec`, `enabled`, and per-tool `tools`.
-Explicitly authorize a known tool when it should run without an approval dialog:
+Named subagents are exposed as `delegate_<name>` tools. Each child runs the same
+selected native harness in its own conversation, with a model override, merged
+model kwargs, prompt, and explicit tool allowlist:
 
 ```yaml
-mcp_servers:
-  evidence:
-    command: python3
-    args: ["/absolute/path/to/server.py"]
-    enabled_tools: [read_memory]
-    tools:
-      read_memory:
-        approval_mode: approve
+features:
+  subagents: true
+subagents:
+  auditor:
+    description: Verify facts against source files.
+    model: litellm_proxy/another-compatible-alias
+    tools: [read_file]
+    system_prompt: Report evidence and uncertainty.
 ```
 
-OpenCode accepts `command/args/env` or `url/headers`; native server config can
-supply more specialized settings. Unsupported shared MCP fields are rejected
-rather than silently ignored. Native MCP permissions still apply.
+An empty child tool list exposes no tools. Children do not inherit permission to
+edit or run commands from their parent. Parent/child operations use separate
+journal scopes; a completed delegation result is reused during replay. Native
+built-in delegation tools are excluded from managed execution.
 
-## Durable workers
+## Recovery and approvals
 
-`LiteAgentWorker(profile=..., tools=[...], cwd=...).run()` owns execution.
-Register custom tools on the worker, not the submitting client. The client
-sends only the prompt, an opaque profile version, and execution timeouts to
-Temporal. Profiles/credentials/native Python objects stay out of workflow
-arguments. Tool/model outputs and error messages can still contain task data.
+```yaml
+recovery:
+  retries:
+    max_attempts: 3
+  model_fallbacks: [litellm_proxy/backup-alias]
+  harness_fallbacks: [pydantic-ai]
+harness_options:
+  interrupt_on:
+    edit_file: true
+```
 
-Set `temporal.profile_id` to a stable, versioned identifier when profiles contain
-native objects or clients omit worker credentials. **Change the ID when model,
-tool implementations, instructions, or native configuration change.** Otherwise
-the default is a digest of the resolved profile. Effective task queues append
-an ID digest so different profiles do not consume each other's tasks.
+`max_attempts` includes the first attempt. Eligible failures include timeouts,
+connection failures, HTTP 429, and HTTP 5xx. Authentication, invalid parameters,
+and denied approvals are not transient retries. Completed operations, exhausted
+budgets, and approval decisions are persisted for durable runs; worker retries
+do not reset them.
 
-Worker recovery uses the same graph thread, keyed by workflow ID and Temporal
-execution ID. Synchronous LangGraph checkpoints retain completed steps, including
-a completed final result if the activity completion must be reported again.
-`worker_recovery_attempts` (default 3, including the first) is an activity retry
-budget, not the proposal's per-model/tool retry policy. Configuration errors are
-nonretryable. Interrupted effects may repeat: external mutation tools need their
-own idempotency or reconciliation.
+Model fallback preserves the native conversation at the failed model boundary.
+Fallback models must use the selected harness's protocol. Harness fallback starts
+the original prompt in a fresh conversation, preserving portable configuration.
+It is permitted only before any tool or child delegation has begun. Native
+harness-specific options do not carry to a different harness. Choose fallback
+harnesses compatible with the same model settings and tools.
 
-The local SQLite store has one worker owner and one concurrent activity. Keep
-the database and workspace on persistent local storage. This is not distributed
-worker fencing or workspace restoration. Cloud and self-hosted Temporal use the
-same client/worker architecture, but shared checkpoint storage, mTLS, long-run
-retention, and production worker versioning remain later deployment work.
+`interrupt_on` pauses before executing the named tool. The run exposes an approval
+ID, tool name, and arguments. Answering the same decision again is idempotent;
+a conflicting answer is rejected. Denial fails the run without executing that
+tool. Approval waits consume the configured activity timeout; choose a timeout
+that fits the intended human response window.
 
-## Supported dependency baseline
+Cancellation stops active execution and requests native turn/process cleanup.
+It cannot undo a completed external effect. As with worker interruption, effectful
+tools need application idempotency or reconciliation.
 
-Verified with Python 3.12.14, DeepAgents 0.7.19, LangChain 1.4.2,
-langchain-openai 1.6.6, Pydantic AI 2.50.0, Claude Agent SDK 0.2.159,
-openai-codex 0.157.0, OpenCode 1.18.29, MCP 2.2.0, and Temporal Python 1.33.0
-against local Temporal server 1.32.0. Optional extras constrain the native API
-families. CI covers the minimum MCP 1.12 transport separately.
+## Native CLI execution modes
 
-The full proposal's subagents, per-operation retry/fallback, approval/resume,
-and reconnectable durable event streams remain milestone 3. Native runtime
-escape hatches are not a promise of portable behavior or crash recovery.
+Ordinary direct Claude/Codex/OpenCode adapters support native sessions, their
+native tools, and native MCP configuration. Recovery, Temporal, approvals, and
+subagents select **managed execution** instead.
+
+Managed execution requires an explicit gateway `api_base`. A private local
+provider/MCP gateway records complete model responses before delivering tool
+calls to the native process. The process still owns its loop. Only selected
+managed tool definitions reach its model, and returned calls outside that set
+are rejected before dispatch. Text can stream to run subscribers while the full
+response is being recorded.
+
+A replacement worker starts a fresh native conversation and supplies recorded
+model/tool results at the same boundaries. Changes to semantic prompts, tool
+schemas, or arguments fail replay validation. Transport IDs and Codex's generated
+tool timing annotation are excluded from comparison; actual tool content remains
+part of validation. Keep runtime versions, instructions, workspace paths, and
+profile versions stable for in-flight runs.
+
+Managed mode owns provider and tool configuration; raw native `config`, attached
+OpenCode servers, and native tool-policy overrides cannot be combined with it.
+Use the shared tool/MCP/approval fields instead. Ordinary direct mode continues
+to accept native MCP shapes and the native controls described below.
+
+| Harness | Selected native options |
+| --- | --- |
+| DeepAgents | `model_instance`, `middleware`, `backend`, `skills`, `memory`, `debug` |
+| Pydantic AI | `model_instance`, `tool_timeout` |
+| Claude | `permission_mode`, `cli_path`, `env`, `max_budget_usd`, `timeout_seconds`, `sandbox`; direct mode also native tool policies |
+| Codex | `sandbox`, `approval_mode`, `env`, `codex_bin`, `timeout_seconds`, `state_dir`; direct mode also `config` and `ephemeral` |
+| OpenCode | `binary`, `env`, `timeout_seconds`, `state_dir`; direct mode also attached `base_url`, credentials, agent and native config |
+
+Unknown adapter options fail explicitly. Native model objects and middleware are
+local Python escape hatches; side effects performed outside registered operation
+boundaries need their own persistence and idempotency.
+
+## Durable storage and deployment
+
+`TemporalOptions` defaults to localhost:7233, namespace `default`, local SQLite,
+three worker recovery attempts, a 600-second activity timeout, and a 15-second
+heartbeat timeout. The default run-state file is beside `checkpoint_path` with a
+`.runs` suffix. Application clients and workers must resolve it to the same path.
+
+`state_url` selects `sqlite:///absolute/path` or `postgresql://...` storage.
+For shared DeepAgents workers, set both `state_url` and `checkpoint_url` to
+PostgreSQL connection URLs. Other harnesses use `state_url` for their operation
+journal. Clients require access to that store for results, cursors, and approvals.
+
+SQLite workers take a local store lock. PostgreSQL workers take a session advisory
+lock for each active run and check ownership while heartbeating and at operation
+boundaries. Loss of ownership stops the attempt; another worker cannot dispatch
+concurrently while the old owner still holds its lock. Interrupted external
+effects still require application idempotency.
+
+`max_events` bounds stored events; `max_payload_bytes` bounds each recorded
+payload. `max_turns` bounds model loops. Exceeding a bound fails explicitly; store
+large artifacts separately. `LiteAgentWorker.purge(older_than_days=...)` removes
+up to 1,000 expired terminal runs per call, including owned graph/native
+checkpoints. Cleanup first reconciles stale run status with Temporal, including
+workflows that ended while no worker was alive. Active runs and workspace
+artifacts remain. Temporal namespace retention is independent.
+
+Use immutable, versioned `profile_id` values for deployments. The task queue
+includes that profile identity, so a worker never consumes another registered
+version's tasks. Keep old workers available while their runs drain. See
+[self-hosting](self-hosting.md) for service/storage setup and TLS fields.

@@ -43,7 +43,7 @@ async def test_close_stream_cancels_handle_and_releases_conversation(controlled)
             with pytest.raises(ConfigurationError, match="Concurrent"):
                 await anext(client.query("other"))
         run = await client.get_run("one")
-        assert run.status == "cancelled"
+        assert await run.status() == "cancelled"
         with pytest.raises(asyncio.CancelledError):
             await run.result()
         async with aclosing(client.query("again", run_id="two")) as stream:
@@ -55,7 +55,7 @@ async def test_failed_run_retains_error(controlled):
         with pytest.raises(HarnessError, match="provider failed"):
             await anext(client.query("fail", run_id="failure"))
         run = await client.get_run("failure")
-        assert run.status == "failed"
+        assert await run.status() == "failed"
         with pytest.raises(HarnessError, match="provider failed"):
             await run.result()
 
@@ -78,7 +78,7 @@ async def test_model_call_limit_prevents_second_request(harness, factory, tmp_pa
         with pytest.raises(HarnessError, match="limit"):
             _ = [e async for e in client.query("Look up order", run_id="limited")]
         assert len(tool.calls) == 1
-        assert (await client.get_run("limited")).status == "failed"
+        assert await (await client.get_run("limited")).status() == "failed"
 
 
 @pytest.mark.parametrize(

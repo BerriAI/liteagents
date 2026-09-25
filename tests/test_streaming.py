@@ -5,8 +5,8 @@ from contextlib import aclosing
 import litellm
 import pytest
 
-from liteagents import AssistantMessage, LiteAgentClient, LiteAgentOptions, TextDelta, query
-from liteagents._internal.streaming import stream_response
+from liteagents.legacy import AssistantMessage, LiteAgentClient, LiteAgentOptions, TextDelta, query
+from liteagents.legacy._internal.streaming import stream_response
 
 from .test_loop import EchoTool
 

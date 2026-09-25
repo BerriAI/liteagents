@@ -46,6 +46,16 @@ class TemporalOptions(StrictOptions):
     api_key: str | None = Field(default=None, repr=False)
     tls: bool = False
     checkpoint_path: str = ".liteagents/checkpoints.sqlite"
+    checkpoint_url: str | None = Field(default=None, repr=False)
+    state_url: str | None = Field(default=None, repr=False)
+    max_events: int = Field(default=20000, ge=10, le=1000000)
+    max_payload_bytes: int = Field(default=8000000, ge=1024, le=50000000)
+    retention_days: int = Field(default=30, ge=1, le=3650)
+    max_concurrent_runs: int = Field(default=1, ge=1, le=100)
+    tls_server_root_ca: str | None = None
+    tls_client_cert: str | None = None
+    tls_client_key: str | None = Field(default=None, repr=False)
+    tls_server_name: str | None = None
     profile_id: str | None = Field(default=None, min_length=1)
     activity_timeout_seconds: int = Field(default=600, ge=10)
     heartbeat_timeout_seconds: int = Field(default=15, ge=2)

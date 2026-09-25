@@ -1,0 +1,18 @@
+harness: deepagents
+model: litellm_proxy/${LITEAGENTS_MODEL}
+model_kwargs:
+  api_base: ${LITEAGENTS_API_BASE}
+  api_key: ${LITELLM_API_KEY}
+tools: [read_file]
+features:
+  streaming: true
+recovery:
+  retries:
+    max_attempts: 3
+temporal:
+  address: temporal:7233
+  profile_id: self-hosted-reader-v1
+  state_url: ${LITEAGENTS_STATE_URL}
+  checkpoint_url: ${LITEAGENTS_STATE_URL}
+  max_concurrent_runs: 2
+  retention_days: 30

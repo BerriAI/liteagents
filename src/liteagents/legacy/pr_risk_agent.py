@@ -10,10 +10,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from ..tools import Tool
+from ..types import AssistantMessage, ToolUseBlock
 from .agent import LiteAgentClient, LiteAgentOptions
 from .routers.base import ModelRouter
-from .tools import Tool
-from .types import AssistantMessage, ToolUseBlock
 
 
 @dataclass

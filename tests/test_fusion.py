@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from liteagents import (
+from liteagents.legacy import (
     FusionOptions,
     LiteAgentClient,
     LiteAgentOptions,

@@ -26,7 +26,7 @@ requires Python 3.11+ and credentials for at least one [LiteLLM-supported provid
 ## One agent, any provider, per turn
 
 ```python
-from liteagents import LiteAgentClient, LiteAgentOptions, TurnContext
+from liteagents.legacy import LiteAgentClient, LiteAgentOptions, TurnContext
 
 
 class CodeRouter:
@@ -51,7 +51,7 @@ history stays intact across the switch. `AssistantMessage.model` records which m
 ## JevAgent picks the best model for every turn
 
 ```python
-from liteagents import JevAgent, JevTier
+from liteagents.legacy import JevAgent, JevTier
 
 async with JevAgent(
     tiers=(
@@ -74,7 +74,7 @@ export TYPESAFE_API_KEY="..."
 Need JEV routing alongside other `LiteAgentOptions` (fusion, a custom `tool_choice`, etc.)? Use `JevModelRouter` directly as a `model_router`:
 
 ```python
-from liteagents import JevModelRouter, JevTier, LiteAgentOptions, query
+from liteagents.legacy import JevModelRouter, JevTier, LiteAgentOptions, query
 
 router = JevModelRouter(
     tiers=(JevTier(name="FAST", model="openai/gpt-5.4-mini", description="Routine edits and extraction"),),
@@ -89,7 +89,7 @@ async for message in query(prompt="Review this pull request", options=options):
 ## Fusion: a frontier main agent with a cheap sidekick
 
 ```python
-from liteagents import FusionOptions, LiteAgentClient, LiteAgentOptions
+from liteagents.legacy import FusionOptions, LiteAgentClient, LiteAgentOptions
 
 options = LiteAgentOptions(
     model="anthropic/claude-opus-4-8",
@@ -106,7 +106,7 @@ the main model plans, resolves ambiguity, and reviews. the sidekick executes wha
 ## Basic usage: `query()`
 
 ```python
-from liteagents import AssistantMessage, LiteAgentOptions, TextBlock, query
+from liteagents.legacy import AssistantMessage, LiteAgentOptions, TextBlock, query
 
 options = LiteAgentOptions(model="openai/gpt-5.4-mini")
 
@@ -137,7 +137,7 @@ lifetime. The same adapter works with stdio, Streamable HTTP and SSE sessions.
 ```python
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
-from liteagents import LiteAgentOptions, query
+from liteagents.legacy import LiteAgentOptions, query
 from liteagents.mcp import load_mcp_tools
 
 params = StdioServerParameters(command="python", args=["memory_server.py"])
@@ -172,7 +172,7 @@ Use `litellm_proxy/<alias>` for opaque LiteLLM gateway model names.
 ```python
 import os
 from contextlib import aclosing
-from liteagents import (
+from liteagents.legacy import (
     AssistantMessage, LiteAgentClient, LiteAgentOptions, TextBlock, TextDelta, UserMessage,
 )
 

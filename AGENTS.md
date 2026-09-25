@@ -1,29 +1,32 @@
 # LiteAgents v2 development
 
-The user authorized replacing the original SDK with the v2 proposal. The target
-is milestones 1 and 2 in v2-proposal/IMPLEMENTATION_PLAN.md: a shared SDK, all six
-native harnesses, DeepAgents Temporal recovery, and a reproducible comparison.
-Test continuously and preserve existing regression coverage.
+The public API uses profiles and native harnesses. V1 compatibility lives in the
+explicit legacy namespace. Keep the product README, SDK contract, migration
+guidance, and runnable cookbooks aligned with the implementation. Test changes
+continuously. Do not claim unsupported native recovery guarantees.
 
 ## Layout
 
-- agent.py: public client/options and legacy compatibility.
-- types.py: common messages. runs.py: results and handles.
-- profiles.py: validated configuration and YAML/JSON loading.
-- harnesses/: adapters and capability checks; native harnesses own their loops.
-- runtime/: direct execution, tools, and message conversion.
-- temporal/: durable client, worker, workflows, and activities.
-- Existing loop.py, history.py, routers/, fusion.py retain legacy behavior.
-- cookbook/: runnable applications and comparisons.
+- agent.py: v2 public client/options. profiles.py: validated configuration.
+- types.py/runs.py: common events, results, and run controls.
+- harnesses/: native adapters; each framework owns its agent loop.
+- runtime/: direct execution, recovery, approvals, and tool boundaries.
+- storage/: SQLite/PostgreSQL run state, operation records, events, ownership.
+- temporal/: deterministic orchestration, clients, workers, and activities.
+- legacy/: isolated v1 compatibility namespace, with regression tests.
+- cookbook/: portable, independently runnable feature demonstrations.
 
-Every source file must stay under 500 non-blank lines (scripts/check_loc.py).
-Split by responsibility. Optional imports must not break other adapters.
+Every source file stays below 500 nonblank lines (scripts/check_loc.py).
+Optional dependencies must not break other adapters or the core package.
 
 ## Correctness
 
-Reject unsupported options. Never equate session resume with proven operation
-recovery. Attaching must not resubmit the prompt. Keep secrets/native objects
-out of Temporal history. Scope environment and workspace state to each client.
-Use native dependencies in integration tests; distinguish simulated providers
-from live providers. Keep live tests opt-in and bounded. Run lint, type checks,
-line-count checks, appropriate tests, and packaging checks.
+Fail explicitly for unsupported combinations. Distinguish native session resume
+from operation recovery. Attaching never resubmits. Keep secrets/native objects
+out of workflow arguments. Persist permission decisions and completed operations;
+an interrupted external effect still requires application idempotency.
+
+Test real native loops, MCP, worker loss, concurrent ownership, version mismatch,
+approval/resume, cancellation, retention and bounded histories. Keep live model
+tests opt-in and bounded. Validate PostgreSQL and self-hosted deployment examples.
+Run lint, types, line limits, packaging checks and the relevant regression suite.

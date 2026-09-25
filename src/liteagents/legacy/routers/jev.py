@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING, Self
 
 import httpx
 
-from ..tools import Tool
-from ..types import AgentEvent, Message, TurnContext
+from ...tools import Tool
+from ...types import AgentEvent, Message, TurnContext
 
 if TYPE_CHECKING:
     from ..agent import LiteAgentClient

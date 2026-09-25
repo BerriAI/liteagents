@@ -189,14 +189,14 @@ which supports Temporal Cloud API-key connections. Use the exact namespace and
 endpoint from the Cloud console. Self-hosted mTLS configurations need certificate
 options added to `connection.py`. This example does not deploy a production server.
 
-## SDK implementation status
+## Current SDK
 
-Milestones 1 and 2 are implemented in the package. All six names use native
-harnesses and have a [comparison example](../compare_harnesses/README.md).
-DeepAgents has verified Temporal graph recovery; other native session resume
-mechanisms are not presented as operation recovery. See the current
-[capability/configuration contract](../../docs/sdk.md). Milestone 3 covers the
-remaining full-proposal behavior.
+The earlier sections retain the original single-machine DeepAgents proof. The
+public SDK now implements operation recovery across all six harnesses, shared
+PostgreSQL state, approval/resume, retries/fallbacks, and subagents. Start with the
+[guided durable recipe](../recipes/README.md#durable-run-and-worker-crash) for the
+current API, the [SDK contract](../../docs/sdk.md) for guarantees, and the
+[self-hosting guide](../../docs/self-hosting.md) for the tested Compose deployment.
 
 ## Sources
 

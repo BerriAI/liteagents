@@ -80,13 +80,18 @@ async def test_public_sdk_detach_attach_duplicate_and_replay(tmp_path, temporal_
     await Replayer(workflows=[AgentWorkflow], workflow_runner=runner).replay_workflow(history)
 
 
-async def test_public_sdk_recovers_after_worker_process_is_killed(tmp_path, temporal_available):
+@pytest.mark.parametrize("harness", ["deepagents", "pydantic-ai"])
+@pytest.mark.parametrize("mode", ["tool", "approval", "child"])
+async def test_public_sdk_recovers_after_worker_process_is_killed(
+    tmp_path, temporal_available, harness, mode
+):
     profile_id = "crash-" + uuid4().hex
     run_id = "sdk-crash-" + uuid4().hex
+    pytest.importorskip("pydantic_ai" if harness == "pydantic-ai" else "deepagents")
     db = tmp_path / "checkpoints.sqlite"
     marker = tmp_path / "calls.txt"
     profile = ProfileOptions(
-        harness="deepagents",
+        harness=harness,
         model="scripted/test",
         temporal=TemporalOptions(
             profile_id=profile_id,
@@ -100,6 +105,8 @@ async def test_public_sdk_recovers_after_worker_process_is_killed(tmp_path, temp
         str(Path(__file__).with_name("temporal_worker_fixture.py")),
         str(tmp_path),
         profile_id,
+        harness,
+        mode,
     ]
     env = dict(
         os.environ,
@@ -119,11 +126,23 @@ async def test_public_sdk_recovers_after_worker_process_is_killed(tmp_path, temp
         async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
             handle = await client.start_run("Read and validate the order", run_id=run_id)
         async with asyncio.timeout(45):
-            while not marker.exists() or "slow-start" not in marker.read_text():
-                assert processes[0].returncode is None, (tmp_path / "worker.log").read_text()
-                await asyncio.sleep(0.1)
+            if mode == "approval":
+                async for event in handle.events():
+                    if event.kind == "approval_requested":
+                        approval_id = event.data["id"]
+                        break
+                assert marker.read_text().splitlines() == ["lookup"]
+            else:
+                while not marker.exists() or "slow-start" not in marker.read_text():
+                    assert processes[0].returncode is None, (tmp_path / "worker.log").read_text()
+                    await asyncio.sleep(0.1)
         processes[0].kill()
         await asyncio.wait_for(processes[0].wait(), 5)
+        if mode == "approval":
+            async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+                attached = await client.get_run(run_id)
+                assert (await attached.approvals())[0]["id"] == approval_id
+                await attached.approve(approval_id)
         processes.append(
             await asyncio.create_subprocess_exec(
                 *command, env=env, stdout=log, stderr=asyncio.subprocess.STDOUT
@@ -134,7 +153,7 @@ async def test_public_sdk_recovers_after_worker_process_is_killed(tmp_path, temp
         assert result.text == "Validated USD 12"
         calls = marker.read_text().splitlines()
         assert calls.count("lookup") == 1
-        assert calls.count("slow-start") == 2
+        assert calls.count("slow-start") == (1 if mode == "approval" else 2)
         assert calls.count("slow-done") == 1
     finally:
         for process in processes:
@@ -148,3 +167,187 @@ async def test_public_sdk_recovers_after_worker_process_is_killed(tmp_path, temp
         log.close()
         if handle is not None and await handle.status() == "running":
             await handle.handle.terminate("Integration test cleanup")
+
+
+@pytest.mark.parametrize(
+    "harness,factory",
+    [
+        ("deepagents", deep_model),
+        (
+            "pydantic-ai",
+            __import__("tests.test_python_harnesses", fromlist=["pydantic_model"]).pydantic_model,
+        ),
+    ],
+)
+async def test_postgres_shared_workers_reconnect_to_approval_and_events(
+    tmp_path, temporal_available, harness, factory
+):
+    from liteagents.temporal import LiteAgentWorker
+
+    url = os.environ.get("LITEAGENTS_TEST_POSTGRES_URL")
+    if not url:
+        pytest.skip("Set LITEAGENTS_TEST_POSTGRES_URL")
+    tool = Lookup()
+    profile = ProfileOptions(
+        harness=harness,
+        model="scripted/test",
+        tools=["lookup"],
+        harness_options={"model_instance": factory(), "interrupt_on": {"lookup": True}},
+        temporal=TemporalOptions(
+            profile_id="postgres-" + uuid4().hex, state_url=url, checkpoint_url=url
+        ),
+    )
+    worker = LiteAgentWorker(profile=profile, tools=[tool], cwd=tmp_path)
+    async with (
+        worker.running(),
+        LiteAgentWorker(profile=profile, tools=[tool], cwd=tmp_path).running(),
+    ):
+        async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+            run = await client.start_run("lookup order", run_id="pg-" + uuid4().hex)
+            async with asyncio.timeout(15):
+                async for event in run.events():
+                    if event.kind == "approval_requested":
+                        cursor = event.cursor
+                        break
+            assert not tool.calls
+            assert await run.status() == "waiting_for_approval"
+        async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+            attached = await client.get_run(run.run_id)
+            pending = await attached.approvals()
+            await attached.approve(pending[0]["id"])
+            assert (await asyncio.wait_for(attached.result(), 20)).text == "Order total: USD 12"
+            events = [e async for e in attached.events(after=cursor)]
+            assert events and all(e.cursor > cursor for e in events)
+            assert await attached.approvals() == []
+    assert len(tool.calls) == 1
+
+
+async def test_retention_removes_owned_graph_checkpoints(tmp_path, temporal_available):
+    import sqlite3
+
+    from liteagents.temporal import LiteAgentWorker
+
+    profile = ProfileOptions(
+        harness="deepagents",
+        model="scripted/test",
+        tools=["lookup"],
+        harness_options={"model_instance": deep_model()},
+        temporal=TemporalOptions(
+            profile_id="retention-" + uuid4().hex, checkpoint_path=str(tmp_path / "graph.sqlite")
+        ),
+    )
+    worker = LiteAgentWorker(profile=profile, tools=[Lookup()], cwd=tmp_path)
+    async with (
+        worker.running(),
+        LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client,
+    ):
+        run = await client.start_run("lookup order", run_id="retention-" + uuid4().hex)
+        assert (await asyncio.wait_for(run.result(), 20)).text
+    with sqlite3.connect(tmp_path / "graph.sqlite") as db:
+        assert db.execute("SELECT COUNT(*) FROM checkpoints").fetchone()[0] > 0
+    assert await worker.purge(older_than_days=0) == 1
+    with sqlite3.connect(tmp_path / "graph.sqlite") as db:
+        assert db.execute("SELECT COUNT(*) FROM checkpoints").fetchone()[0] == 0
+    with pytest.raises(RunNotFoundError):
+        await run.result()
+    assert await run.handle.result()  # Only a small state reference is in Temporal history.
+
+
+async def test_cancel_before_worker_dispatch_and_wrong_version(tmp_path, temporal_available):
+    from temporalio.client import WorkflowFailureError
+
+    from liteagents.temporal import LiteAgentWorker
+
+    tool = Lookup()
+    profile = ProfileOptions(
+        harness="deepagents",
+        model="scripted/test",
+        tools=["lookup"],
+        harness_options={"model_instance": deep_model()},
+        temporal=TemporalOptions(
+            profile_id="cancel-" + uuid4().hex, checkpoint_path=str(tmp_path / "graph.sqlite")
+        ),
+    )
+    worker = LiteAgentWorker(profile=profile, tools=[tool], cwd=tmp_path)
+    async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+        run = await client.start_run("lookup", run_id="cancel-" + uuid4().hex)
+        await run.cancel()
+        wrong = profile.model_copy(deep=True)
+        wrong.temporal.profile_id = "incorrect-version"
+        async with LiteAgentClient(options=LiteAgentOptions(profile=wrong)) as other:
+            attached = await other.get_run(run.run_id)
+            with pytest.raises(ConfigurationError, match="version"):
+                await attached.cancel()
+        async with worker.running():
+            with pytest.raises(WorkflowFailureError):
+                await asyncio.wait_for(run.result(), 15)
+            assert await run.status() == "cancelled"
+            assert (await run.state())["status"] == "cancelled"
+    assert not tool.calls
+    assert await worker.purge(older_than_days=0) == 1
+
+
+async def test_postgres_retention_removes_only_owned_graph(tmp_path, temporal_available):
+    from liteagents.temporal import LiteAgentWorker
+
+    url = os.environ.get("LITEAGENTS_TEST_POSTGRES_URL")
+    if not url:
+        pytest.skip("Set LITEAGENTS_TEST_POSTGRES_URL")
+    profile = ProfileOptions(
+        harness="deepagents",
+        model="scripted/test",
+        tools=["lookup"],
+        harness_options={"model_instance": deep_model()},
+        temporal=TemporalOptions(
+            profile_id="pg-retention-" + uuid4().hex, state_url=url, checkpoint_url=url
+        ),
+    )
+    worker = LiteAgentWorker(profile=profile, tools=[Lookup()], cwd=tmp_path)
+    async with (
+        worker.running(),
+        LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client,
+    ):
+        run = await client.start_run("lookup order", run_id="pg-retention-" + uuid4().hex)
+        assert (await asyncio.wait_for(run.result(), 20)).text
+    import json
+
+    records = await worker.store.db.execute(
+        "SELECT value FROM la_values WHERE run_key=? AND name LIKE 'checkpoint:%'", run.key
+    )
+    session = json.loads(records[0][0])["session"]
+    rows = await worker.store.db.execute(
+        "SELECT COUNT(*) FROM checkpoints WHERE thread_id=?", session
+    )
+    assert rows[0][0] > 0
+    assert await worker.purge(older_than_days=0) == 1
+    rows = await worker.store.db.execute(
+        "SELECT COUNT(*) FROM checkpoints WHERE thread_id=?", session
+    )
+    assert rows[0][0] == 0
+
+
+@pytest.mark.parametrize("expired", [False, True])
+async def test_retention_reconciles_terminated_run_without_worker(
+    tmp_path, temporal_available, expired
+):
+    from liteagents.temporal import LiteAgentWorker
+
+    profile = ProfileOptions(
+        harness="deepagents",
+        model="scripted/test",
+        harness_options={"model_instance": deep_model()},
+        temporal=TemporalOptions(
+            profile_id="terminated-" + uuid4().hex, checkpoint_path=str(tmp_path / "graph.sqlite")
+        ),
+    )
+    worker = LiteAgentWorker(profile=profile, cwd=tmp_path)
+    async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+        run = await client.start_run("never dispatched", run_id="terminated-" + uuid4().hex)
+        await run.handle.terminate("Retention test")
+        assert (await run.state())["status"] == "running"
+        if expired:
+            # Simulate history that has already disappeared from Temporal.
+            await worker.store.put(run.key, "workflow_id", "absent-" + uuid4().hex)
+    assert await worker.purge(older_than_days=0) == 1
+    with pytest.raises(RunNotFoundError):
+        await run.state()

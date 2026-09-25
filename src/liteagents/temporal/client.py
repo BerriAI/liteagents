@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any
 from uuid import uuid4
 
 from temporalio.client import Client
 from temporalio.common import WorkflowIDReusePolicy
 from temporalio.exceptions import WorkflowAlreadyStartedError
-from temporalio.service import RPCError, RPCStatusCode
+from temporalio.service import RPCError, RPCStatusCode, TLSConfig
 
 from ..errors import (
     ConfigurationError,
@@ -18,20 +17,41 @@ from ..errors import (
 )
 from ..harnesses import get_capabilities
 from ..profiles import ProfileOptions
-from ..runs import RunResult
-from ..runtime.serialization import load_result
 from ..tools import Tool
 from ..types import AgentEvent, Message
+from .handles import TemporalRun
+from .state import run_key, run_store
 
 
 async def connect(profile: ProfileOptions) -> Client:
     options = profile.temporal
     assert options is not None
+    tls: bool | TLSConfig = options.tls or bool(options.api_key)
+    if (
+        options.tls_server_root_ca
+        or options.tls_client_cert
+        or options.tls_client_key
+        or options.tls_server_name
+    ):
+        if bool(options.tls_client_cert) != bool(options.tls_client_key):
+            raise ConfigurationError("Provide both tls_client_cert and tls_client_key")
+        tls = TLSConfig(
+            server_root_ca_cert=Path(options.tls_server_root_ca).read_bytes()
+            if options.tls_server_root_ca
+            else None,
+            client_cert=Path(options.tls_client_cert).read_bytes()
+            if options.tls_client_cert
+            else None,
+            client_private_key=Path(options.tls_client_key).read_bytes()
+            if options.tls_client_key
+            else None,
+            domain=options.tls_server_name,
+        )
     return await Client.connect(
         options.address,
         namespace=options.namespace,
         api_key=options.api_key,
-        tls=options.tls or bool(options.api_key),
+        tls=tls,
     )
 
 
@@ -44,35 +64,13 @@ def queue_name(profile: ProfileOptions) -> str:
     return f"{profile.temporal.task_queue}-{suffix}"
 
 
-class TemporalRun:
-    def __init__(self, handle: Any):
-        self.handle = handle
-        self.run_id = handle.id
-
-    async def result(self) -> RunResult:
-        return load_result(await self.handle.result())
-
-    async def status(self) -> str:
-        description = await self.handle.describe()
-        return description.status.name.lower()
-
-
 class TemporalRuntime:
     def __init__(
         self, profile: ProfileOptions, *, cwd: Path, tools: list[Tool], session_id: str | None
     ):
         if not get_capabilities(profile.harness).temporal:
             raise UnsupportedFeatureError(
-                f"Temporal recovery is currently supported for deepagents, not {profile.harness}"
-            )
-        if (
-            profile.features.streaming
-            or profile.features.subagents
-            or profile.subagents
-            or profile.recovery
-        ):
-            raise UnsupportedFeatureError(
-                "Temporal live streaming, subagents, and operation fallbacks are milestone 3 features"
+                f"Temporal recovery is not yet verified for {profile.harness}"
             )
         if tools:
             raise ConfigurationError(
@@ -84,10 +82,12 @@ class TemporalRuntime:
             )
         self.profile = profile
         self.profile_id = profile.identity()
+        self.store = run_store(profile, cwd)
         self.history: list[Message] = []
         self.client: Client | None = None
 
     async def open(self) -> None:
+        await self.store.setup()
         self.client = await connect(self.profile)
 
     async def close(self) -> None:
@@ -100,6 +100,17 @@ class TemporalRuntime:
         run_id = uuid4().hex if run_id is None else run_id
         if not run_id.strip():
             raise ConfigurationError("run_id must be nonempty")
+        if len(prompt.encode()) > 1_000_000:
+            raise ConfigurationError(
+                "Prompt exceeds the Temporal payload bound; pass an artifact reference"
+            )
+        key = run_key(self.profile, run_id)
+        try:
+            await self.store.get_run(key)
+        except RunNotFoundError:
+            pass
+        else:
+            raise RunAlreadyExistsError(f"Run {run_id!r} already has retained SDK state")
         options = self.profile.temporal
         assert options is not None
         request = {
@@ -119,7 +130,9 @@ class TemporalRuntime:
             )
         except WorkflowAlreadyStartedError as exc:
             raise RunAlreadyExistsError(f"Run {run_id!r} already exists") from exc
-        return TemporalRun(handle)
+        await self.store.ensure_run(key, self.profile_id)
+        await self.store.put(key, "workflow_id", run_id)
+        return TemporalRun(handle, self.store, key, self.profile_id)
 
     async def get_run(self, run_id: str) -> TemporalRun:
         if self.client is None:
@@ -131,11 +144,13 @@ class TemporalRuntime:
             if exc.status == RPCStatusCode.NOT_FOUND:
                 raise RunNotFoundError(f"No Temporal run {run_id!r}") from exc
             raise
-        return TemporalRun(handle)
+        return TemporalRun(handle, self.store, run_key(self.profile, run_id), self.profile_id)
 
     async def query(self, prompt: str, *, run_id: str | None = None) -> AsyncIterator[AgentEvent]:
         run = await self.start_run(prompt, run_id=run_id)
+        async for event in run.events():
+            message = event.message
+            if message is not None:
+                yield message
         result = await run.result()
         self.history.extend(result.messages)
-        for message in result.messages:
-            yield message

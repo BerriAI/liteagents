@@ -8,7 +8,7 @@ import argparse
 import asyncio
 import sys
 
-from liteagents.pr_risk_agent import PRRiskAgent, PullRequest
+from liteagents.legacy.pr_risk_agent import PRRiskAgent, PullRequest
 
 
 async def _run(title: str, model: str) -> None:

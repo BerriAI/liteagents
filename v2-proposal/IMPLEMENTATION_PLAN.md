@@ -1,9 +1,9 @@
 # LiteAgents v2 implementation plan
 
 Prepared September 25, 2026 against the complete v2 README at `539a6e2`.
-Milestones 1 and 2 are now implemented on this branch. The architecture below
-records the build plan; [the SDK contract](../docs/sdk.md) and
-[quickstart](../README.md) describe current support and validation.
+The architecture below records the original four-milestone build plan.
+The [SDK contract](../docs/sdk.md), [quickstart](../README.md), and
+[validation report](../docs/validation.md) describe the current implementation.
 
 ## Product target
 
@@ -106,9 +106,11 @@ do not manufacture two separate implementations if a shared adapter is correct.
 The official Codex docs now describe a stable Python SDK with a pinned local
 runtime, so a custom Node bridge is not the default implementation choice.
 
-All six native adapters now pass live tool/follow-up and isolated coding checks.
-DeepAgents public SDK crash recovery and Temporal replay are tested separately.
-Upstream session resume is not evidence of per-operation crash recovery.
+The current implementation uses LangGraph checkpoints for DeepAgents and a
+shared operation journal for all six harnesses. Native CLI recovery runs behind
+a managed provider/MCP gateway. See [validation](../docs/validation.md) for actual
+worker-crash, approval, subagent, MCP, and provider checks. The integration table
+above records the initial plan, not the final recovery architecture.
 
 ## Durable execution contract
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from liteagents import AssistantMessage, JevAgent, JevModelRouter, JevTier, TurnContext
-from liteagents.routers.jev import JevClassificationError, _classify
+from liteagents.legacy import AssistantMessage, JevAgent, JevModelRouter, JevTier, TurnContext
+from liteagents.legacy.routers.jev import JevClassificationError, _classify
 
 from .conftest import text_response
 
@@ -23,7 +23,7 @@ async def test_falls_back_on_classification_error(monkeypatch: pytest.MonkeyPatc
     async def raise_error(**kwargs):
         raise JevClassificationError("boom")
 
-    monkeypatch.setattr("liteagents.routers.jev._classify", raise_error)
+    monkeypatch.setattr("liteagents.legacy.routers.jev._classify", raise_error)
     router = JevModelRouter(
         tiers=(JevTier(name="FAST", model="openai/gpt-5.4-mini", description="fast"),),
         fallback_model="anthropic/claude-opus-4-8",
@@ -40,7 +40,7 @@ async def test_memoizes_by_turn(monkeypatch: pytest.MonkeyPatch):
         calls.append(kwargs["prompt"])
         return "FAST"
 
-    monkeypatch.setattr("liteagents.routers.jev._classify", record_and_return)
+    monkeypatch.setattr("liteagents.legacy.routers.jev._classify", record_and_return)
     router = JevModelRouter(
         tiers=(JevTier(name="FAST", model="openai/gpt-5.4-mini", description="fast"),),
         fallback_model="anthropic/claude-opus-4-8",

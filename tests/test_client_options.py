@@ -1,6 +1,6 @@
 import pytest
 
-from liteagents import (
+from liteagents.legacy import (
     AssistantMessage,
     FusionOptions,
     LiteAgentClient,

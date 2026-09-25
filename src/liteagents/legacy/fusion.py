@@ -3,11 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..tools import Tool
+from ..types import AssistantMessage, TextBlock
 from .history import ConversationHistory
 from .loop import run_tool_loop
 from .routers.base import StaticRouter
-from .tools import Tool
-from .types import AssistantMessage, TextBlock
 
 
 @dataclass

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from liteagents import PRRiskAgent, PullRequest
+from liteagents.legacy import PRRiskAgent, PullRequest
 
 from .conftest import tool_use_response
 

@@ -8,7 +8,7 @@ import json
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from ..types import TextDelta
+from ...types import TextDelta
 
 
 async def _events(stream: Any) -> AsyncGenerator[dict[str, Any], None]:

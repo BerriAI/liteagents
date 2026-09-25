@@ -1,0 +1,67 @@
+name: liteagents
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-development-only}
+      POSTGRES_DB: liteagents
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-15433}:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD, pg_isready, -U, temporal, -d, liteagents]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  temporal:
+    image: temporalio/auto-setup:1.29.7
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB: postgres12
+      DB_PORT: 5432
+      DBNAME: temporal_server
+      POSTGRES_SEEDS: postgres
+      POSTGRES_USER: temporal
+      POSTGRES_PWD: ${POSTGRES_PASSWORD:-local-development-only}
+    ports:
+      - "127.0.0.1:${TEMPORAL_PORT:-17233}:7233"
+    healthcheck:
+      test: [CMD, temporal, operator, namespace, describe, --address, "temporal:7233", --namespace, default]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+  temporal-ui:
+    image: temporalio/ui:2.54.1
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    ports:
+      - "127.0.0.1:${TEMPORAL_UI_PORT:-18233}:8080"
+  worker:
+    profiles: [worker]
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    depends_on:
+      temporal:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      LITEAGENTS_API_BASE: ${LITEAGENTS_API_BASE:-}
+      LITELLM_API_KEY: ${LITELLM_API_KEY:-}
+      LITEAGENTS_MODEL: ${LITEAGENTS_MODEL:-}
+      LITEAGENTS_STATE_URL: postgresql://temporal:${POSTGRES_PASSWORD:-local-development-only}@postgres:5432/liteagents
+      LANGSMITH_TRACING: "false"
+      LANGCHAIN_TRACING_V2: "false"
+      PYDANTIC_AI_NO_BANNER: "1"
+    volumes:
+      - workspace:/workspace
+volumes:
+  postgres:
+  workspace:

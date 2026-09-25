@@ -8,12 +8,12 @@ from typing import Any
 
 import litellm
 
+from ..tools import Tool, find_tool
+from ..types import AgentEvent, TextDelta, ToolUseBlock, TurnContext
 from ._internal.adapter import extract_response_fields, tool_result_block
 from ._internal.streaming import stream_response
 from .history import ConversationHistory
 from .routers.base import ModelRouter
-from .tools import Tool, find_tool
-from .types import AgentEvent, TextDelta, ToolUseBlock, TurnContext
 
 
 async def run_tool_loop(

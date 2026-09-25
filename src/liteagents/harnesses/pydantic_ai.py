@@ -12,6 +12,8 @@ from pydantic_ai.tools import Tool as NativeTool
 from pydantic_ai.usage import UsageLimits
 
 from ..errors import ConfigurationError, HarnessError, UnsupportedFeatureError
+from ..runtime.control import CURRENT
+from ..runtime.delegation import delegate_tools
 from ..runtime.tooling import load_servers, select_tools
 from ..tools import Tool
 from ..types import (
@@ -24,14 +26,28 @@ from ..types import (
     UserMessage,
 )
 from .base import HarnessAdapter
+from .pydantic_control import ControlledModel
 
 
 def wrap_tool(tool: Tool) -> NativeTool:
-    async def execute(**kwargs: Any) -> Any:
-        return await tool.execute(kwargs)
+    async def execute(ctx: Any, **kwargs: Any) -> Any:
+        control = CURRENT.get()
+
+        async def invoke():
+            return await tool.execute(kwargs)
+
+        if control is None:
+            return await invoke()
+        return await control.call(
+            "tool", ctx.tool_call_id, {"name": tool.name, "input": kwargs}, invoke
+        )
 
     return NativeTool.from_schema(
-        execute, name=tool.name, description=tool.description, json_schema=tool.input_schema
+        execute,
+        name=tool.name,
+        description=tool.description,
+        json_schema=tool.input_schema,
+        takes_ctx=True,
     )
 
 
@@ -126,7 +142,15 @@ def convert_messages(messages: list[Any], model: str) -> list[AgentEvent]:
 
 
 class PydanticAIAdapter(HarnessAdapter):
-    allowed_options = frozenset({"model_instance", "tool_timeout"})
+    allowed_options = frozenset(
+        {
+            "model_instance",
+            "tool_timeout",
+            "interrupt_on",
+            "fallback_model_instances",
+            "subagent_model_instances",
+        }
+    )
 
     def validate(self) -> None:
         super().validate()
@@ -138,12 +162,38 @@ class PydanticAIAdapter(HarnessAdapter):
     async def open(self) -> None:
         self.stack = AsyncExitStack()
         registered = self.tools + await load_servers(self.profile, self.stack)
+        delegates = delegate_tools(self.profile, self.cwd, self.tools)
+        registered += delegates
+        names = self.tool_allowlist
+        if names is None and self.profile.tools:
+            names = set(self.profile.tools)
+        if names is not None:
+            names = names | {t.name for t in delegates}
         selected = (
-            select_tools(self.profile, registered, self.cwd) if self.profile.tools else registered
+            select_tools(
+                self.profile.model_copy(update={"tools": sorted(names)}), registered, self.cwd
+            )
+            if names is not None
+            else registered
         )
+
         model, settings = build_model(self.profile)
         if "model_instance" not in self.profile.harness_options:
             self.stack.push_async_callback(model.client.close)
+        models = [(self.profile.model, model, settings)]
+        fallbacks = self.profile.recovery.model_fallbacks if self.profile.recovery else []
+        supplied = self.profile.harness_options.get("fallback_model_instances", [])
+        for index, name in enumerate(fallbacks):
+            native = dict(self.profile.harness_options)
+            native.pop("model_instance", None)
+            if index < len(supplied):
+                native["model_instance"] = supplied[index]
+            alternative = self.profile.model_copy(update={"model": name, "harness_options": native})
+            other, other_settings = build_model(alternative)
+            if "model_instance" not in native:
+                self.stack.push_async_callback(other.client.close)
+            models.append((name, other, other_settings))
+        model = ControlledModel(models)
         agent_factory: Any = Agent
         self.agent: Any = agent_factory(
             model,
@@ -174,12 +224,22 @@ class PydanticAIAdapter(HarnessAdapter):
                 from pydantic_ai.run import AgentRunResultEvent
 
                 result = None
+                control = CURRENT.get()
+                journal_stream = control is not None and bool(
+                    control.store or control.profile.recovery
+                )
                 async with self.agent.run_stream_events(prompt, **kwargs) as stream:
                     async for event in stream:
-                        if isinstance(event, PartStartEvent) and isinstance(event.part, TextPart):
+                        if (
+                            not journal_stream
+                            and isinstance(event, PartStartEvent)
+                            and isinstance(event.part, TextPart)
+                        ):
                             yield TextDelta(event.part.content, self.profile.model)
-                        elif isinstance(event, PartDeltaEvent) and isinstance(
-                            event.delta, TextPartDelta
+                        elif (
+                            not journal_stream
+                            and isinstance(event, PartDeltaEvent)
+                            and isinstance(event.delta, TextPartDelta)
                         ):
                             yield TextDelta(event.delta.content_delta, self.profile.model)
                         elif isinstance(event, AgentRunResultEvent):
