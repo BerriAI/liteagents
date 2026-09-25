@@ -2,17 +2,23 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Sequence
 from contextlib import aclosing
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any
 
 from typing_extensions import Self
 
+from ._internal.compaction_runtime import make_compaction_runtime
+from ._internal.memory_runtime import BackgroundMemoryRuntime
+from .compaction import CompactionError, CompactionOptions
+from .compaction.background import BackgroundMemoryOptions, MemorySnapshot
 from .fusion import FusionOptions, FusionRuntime
 from .history import ConversationHistory
 from .loop import run_tool_loop
 from .routers.base import ModelRouter, StaticRouter
 from .tools import Tool
-from .types import AgentEvent, Message
+from .types import AgentEvent, BatchUpdate, CompactionCompleted, CompactionSkipped, Message
+from .usage import TokenUsage
 
 
 @dataclass
@@ -25,6 +31,7 @@ class LiteAgentOptions:
     max_turns: int = 20
     tool_choice: dict[str, Any] | None = None
     fusion: FusionOptions | None = None
+    compaction: CompactionOptions | BackgroundMemoryOptions | None = None
     stream: bool = False
     # Per-client connection/provider options, never process-global credentials.
     model_kwargs: dict[str, Any] = field(default_factory=dict, repr=False)
@@ -51,6 +58,10 @@ class LiteAgentClient:
         self._history = ConversationHistory(history)
         self._turn = 0
         self._fusion: FusionRuntime | None = None
+        self._compaction = make_compaction_runtime(options.compaction)
+        if isinstance(self._compaction, BackgroundMemoryRuntime):
+            self._compaction.capture(self._history)
+        self._busy = False
 
     async def __aenter__(self) -> Self:
         if self._options.fusion is not None:
@@ -59,9 +70,33 @@ class LiteAgentClient:
         return self
 
     async def __aexit__(self, *exc_info: object) -> None:
-        return None  # no subprocess or connection to tear down; kept for API symmetry
+        if self._compaction is not None:
+            await self._compaction.cancel_pending()
+        if self._fusion is not None:
+            await self._fusion.close()
 
     async def query(self, prompt: str) -> AsyncGenerator[AgentEvent, None]:
+        if self._busy:
+            raise RuntimeError("This client is already querying or compacting")
+        self._busy = True
+        finished = False
+        try:
+            async with aclosing(self._query(prompt)) as events:
+                async for event in events:
+                    yield event
+            finished = True
+        finally:
+            if not finished:
+                self._history.finish_interrupted_tools()
+                if isinstance(self._compaction, BackgroundMemoryRuntime):
+                    self._compaction.capture(self._history)
+                if self._compaction is not None:
+                    await self._compaction.cancel_pending()
+                if self._fusion is not None:
+                    await self._fusion.close()
+            self._busy = False
+
+    async def _query(self, prompt: str) -> AsyncGenerator[AgentEvent, None]:
         self._turn += 1
         tools = self._fusion.tools_for_main_loop() if self._fusion else self._options.tools
         # run_tool_loop reads history.raw()/history.messages but never mutates
@@ -79,13 +114,87 @@ class LiteAgentClient:
             tool_choice=self._options.tool_choice,
             stream=self._options.stream,
             model_kwargs=self._options.model_kwargs,
+            compaction=self._compaction,
         )) as events:
             async for message in events:
                 yield message
 
     @property
     def history(self) -> list[Message]:
-        return list(self._history.messages)
+        """Detached copy of active model context, including any generated summaries."""
+        return deepcopy(self._history.messages)
+
+    @property
+    def transcript(self) -> list[Message]:
+        """Original typed messages for background memory; otherwise active history.
+
+        Message IDs used by recovery tools are one-based positions in this list.
+        This is in-memory, client-local storage, not persistence or resume.
+        """
+        if isinstance(self._compaction, BackgroundMemoryRuntime):
+            self._compaction.capture(self._history)
+            return deepcopy(self._compaction.archive.messages)
+        return self.history
+
+    @property
+    def memory(self) -> MemorySnapshot | None:
+        """Last atomically published memory, never an unfinished observation."""
+        if isinstance(self._compaction, BackgroundMemoryRuntime):
+            return self._compaction.memory
+        return None
+
+    async def compact(self, *, instructions: str | None = None,
+                      model: str | None = None) -> CompactionCompleted | CompactionSkipped:
+        """Compact while idle without routing or advancing the user turn counter.
+
+        `model` selects the target context budget, not a summarizer override. A routed
+        client uses its last selected model; before its first query, pass one explicitly.
+        """
+        if self._busy:
+            raise RuntimeError("This client is already querying or compacting")
+        if self._compaction is None:
+            raise ValueError("Configure compaction before calling compact()")
+        target = model or self._compaction.last_model
+        if target is None and self._options.model_router is None:
+            target = self._options.model
+        if target is None:
+            raise ValueError("Pass model= when compacting before the router's first selection")
+        self._busy = True
+        checkpoint = None
+        completed: list[CompactionCompleted] = []
+        try:
+            if isinstance(self._compaction, BackgroundMemoryRuntime):
+                checkpoint = self._compaction.checkpoint(self._history)
+            tools = self._fusion.tools_for_main_loop() if self._fusion else self._options.tools
+            outcome: CompactionCompleted | CompactionSkipped | None = None
+            async with aclosing(self._compaction.run(
+                history=self._history, model=target, system=self._options.system, tools=tools,
+                max_tokens=self._options.max_tokens, model_kwargs=self._options.model_kwargs,
+                manual=True, instructions=instructions, tool_choice=self._options.tool_choice,
+            )) as events:
+                async for event in events:
+                    if isinstance(event, (CompactionCompleted, CompactionSkipped)):
+                        outcome = event
+                    if isinstance(event, CompactionCompleted):
+                        completed.append(event)
+            if len(completed) > 1:
+                first, last = completed[0], completed[-1]
+                outcome = CompactionCompleted(
+                    "manual", last.model, first.before, last.after,
+                    BatchUpdate(first.update.message_count, tuple(e.update for e in completed)),
+                    TokenUsage.combine([e.usage for e in completed if e.usage is not None]),
+                )
+            assert outcome is not None
+            return outcome
+        except BaseException as exc:
+            if checkpoint is not None and isinstance(self._compaction, BackgroundMemoryRuntime):
+                await self._compaction.rollback(self._history, checkpoint)
+            if isinstance(exc, CompactionError) and completed:
+                exc.usage = TokenUsage.combine([e.usage for e in completed if e.usage is not None]
+                                               + ([exc.usage] if exc.usage is not None else []))
+            raise
+        finally:
+            self._busy = False
 
 
 async def query(*, prompt: str, options: LiteAgentOptions,

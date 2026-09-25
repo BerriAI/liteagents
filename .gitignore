@@ -6,3 +6,6 @@ __pycache__/
 .ruff_cache/
 dist/
 build/
+
+# Research keeps complete traces in a compressed artifact and readable summary.
+/research/background_memory/results/v*.json

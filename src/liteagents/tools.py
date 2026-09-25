@@ -10,6 +10,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
+from .types import WireTool
+
 
 class Tool(ABC):
     """Base class for a tool the model can call.
@@ -33,7 +35,7 @@ class Tool(ABC):
         try/except for this.
         """
 
-    def to_anthropic_tool(self) -> dict[str, Any]:
+    def to_anthropic_tool(self) -> WireTool:
         return {
             "name": self.name,
             "description": self.description,

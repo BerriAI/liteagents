@@ -6,7 +6,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 dependencies = [
-    "litellm>=1.55.0",
+    "litellm>=1.102.0",
     "httpx>=0.24.0",
     "typing_extensions>=4.5.0",
 ]
@@ -37,3 +37,20 @@ target-version = "py310"
 
 [tool.mypy]
 python_version = "3.10"
+
+[[tool.mypy.overrides]]
+module = [
+    "liteagents.compaction.*",
+    "liteagents._internal.compaction_context",
+    "liteagents._internal.compaction_runtime",
+    "liteagents._internal.context_tokens",
+    "liteagents._internal.validation",
+    "liteagents.usage",
+    "tests.typecheck.*",
+]
+disallow_untyped_defs = true
+disallow_any_generics = true
+warn_return_any = true
+no_implicit_reexport = true
+strict_equality = true
+warn_unused_ignores = true
