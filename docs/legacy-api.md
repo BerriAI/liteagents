@@ -1,4 +1,8 @@
-# liteagents
+# LiteAgents legacy API
+
+This reference covers the v1 compatibility namespace. New applications should
+use the [profile-driven SDK](../README.md); existing applications can migrate
+with the [upgrade guide](migration.md).
 
 A provider-independent agent SDK with the same query() interface as the Claude Agent SDK, **allowing you to use the right model for every turn**. Auto-routing automatically selects the best-fit model for each step across providers, balancing quality, speed, and cost. Use OpenAI, Anthropic, Deepseek, Gemini, xAI all within one agent run.
 
@@ -12,13 +16,13 @@ A provider-independent agent SDK with the same query() interface as the Claude A
 - fusion mode: a frontier model plus a cheap sidekick, running in parallel
 - write your own router instead, no classifier required
 - same `query()` / `AssistantMessage` / `TextBlock` shapes as the Claude Agent SDK
-- MCP client tools from initialized stdio or remote sessions (`pip install 'liteagents[mcp]'`)
+- MCP client tools from initialized stdio or remote sessions (add the `mcp` extra)
 - opt-in text streaming, per-client gateway options, and typed initial history
 
 ## Installation
 
 ```shell
-pip install liteagents
+python -m pip install 'liteagents[legacy] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
 ```
 
 requires Python 3.11+ and credentials for at least one [LiteLLM-supported provider](https://docs.litellm.ai/docs/providers).
@@ -130,7 +134,8 @@ mostly an import and model-config change.
 
 ## MCP tools
 
-Install `liteagents[mcp]`, create and initialize an MCP `ClientSession`, then
+Add `mcp` to the release install's extras (`[legacy,mcp]`), create and initialize
+an MCP `ClientSession`, then
 adapt its tools. The application owns the transport, credentials and session
 lifetime. The same adapter works with stdio, Streamable HTTP and SSE sessions.
 

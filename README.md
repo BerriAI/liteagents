@@ -8,23 +8,31 @@ Each harness runs its own agent loop. LiteAgents adds shared tools and MCP,
 named subagents, operation retries, model and harness fallback, approval gates,
 streaming, and durable run handles.
 
-Trying the developer preview? Follow the [three-step trial guide](docs/preview.md).
+Follow the [getting-started guide](docs/getting-started.md) for a first agent,
+application tools, MCP, and optional durable execution.
 
 ## Install
 
-Python 3.11+; Python 3.12 is recommended. From this checkout:
+Python 3.11+; Python 3.12 is recommended. Install the **0.2.0** release:
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install '.[deepagents]' -c constraints-tested.txt
+python -m pip install 'liteagents[deepagents] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
 ```
 
 This installs the first harness. A simple agent needs no Temporal or PostgreSQL
-service. Install `.[all]` to compare all harnesses, or add the extras you need:
+service. Replace `[deepagents]` with `[all]` to compare all harnesses, or add the
+extras you need:
 `deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
 `mcp`, `temporal`, and `postgres`. The Claude and Codex extras supply their native
 runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
+
+Use the release URL above: the `liteagents` name on PyPI currently serves a
+different package. This SDK is distributed through
+[GitHub Releases](https://github.com/BerriAI/liteagents/releases/tag/v0.2.0).
+For a source checkout and the cookbooks, follow the
+[getting-started guide](docs/getting-started.md).
 
 ## Run an agent
 
@@ -112,6 +120,7 @@ workers run separately. You can also self-host the open-source service.
 For local development:
 
 ```sh
+python -m pip install 'liteagents[deepagents,temporal] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
 brew install temporal
 mkdir -p .liteagents
 temporal server start-dev --ip 127.0.0.1 --db-filename .liteagents/temporal.sqlite

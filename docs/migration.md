@@ -1,6 +1,13 @@
-# Migrating from v1
+# Upgrading to LiteAgents 0.2.0
 
-## Updating the v2 preview from 0.2.0a1 to 0.2.0a2
+Install the new package from the [release wheel](../README.md#install). The PyPI
+project currently named `liteagents` is a different package; an unqualified
+`pip install --upgrade liteagents` does not install this SDK.
+
+## Updating from the v2 previews
+
+The following changes apply when upgrading from **0.2.0a1**. The **0.2.0a2**
+preview already includes them; 0.2.0 packages that implementation as a release.
 
 An omitted `profile.tools` now serializes as `null` and retains defaults.
 `tools: []` explicitly disables tools; change old empty lists to `null` if you
@@ -21,7 +28,7 @@ profile to `get_capabilities` for effective support.
 
 Upgrade clients and workers together. Finish existing runs on their original
 version; use a new `temporal.profile_id` for changed profiles/tool semantics.
-Do not replay an in-flight run across this preview upgrade.
+Do not replay an in-flight run across an SDK upgrade.
 
 ## Moving from the v1 API
 
@@ -61,7 +68,7 @@ For existing applications that need the old custom loop, JEV router, fusion, or
 PR risk agent while migrating:
 
 ```sh
-pip install 'liteagents[legacy]'
+python -m pip install 'liteagents[legacy] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
 ```
 
 ```python

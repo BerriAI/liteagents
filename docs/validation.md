@@ -1,11 +1,21 @@
 # Release validation — September 25, 2026
 
-## 0.2.0a2 developer preview
+## 0.2.0
 
-The [Mindfort handoff](mindfort-handoff.md) pins SDK revision
-`3da45e67ccd550d6b4962e474c6d4029831e9574`. Validation used Python 3.12.14 and
-the runtime versions in `constraints-tested.txt`.
+The release packages the implementation tested at SDK revision
+`3da45e67ccd550d6b4962e474c6d4029831e9574`; subsequent changes update documentation
+and package metadata. Validation used Python 3.12.14 and the runtime versions
+in `constraints-tested.txt`.
 
+- **Release packaging passed:** wheel and source distribution report 0.2.0,
+  strict metadata validation passes, and the wheel matches every SDK source
+  file. The final packaging/documentation change also passed 140 local
+  non-integration regressions (five dependency-specific skips), lint, types,
+  and source-size limits.
+- **Full Linux regression passed:** 244 tests, with 24 expected skips (23 opt-in
+  live-provider cases and one PostgreSQL-only assertion under SQLite). All seven
+  CI jobs passed across Python 3.11–3.13, MCP 1.12/2.2, native runtimes, Temporal,
+  PostgreSQL, and the deployment image build.
 - **67 focused checks passed:** 42 real-harness cases for application tools,
   shared MCP, selection defaults/empty/explicit lists, stable tool names, direct
   execution and Temporal reconnects; 25 configuration/capability checks, including preservation of usage reported
@@ -140,7 +150,7 @@ suite, and builds the worker image. Live-provider checks remain opt-in and requi
 credentials. Lint, types, the 500-nonblank-line source limit, wheel/sdist contents,
 and diff whitespace are also checked locally.
 
-This is a tested alpha SDK and a single-host self-hosting example. It does not
+This is an early SDK release and a single-host self-hosting example. It does not
 establish production capacity, multi-region failover, or exactly-once external
 effects. Interrupted remote actions need application idempotency; worker moves
 need preserved databases, runtime versions, and workspace files. Deployment
