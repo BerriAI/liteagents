@@ -165,7 +165,7 @@ class PydanticAIAdapter(HarnessAdapter):
         delegates = delegate_tools(self.profile, self.cwd, self.tools)
         registered += delegates
         names = self.tool_allowlist
-        if names is None and self.profile.tools:
+        if names is None and self.profile.tools is not None:
             names = set(self.profile.tools)
         if names is not None:
             names = names | {t.name for t in delegates}

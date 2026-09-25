@@ -8,6 +8,8 @@ Each harness runs its own agent loop. LiteAgents adds shared tools and MCP,
 named subagents, operation retries, model and harness fallback, approval gates,
 streaming, and durable run handles.
 
+Trying the developer preview? Follow the [three-step trial guide](docs/preview.md).
+
 ## Install
 
 Python 3.11+; Python 3.12 is recommended. From this checkout:
@@ -15,10 +17,12 @@ Python 3.11+; Python 3.12 is recommended. From this checkout:
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[all]'
+pip install '.[deepagents]' -c constraints-tested.txt
 ```
 
-Or install the extras you need: `deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
+This installs the first harness. A simple agent needs no Temporal or PostgreSQL
+service. Install `.[all]` to compare all harnesses, or add the extras you need:
+`deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
 `mcp`, `temporal`, and `postgres`. The Claude and Codex extras supply their native
 runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
 
@@ -40,11 +44,10 @@ async def main():
             "api_base": os.environ["LITEAGENTS_API_BASE"],
             "api_key": os.environ["LITELLM_API_KEY"],
         },
-        tools=["read_file"],
-        recovery={"retries": {"max_attempts": 3}},
+        tools=[],
     )
     async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=".")) as agent:
-        run = await agent.start_run("Read README.md and summarize this project.")
+        run = await agent.start_run("Reply with exactly READY.")
         print((await run.result()).text)
 
 asyncio.run(main())
@@ -55,6 +58,11 @@ arrive. Set `profile.features.streaming = True` to receive `TextDelta` events.
 Repeated direct queries share a conversation. YAML and JSON profiles support
 `${ENVIRONMENT_VARIABLE}` references through `ProfileOptions.from_yaml()` and
 `from_json()`.
+
+Omit `tools` (or use `None`) for defaults, set `tools=[]` for no tools, or select
+tools explicitly, such as `tools=["read_file"]`. Application tools and MCP work
+without enabling retries or Temporal. Shared tools on CLI harnesses automatically
+use the managed adapter and require the explicit model endpoint shown above.
 
 | Harness | Gateway protocol | Durable recovery |
 | --- | --- | --- |
@@ -82,7 +90,9 @@ and expected results. Every recipe accepts `--harness` so you can compare behavi
 
 | Recipe | Demonstrates |
 | --- | --- |
+| [Simple agent](cookbook/recipes/00_agent.py) | A first response with no tools or durability setup |
 | [Quickstart](cookbook/recipes/01_quickstart.py) | File tools, live text, and conversation follow-up |
+| [Application tools](cookbook/recipes/08_application_tools.py) | Register a Python tool and use stable names across harnesses |
 | [MCP](cookbook/recipes/02_mcp.py) | Discover and call a real local MCP server |
 | [Subagents](cookbook/recipes/03_subagents.py) | Named delegation, a child model, and restricted tools |
 | [Approvals](cookbook/recipes/04_approvals.py) | Inspect and approve an edit before it runs |

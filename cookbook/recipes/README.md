@@ -11,13 +11,15 @@ From the repository root, with Python 3.12:
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[all]'
+pip install '.[deepagents,mcp]' -c constraints-tested.txt
 export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
 export LITELLM_API_KEY='your-key'
 export LITEAGENTS_MODEL='your-chat-and-responses-model-alias'
-export LITEAGENTS_CLAUDE_MODEL='your-anthropic-compatible-alias'
 ```
 
+This is sufficient for the DeepAgents recipes except durable runs. Add
+`.[temporal]` for recipe 06. To compare every harness, install `.[all]` with the
+same constraints and set `LITEAGENTS_CLAUDE_MODEL` to an Anthropic-compatible alias.
 For OpenCode, also install `npm install -g opencode-ai@1.18.29`.
 The Claude and Codex Python extras supply their native runtimes.
 
@@ -30,7 +32,9 @@ Responses for Codex, and Anthropic Messages for Claude. The aliases can be diffe
 
 | Recipe | Command | What to look for |
 | --- | --- | --- |
+| Simple agent | `python cookbook/recipes/00_agent.py` | Prints `READY`; no tools, Temporal, or PostgreSQL setup |
 | Streaming and conversation | `python cookbook/recipes/01_quickstart.py` | Reads `facts.txt`, streams `COBALT-42`, and remembers it in a follow-up |
+| Application tool | `python cookbook/recipes/08_application_tools.py` | Prints `Tool: lookup_order` and reports A123 as paid, total USD 12 |
 | MCP | `python cookbook/recipes/02_mcp.py` | Launches a real local MCP server and reports order A123 as paid, total USD 12 |
 | Subagents | `python cookbook/recipes/03_subagents.py` | Shows `subagent_started auditor`, then `subagent_completed auditor`; the child can only read files |
 | Approval before editing | `python cookbook/recipes/04_approvals.py` | Prints proposed arguments while the file is still `status=pending`; answering `y` allows the edit |
@@ -43,6 +47,10 @@ To run the same MCP example on Codex:
 ```sh
 python cookbook/recipes/02_mcp.py --harness codex
 ```
+
+The application-tool recipe accepts the same `--harness` flag. Its public tool
+name remains `lookup_order` across harnesses. These examples run directly by
+default; retries are enabled explicitly in the retries/fallback recipes.
 
 For a different child model, set `LITEAGENTS_SUBAGENT_MODEL` to a compatible gateway
 alias before recipe 03. For an automated approval demo, recipe 04 accepts

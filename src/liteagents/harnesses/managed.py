@@ -11,6 +11,7 @@ from ..profiles import FeatureOptions
 from ..runtime.control import CURRENT
 from ..runtime.delegation import delegate_tools
 from ..runtime.native_gateway import NativeGateway
+from ..runtime.tool_names import normalize_tool_names
 from ..runtime.tooling import load_servers, select_tools
 from ..storage.store import digest
 from .base import HarnessAdapter
@@ -18,9 +19,14 @@ from .base import HarnessAdapter
 
 class ManagedAdapter(HarnessAdapter):
     def validate(self):
+        if bool(self.profile.subagents) != self.profile.features.subagents:
+            raise ConfigurationError("Set features.subagents=true with at least one named subagent")
+        if self.profile.tools == [] and self.profile.features.subagents:
+            raise ConfigurationError("tools=[] disables tools; remove subagents or select tools")
         if not self.profile.model_kwargs.get("api_base"):
             raise ConfigurationError(
-                "Native operation recovery requires an explicit model_kwargs.api_base gateway"
+                "Shared tools, MCP, explicit tool selection, and recovery on native CLI harnesses "
+                "require model_kwargs.api_base (your compatible model endpoint)"
             )
         if self.resume_session and self.profile.temporal:
             raise UnsupportedFeatureError(
@@ -37,6 +43,33 @@ class ManagedAdapter(HarnessAdapter):
             raise ConfigurationError(
                 f"Managed native runs own provider/tool configuration; unsupported overrides: {sorted(forbidden)}"
             )
+        # Validate the underlying adapter before opening any MCP or provider connection.
+        options = dict(self.profile.harness_options)
+        options.pop("interrupt_on", None)
+        options.pop("subagent_model_instances", None)
+        native_profile = self.profile.model_copy(update={
+            "temporal": None, "recovery": None, "tools": None, "mcp_servers": {},
+            "harness_options": options, "features": FeatureOptions(), "subagents": {},
+            "max_turns": None if self.profile.harness == "codex" else self.profile.max_turns,
+        })
+        self.native_factory()(
+            native_profile, cwd=self.cwd, tools=[], session_id=self.session_id
+        )
+
+    def native_factory(self):
+        harness = self.profile.harness
+        module, cls = {
+            "claude-sdk": ("claude_sdk", "ClaudeAdapter"),
+            "codex": ("codex", "CodexAdapter"),
+            "opencode-v1": ("opencode", "OpenCodeAdapter"),
+            "opencode-v2": ("opencode", "OpenCodeAdapter"),
+        }[harness]
+        try:
+            return getattr(import_module("liteagents.harnesses." + module), cls)
+        except ModuleNotFoundError as exc:
+            raise MissingDependencyError(
+                f"Install liteagents[{harness}] to use {harness}; missing {exc.name}"
+            ) from exc
 
     async def open(self):
         self.stack = AsyncExitStack()
@@ -47,7 +80,7 @@ class ManagedAdapter(HarnessAdapter):
         if names is None:
             names = (
                 set(self.profile.tools)
-                if self.profile.tools
+                if self.profile.tools is not None
                 else {t.name for t in registered} | {"read_file", "edit_file", "run_tests"}
             )
         names |= {t.name for t in delegates}
@@ -56,6 +89,15 @@ class ManagedAdapter(HarnessAdapter):
         )
         if len({t.name for t in selected}) != len(selected):
             raise ConfigurationError("Duplicate managed tool names")
+        self.tool_names = {
+            native: tool.name
+            for tool in selected
+            for native in (
+                "mcp__liteagents__" + tool.name,
+                "liteagents/" + tool.name,
+                "liteagents_" + tool.name,
+            )
+        }
         self.gateway = NativeGateway(self.profile, selected)
         self.stack.push_async_callback(self.gateway.close)
         await self.gateway.open()
@@ -68,12 +110,11 @@ class ManagedAdapter(HarnessAdapter):
             "api_key": "liteagents-local",
         }
         servers = {"liteagents": {"url": self.gateway.url + "/mcp"}}
-        native_tools = []
+        native_tools = None
         harness = self.profile.harness
         if harness == "claude-sdk":
             native_tools = ["mcp__liteagents__" + t.name for t in selected]
             options["setting_sources"] = []
-            module, cls = "claude_sdk", "ClaudeAdapter"
         elif harness == "codex":
             servers["liteagents"]["tools"] = {
                 t.name: {"approval_mode": "approve"} for t in selected
@@ -83,10 +124,8 @@ class ManagedAdapter(HarnessAdapter):
                 "web_search": "disabled",
             }
             options["ephemeral"] = bool(self.profile.temporal)
-            module, cls = "codex", "CodexAdapter"
         else:
             options["config"] = {"permission": {"*": "deny", "liteagents_*": "allow"}}
-            module, cls = "opencode", "OpenCodeAdapter"
         if self.profile.temporal or self.tool_allowlist is not None:
             # OpenCode needs an isolated server directory per attempt. Codex and
             # Claude can share their run directory across fresh native sessions.
@@ -118,13 +157,7 @@ class ManagedAdapter(HarnessAdapter):
                 "max_turns": None if harness == "codex" else self.profile.max_turns,
             }
         )
-        try:
-            factory = getattr(import_module("liteagents.harnesses." + module), cls)
-        except ModuleNotFoundError as exc:
-            raise MissingDependencyError(
-                f"Install liteagents[{harness}] to use {harness}; missing {exc.name}"
-            ) from exc
-        self.native = factory(
+        self.native = self.native_factory()(
             native_profile,
             cwd=self.cwd,
             tools=[],
@@ -148,7 +181,7 @@ class ManagedAdapter(HarnessAdapter):
                 async for event in stream:
                     if self.gateway.error:
                         raise self.gateway.error
-                    yield event
+                    yield normalize_tool_names(event, self.tool_names)
             if self.gateway.error:
                 raise self.gateway.error
         except Exception:

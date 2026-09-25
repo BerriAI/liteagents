@@ -1,5 +1,30 @@
 # Migrating from v1
 
+## Updating the v2 preview from 0.2.0a1 to 0.2.0a2
+
+An omitted `profile.tools` now serializes as `null` and retains defaults.
+`tools: []` explicitly disables tools; change old empty lists to `null` if you
+relied on defaults. This does not change `LiteAgentOptions.tools=[]`, which is
+still an empty application-tool registry.
+
+Application tools, explicit tool selections, and `profile.mcp_servers` now
+automatically select managed CLI execution. Supply `model_kwargs.api_base` and
+use the shared MCP fields; remove native provider/tool-policy overrides when
+using this path. The ordinary native configuration escape hatch remains for
+profiles without shared tools, MCP, or managed features. `http_headers` and
+`enabled_tools` are accepted shared aliases, but other native-only MCP fields
+should be moved to native `harness_options.config` where supported.
+
+Shared tool events now use application names. Code inspecting CLI prefixes
+should use `ToolUseBlock.native_name`. Use `client.capabilities` or pass the full
+profile to `get_capabilities` for effective support.
+
+Upgrade clients and workers together. Finish existing runs on their original
+version; use a new `temporal.profile_id` for changed profiles/tool semantics.
+Do not replay an in-flight run across this preview upgrade.
+
+## Moving from the v1 API
+
 The package root now exposes the profile-driven SDK. Its client delegates the
 agent loop to DeepAgents, Pydantic AI, Claude Agent SDK, Codex, or OpenCode.
 

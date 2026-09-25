@@ -392,7 +392,7 @@ class OpenCodeAdapter(HarnessAdapter):
         }
         if self.profile.system_prompt:
             body["system"] = self.profile.system_prompt
-        if self.profile.tools:
+        if self.profile.tools is not None:
             tool_ids = await self.request("GET", "/experimental/tool/ids")
             selected = {_ALIASES.get(name, name) for name in self.profile.tools}
             unknown = selected - set(tool_ids)

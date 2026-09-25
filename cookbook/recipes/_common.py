@@ -28,8 +28,7 @@ def setup(args, recipe, *, tools=None):
             "api_base": os.environ["LITEAGENTS_API_BASE"],
             "api_key": os.environ["LITELLM_API_KEY"],
         },
-        tools=tools or [],
-        recovery={},
+        tools=tools,
         max_turns=10,
         system_prompt="Use the requested tools and report their actual results. Be concise.",
     )

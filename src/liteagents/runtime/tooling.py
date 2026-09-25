@@ -7,7 +7,8 @@ from contextlib import AsyncExitStack
 from pathlib import Path
 from typing import Any
 
-from ..errors import ConfigurationError
+from ..errors import ConfigurationError, MissingDependencyError
+from ..mcp_config import normalize_servers
 from ..profiles import ProfileOptions
 from ..tools import Tool
 
@@ -71,7 +72,7 @@ def select_tools(profile: ProfileOptions, registered: list[Tool], cwd: Path) -> 
             raise ConfigurationError(f"Duplicate registered tool: {tool.name}")
         by_name[tool.name] = tool
     selected = []
-    for name in profile.tools:
+    for name in profile.tools if profile.tools is not None else by_name:
         if name in by_name:
             selected.append(by_name[name])
         elif name in ("read_file", "edit_file", "run_tests"):
@@ -84,7 +85,14 @@ def select_tools(profile: ProfileOptions, registered: list[Tool], cwd: Path) -> 
 async def load_servers(profile: ProfileOptions, stack: AsyncExitStack) -> list[Tool]:
     if not profile.mcp_servers:
         return []
-    from mcp import ClientSession, StdioServerParameters
+    try:
+        servers = normalize_servers(profile.mcp_servers)
+    except ValueError as exc:
+        raise ConfigurationError(str(exc)) from exc
+    try:
+        from mcp import ClientSession, StdioServerParameters
+    except ImportError as exc:
+        raise MissingDependencyError("Install liteagents[mcp] to use MCP servers") from exc
     from mcp.client import streamable_http as transport_module
     from mcp.client.sse import sse_client
     from mcp.client.stdio import stdio_client
@@ -92,7 +100,7 @@ async def load_servers(profile: ProfileOptions, stack: AsyncExitStack) -> list[T
     from ..mcp import load_mcp_tools
 
     tools: list[Tool] = []
-    for name, config in profile.mcp_servers.items():
+    for name, config in servers.items():
         unknown = config.keys() - {
             "url",
             "command",

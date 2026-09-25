@@ -52,11 +52,24 @@ await run.cancel()
 `session_id`, and available `usage`. `result.text` selects the final assistant
 answer. Usage retains native reports; incompatible units are not added together.
 
+`client.capabilities` reflects the profile and application tools, including
+automatic managed execution. Before creating a client, use
+`get_capabilities(profile, tools=my_tools)`. Passing just a harness name returns
+its ordinary native adapter capabilities. Capability reporting describes support;
+the client/worker also validates configuration and loads the required runtimes.
+Authentication is checked when connecting to the configured services.
+
 ## Events and streaming
 
 `query()` yields `AssistantMessage`, `UserMessage`, and, when enabled,
 `TextDelta`. A complete assistant message still follows its incremental text;
 render deltas for live display and use the complete message for final content.
+
+For shared application/workspace/MCP tools, `ToolUseBlock.name` is the public
+tool name, such as `lookup` or `orders_lookup_order`, across all harnesses.
+`native_name` preserves a translated native name when present. Tool-call IDs
+remain unchanged for correlating results. Ordinary native built-ins keep their
+native names. This mapping also applies to stored results and reattached events.
 
 Run subscriptions expose lifecycle information and reconnectable cursors:
 
@@ -88,12 +101,28 @@ Application tools implement `Tool.name`, `description`, `input_schema`, and
 Use `operation_id()` while a tool runs to obtain an idempotency key stable across
 its retries and worker recovery.
 
+`ProfileOptions.tools` has three meanings in both direct and durable execution:
+
+| Value | Selection |
+| --- | --- |
+| Omitted or `None` (`null` in YAML) | Adapter defaults, plus registered application/MCP tools |
+| `[]` | No tools, including no registered tools or MCP tools |
+| A list of names | Only those shared tools; an unknown name fails explicitly |
+
+Defaults vary by adapter: DeepAgents retains its native tools, Pydantic AI exposes
+registered/discovered tools, and managed CLI execution defaults to registered
+tools plus `read_file`, `edit_file`, and `run_tests`. Ordinary CLI mode preserves
+native defaults. Use an explicit list for comparable tool sets across harnesses.
+Named subagents separately add their declared delegation tools; combining
+`tools=[]` with enabled subagents is rejected. A child's empty tool list grants
+no tools.
+
 Shared workspace tools are `read_file`, `edit_file` (one unique text replacement),
 and `run_tests` (an argument array, with a bounded timeout). File tools resolve
 paths within `cwd`. They are conveniences, not a security sandbox: a test command
 can run arbitrary programs with the worker's permissions.
 
-In Python harnesses and managed native execution, MCP uses the shared schema:
+All harnesses accept the same MCP schema in `profile.mcp_servers`:
 
 ```yaml
 mcp_servers:
@@ -110,6 +139,12 @@ remote names before exposure. HTTP servers use `url`, optional `headers`, and
 The SDK owns the sessions until the run/client closes. `load_mcp_tools` also
 adapts caller-owned, initialized MCP sessions. MCP 1.12 and 2.2 transports are
 covered separately.
+
+`allowed_tools: []` exposes no tools from that server; omission exposes its
+catalog. Legacy `http_headers` and `enabled_tools` spellings are accepted as
+aliases for `headers` and `allowed_tools`; conflicting values fail validation.
+Native-only MCP controls belong in native `harness_options.config` where the
+ordinary adapter supports it, and cannot be mixed with managed execution.
 
 Named subagents are exposed as `delegate_<name>` tools. Each child runs the same
 selected native harness in its own conversation, with a model override, merged
@@ -169,9 +204,11 @@ tools need application idempotency or reconciliation.
 
 ## Native CLI execution modes
 
-Ordinary direct Claude/Codex/OpenCode adapters support native sessions, their
-native tools, and native MCP configuration. Recovery, Temporal, approvals, and
-subagents select **managed execution** instead.
+Ordinary direct Claude/Codex/OpenCode adapters preserve native sessions, native
+tools, and native configuration. Application tools, an explicit `profile.tools`
+selection (including `[]`), shared MCP servers, recovery, Temporal, approvals,
+or subagents automatically select **managed execution**. Enabling retries is
+unnecessary for tool adaptation. It still runs the chosen harness's own loop.
 
 Managed execution requires an explicit gateway `api_base`. A private local
 provider/MCP gateway records complete model responses before delivering tool
@@ -190,7 +227,8 @@ profile versions stable for in-flight runs.
 Managed mode owns provider and tool configuration; raw native `config`, attached
 OpenCode servers, and native tool-policy overrides cannot be combined with it.
 Use the shared tool/MCP/approval fields instead. Ordinary direct mode continues
-to accept native MCP shapes and the native controls described below.
+to accept the native controls described below. Shared `mcp_servers` always uses
+the common schema, including when no durability is requested.
 
 | Harness | Selected native options |
 | --- | --- |
