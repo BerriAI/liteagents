@@ -3,14 +3,16 @@
 ## 0.2.0a2 developer preview
 
 The [Mindfort handoff](mindfort-handoff.md) pins SDK revision
-`61cddea73a7057a5e5ae912ea432e64c91c2a1d3`. Validation used Python 3.12.14 and
+`3da45e67ccd550d6b4962e474c6d4029831e9574`. Validation used Python 3.12.14 and
 the runtime versions in `constraints-tested.txt`.
 
-- **66 focused checks passed:** 42 real-harness cases for application tools,
+- **67 focused checks passed:** 42 real-harness cases for application tools,
   shared MCP, selection defaults/empty/explicit lists, stable tool names, direct
-  execution and Temporal reconnects; 24 configuration/capability checks.
-- **18 live-provider checks passed:** file tools, streaming and conversation
-  follow-up, shared MCP, and durable MCP/reconnects across all six harnesses.
+  execution and Temporal reconnects; 25 configuration/capability checks, including preservation of usage reported
+  at native turn completion.
+- **23 live-provider checks passed:** file tools, streaming and conversation
+  follow-up, shared MCP, durable MCP/reconnects across all six harnesses, and
+  reopening native sessions. Native Claude/Codex turn usage is retained.
 - **Fresh non-editable installation passed:** DeepAgents-only extra, with no
   Temporal SDK or PostgreSQL driver installed; simple agent, file/conversation,
   and application-tool recipes. Adding only the MCP extra enabled its recipe.

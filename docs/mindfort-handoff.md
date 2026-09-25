@@ -7,11 +7,11 @@ recovery.
 
 ## Pinned install
 
-Tested SDK revision: **`61cddea73a7057a5e5ae912ea432e64c91c2a1d3`**.
+Tested SDK revision: **`3da45e67ccd550d6b4962e474c6d4029831e9574`**.
 Use Python 3.12. This revision is distributed from source, not PyPI.
 
 ```sh
-export LITEAGENTS_PREVIEW_REF=61cddea73a7057a5e5ae912ea432e64c91c2a1d3
+export LITEAGENTS_PREVIEW_REF=3da45e67ccd550d6b4962e474c6d4029831e9574
 git clone https://github.com/BerriAI/liteagents.git
 cd liteagents
 git fetch origin "$LITEAGENTS_PREVIEW_REF"
