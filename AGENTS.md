@@ -40,6 +40,8 @@ adding to `loop.py`.
 ## Where new code goes
 
 - New routing strategy -> new file in `routers/`.
+- New compaction strategy -> its own module in `compaction/strategies/`.
+- New compaction trigger -> its own module in `compaction/triggers/`.
 - New built-in tool -> `tools.py`, or its own small file if it's substantial.
 - New example/demo agent (like `PRRiskAgent`) -> its own flat file at
   `src/liteagents/` (e.g. `pr_risk_agent.py`). Not a nested `contrib/`-style
