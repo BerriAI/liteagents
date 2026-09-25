@@ -10,12 +10,13 @@ This guide targets **0.2.0a2**. It is a source preview; installing an unqualifie
 ## 1. Get a first response
 
 Use Python 3.12 and a fresh environment. Set `LITEAGENTS_PREVIEW_REF` to the full
-commit supplied in the preview handoff. Check out that revision, then install
+commit supplied in the [preview handoff](mindfort-handoff.md). Check out that revision, then install
 only DeepAgents:
 
 ```sh
 git clone https://github.com/BerriAI/liteagents.git
 cd liteagents
+git fetch origin "$LITEAGENTS_PREVIEW_REF"
 git checkout --detach "$LITEAGENTS_PREVIEW_REF"
 python3.12 -m venv .venv
 source .venv/bin/activate

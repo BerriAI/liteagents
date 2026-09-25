@@ -14,6 +14,7 @@ Use Python 3.12. This revision is distributed from source, not PyPI.
 export LITEAGENTS_PREVIEW_REF=61cddea73a7057a5e5ae912ea432e64c91c2a1d3
 git clone https://github.com/BerriAI/liteagents.git
 cd liteagents
+git fetch origin "$LITEAGENTS_PREVIEW_REF"
 git checkout --detach "$LITEAGENTS_PREVIEW_REF"
 python3.12 -m venv .venv
 source .venv/bin/activate
