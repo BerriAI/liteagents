@@ -63,9 +63,7 @@ asyncio.run(main())
 
 Use `agent.query(prompt)` to consume normalized text/tool messages as they
 arrive. Set `profile.features.streaming = True` to receive `TextDelta` events.
-Repeated direct queries share a conversation. YAML and JSON profiles support
-`${ENVIRONMENT_VARIABLE}` references through `ProfileOptions.from_yaml()` and
-`from_json()`.
+Repeated direct queries share a conversation.
 
 Omit `tools` (or use `None`) for defaults, set `tools=[]` for no tools, or select
 tools explicitly, such as `tools=["read_file"]`. Application tools and MCP work
@@ -91,6 +89,33 @@ tools, and forwarded MCP tools pass through LiteAgents' recording gateway;
 uncontrolled native tools are excluded. See the [SDK contract](docs/sdk.md) for
 configuration differences and supported native options.
 
+## Configure with JSON or YAML
+
+Profiles can live in files instead of Python code. For example, `agent.yaml`:
+
+```yaml
+harness: deepagents
+model: litellm_proxy/${LITEAGENTS_MODEL}
+model_kwargs:
+  api_base: ${LITEAGENTS_API_BASE}
+  api_key: ${LITELLM_API_KEY}
+tools: []
+```
+
+Load it and pass the resulting profile to the same client:
+
+```python
+profile = ProfileOptions.from_yaml("agent.yaml")
+# Or: profile = ProfileOptions.from_json("agent.json")
+options = LiteAgentOptions(profile=profile, cwd=".")
+```
+
+The loaders accept file paths, expand `${ENVIRONMENT_VARIABLE}` values, and
+validate the same options as the Python constructor. Missing variables and
+unknown fields fail before execution. See the [JSON/YAML guide](docs/profiles.md)
+for equivalent JSON, MCP and Temporal configuration, and a
+[runnable example](cookbook/recipes/09_profile_files.py) with both file formats.
+
 ## Try the cookbooks
 
 The [guided recipes](cookbook/recipes/README.md) contain setup, runnable commands,
@@ -101,6 +126,7 @@ and expected results. Every recipe accepts `--harness` so you can compare behavi
 | [Simple agent](cookbook/recipes/00_agent.py) | A first response with no tools or durability setup |
 | [Quickstart](cookbook/recipes/01_quickstart.py) | File tools, live text, and conversation follow-up |
 | [Application tools](cookbook/recipes/08_application_tools.py) | Register a Python tool and use stable names across harnesses |
+| [JSON/YAML profiles](cookbook/recipes/09_profile_files.py) | Load the same agent from either format, with environment variables |
 | [MCP](cookbook/recipes/02_mcp.py) | Discover and call a real local MCP server |
 | [Subagents](cookbook/recipes/03_subagents.py) | Named delegation, a child model, and restricted tools |
 | [Approvals](cookbook/recipes/04_approvals.py) | Inspect and approve an edit before it runs |

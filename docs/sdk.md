@@ -13,6 +13,11 @@ and `max_turns`. Unknown profile fields fail validation. Environment expansion
 happens when loading YAML/JSON, including nested settings. Missing variables fail
 without printing the resolved profile. Keep configuration files free of secrets.
 
+Load a file with `ProfileOptions.from_yaml("agent.yaml")` or
+`ProfileOptions.from_json("agent.json")`. Both accept a path, not raw file
+contents. The [JSON/YAML profile guide](profiles.md) includes complete examples,
+environment setup, and equivalent Python usage.
+
 Python harnesses support `openai/`, `anthropic/`, and `litellm_proxy/` model names.
 They also accept local native model objects through `harness_options.model_instance`.
 Those objects stay on the application/worker; Temporal arguments contain only a

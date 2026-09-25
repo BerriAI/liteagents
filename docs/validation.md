@@ -3,8 +3,8 @@
 ## 0.2.0
 
 The release packages the implementation tested at SDK revision
-`3da45e67ccd550d6b4962e474c6d4029831e9574`; subsequent changes update documentation
-and package metadata. Validation used Python 3.12.14 and the runtime versions
+`3da45e67ccd550d6b4962e474c6d4029831e9574`; subsequent changes update documentation,
+cookbook examples, and package metadata. Validation used Python 3.12.14 and the runtime versions
 in `constraints-tested.txt`.
 
 - **Release packaging passed:** wheel and source distribution report 0.2.0,
@@ -12,6 +12,10 @@ in `constraints-tested.txt`.
   file. The final packaging/documentation change also passed 140 local
   non-integration regressions (five dependency-specific skips), lint, types,
   and source-size limits.
+- **JSON/YAML cookbook passed:** both checked-in profiles ran through all six
+  real harnesses against the scripted provider (12 cases). The files produce
+  equivalent options and reject missing environment variables. The existing
+  profile/configuration suite passed 39 checks.
 - **Full Linux regression passed:** 244 tests, with 24 expected skips (23 opt-in
   live-provider cases and one PostgreSQL-only assertion under SQLite). All seven
   CI jobs passed across Python 3.11–3.13, MCP 1.12/2.2, native runtimes, Temporal,

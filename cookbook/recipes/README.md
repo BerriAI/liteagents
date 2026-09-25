@@ -35,6 +35,7 @@ Responses for Codex, and Anthropic Messages for Claude. The aliases can be diffe
 | Simple agent | `python cookbook/recipes/00_agent.py` | Prints `READY`; no tools, Temporal, or PostgreSQL setup |
 | Streaming and conversation | `python cookbook/recipes/01_quickstart.py` | Reads `facts.txt`, streams `COBALT-42`, and remembers it in a follow-up |
 | Application tool | `python cookbook/recipes/08_application_tools.py` | Prints `Tool: lookup_order` and reports A123 as paid, total USD 12 |
+| JSON/YAML profiles | `python cookbook/recipes/09_profile_files.py` | Loads `profiles/agent.yaml`, resolves environment variables, and prints `READY` |
 | MCP | `python cookbook/recipes/02_mcp.py` | Launches a real local MCP server and reports order A123 as paid, total USD 12 |
 | Subagents | `python cookbook/recipes/03_subagents.py` | Shows `subagent_started auditor`, then `subagent_completed auditor`; the child can only read files |
 | Approval before editing | `python cookbook/recipes/04_approvals.py` | Prints proposed arguments while the file is still `status=pending`; answering `y` allows the edit |
@@ -51,6 +52,18 @@ python cookbook/recipes/02_mcp.py --harness codex
 The application-tool recipe accepts the same `--harness` flag. Its public tool
 name remains `lookup_order` across harnesses. These examples run directly by
 default; retries are enabled explicitly in the retries/fallback recipes.
+
+To configure an agent in a file, try both equivalent profiles:
+
+```sh
+python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.yaml
+python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.json
+```
+
+Both print `READY`. This recipe uses the harness and model in the file;
+`--harness` optionally overrides only the harness. The
+[JSON/YAML guide](../../docs/profiles.md) explains environment variables,
+validation, application tools, MCP, and Temporal settings.
 
 For a different child model, set `LITEAGENTS_SUBAGENT_MODEL` to a compatible gateway
 alias before recipe 03. For an automated approval demo, recipe 04 accepts

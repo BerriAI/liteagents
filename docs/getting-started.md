@@ -43,6 +43,17 @@ python cookbook/recipes/01_quickstart.py
 Expected: the agent reads `facts.txt`, reports `COBALT-42`, then remembers the
 code in the follow-up. Examples use their own `.liteagents/recipes/` workspaces.
 
+Prefer configuration files? Run the equivalent YAML and JSON examples:
+
+```sh
+python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.yaml
+python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.json
+```
+
+Both print `READY` using the same environment variables. See the
+[profile guide](profiles.md) for loading files in your own application and
+configuring tools, MCP, or Temporal.
+
 ## 2. Add an application tool and MCP, then switch harnesses
 
 ```sh
