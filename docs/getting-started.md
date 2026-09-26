@@ -4,16 +4,16 @@ LiteAgents runs real DeepAgents, Pydantic AI, Claude Agent SDK, Codex, and OpenC
 loops through one Python client. Start with a simple agent, add your own tools,
 then try durable execution if your task needs it.
 
-This guide uses the **0.2.0** release and its runnable cookbooks. To install just
-the SDK without a checkout, use the [release wheel](../README.md#install).
+This guide uses the **0.3.0a1** source checkout and its runnable cookbooks.
+Install from this checkout; the older 0.2.0 wheel predates these changes.
 
 ## 1. Get a first response
 
-Use Python 3.12 and a fresh environment. Check out the release and install only
+Use Python 3.12 and a fresh environment. Check out the repository and install only
 DeepAgents:
 
 ```sh
-git clone --branch v0.2.0 --depth 1 https://github.com/BerriAI/liteagents.git
+git clone https://github.com/BerriAI/liteagents.git
 cd liteagents
 python3.12 -m venv .venv
 source .venv/bin/activate
@@ -83,12 +83,8 @@ For the complete comparison, install `.[all]` with the same constraints. The
 Claude and Codex extras supply their runtimes. OpenCode additionally requires
 `npm install -g opencode-ai@1.18.29`.
 
-| Harness selector | Endpoint/model requirements |
-| --- | --- |
-| `deepagents`, `pydantic-ai` | Chat Completions for these recipes |
-| `claude-sdk` | Anthropic Messages; set `LITEAGENTS_CLAUDE_MODEL` to a compatible alias |
-| `codex` | Responses; set `LITEAGENTS_MODEL` to a compatible alias |
-| `opencode-v1`, `opencode-v2` | OpenAI-compatible Chat Completions; both use the same OpenCode server |
+All selectors use the same `LITEAGENTS_MODEL`. LiteLLM handles the protocol
+translation inside the SDK. The gateway only needs Chat Completions support.
 
 ```sh
 python cookbook/recipes/08_application_tools.py --harness codex
@@ -96,8 +92,9 @@ python cookbook/recipes/02_mcp.py --harness codex
 ```
 
 Shared tool names, MCP configuration, and application event handling stay the
-same. Model aliases must support the selected harness's protocol. Native CLI
-shared tools require an explicit `api_base`; the examples already provide it.
+same. No separate Claude model alias or protocol configuration is needed.
+To check application tools, MCP, and follow-up history across every harness, run
+`python cookbook/recipes/10_harness_switch.py --all`.
 
 ## 3. Add Temporal and recover a worker
 
@@ -113,18 +110,21 @@ Expected: `receipt-verified`; the completed receipt operation is reused after
 the worker restarts. Local SQLite is sufficient. The
 [self-hosting guide](self-hosting.md) covers PostgreSQL and shared deployment.
 
-Application tools move to `LiteAgentWorker(tools=[...])` in this mode. Clients
-submit the profile and prompt; executable Python tools remain on the worker.
+Register the same application tools on `LiteAgentWorker(tools=[...])`.
+The client may keep its tool registry, but executable Python code runs on the
+worker and is never shipped through Temporal.
 
 ## Execution behavior
 
-- Omitted `profile.tools` uses adapter defaults. `tools=[]` means no tools.
-  An explicit list selects shared tools; use it when comparing harnesses.
-- Direct queries on one client share a conversation. Each Temporal submission
-  is an independent job; attach to the same job with `get_run()`.
-- Shared tools automatically select managed CLI execution. Native tool-policy
-  overrides cannot be mixed with that mode. Unsupported model settings fail
-  explicitly; not every harness supports `temperature` or the same native options.
+- Omitted `profile.tools` exposes registered application and MCP tools on every
+  harness. `tools=[]` means no tools; explicit names select tools, including
+  optional workspace tools.
+- `query()` shares a conversation on one client. `start_run()` creates independent
+  jobs. Both meanings stay the same with Temporal; `get_run()` attaches without
+  resubmitting.
+- `harness_options` preserves native controls. Settings that override the shared
+  model/tool boundary fail explicitly. Model settings are translated by LiteLLM;
+  the selected model must support them.
 - Completed recorded operations are reused after worker loss. An interrupted
   external action can run again, so effectful tools need idempotency. Keep the
   workspace and checkpoint stores when restarting the worker.

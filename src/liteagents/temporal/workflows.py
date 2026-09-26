@@ -11,9 +11,12 @@ from temporalio.common import RetryPolicy
 class AgentWorkflow:
     @workflow.run
     async def run(self, request: dict[str, Any]) -> dict[str, Any]:
+        arguments = {"profile_id": request["profile_id"], "prompt": request["prompt"]}
+        if request.get("history_key"):
+            arguments["history_key"] = request["history_key"]
         return await workflow.execute_activity(
             "liteagents.run",
-            {"profile_id": request["profile_id"], "prompt": request["prompt"]},
+            arguments,
             start_to_close_timeout=timedelta(seconds=request["activity_timeout"]),
             schedule_to_close_timeout=timedelta(
                 seconds=request["activity_timeout"] * request["attempts"] + 60

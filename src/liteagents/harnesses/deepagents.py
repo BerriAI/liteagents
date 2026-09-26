@@ -66,17 +66,21 @@ class DeepAgentsAdapter(HarnessAdapter):
             raise UnsupportedFeatureError(
                 "Direct DeepAgents history lasts for one client; use Temporal for persistent runs"
             )
+        if "model_instance" not in self.profile.harness_options:
+            from ..runtime.model_bridge import validate_settings
+
+            validate_settings(self.profile)
 
     async def open(self) -> None:
         self.stack = AsyncExitStack()
         registered = self.tools + await load_servers(self.profile, self.stack)
-        # Explicit tools use the shared implementations. With no selection DeepAgents
-        # retains its native toolset, plus all discovered MCP tools.
         delegates = delegate_tools(self.profile, self.cwd, self.tools)
         registered += delegates
         names = self.tool_allowlist
-        if names is None and self.profile.tools is not None:
-            names = set(self.profile.tools)
+        if names is None:
+            names = set(self.profile.tools) if self.profile.tools is not None else {
+                tool.name for tool in registered
+            }
         if names is not None:
             names = names | {t.name for t in delegates}
         selected = (
@@ -171,15 +175,19 @@ class DeepAgentsAdapter(HarnessAdapter):
             for message in before.values.get("messages", []):
                 if resume:
                     event = convert_message(message, self.profile.model)
-                    if event is not None:
+                    if event is not None and not (message.id or "").startswith("liteagents-history-"):
                         yield event
                 seen.add(message.id)
         if resume and before.values and not before.next:
             return
+        from ..runtime.conversation import langchain_history
+
+        initial = langchain_history(self.history) if not before.values else []
+        seen.update(message.id for message in initial)
         inputs = (
             None
             if resume and before.values
-            else {"messages": [{"role": "user", "content": prompt}]}
+            else {"messages": [*initial, {"role": "user", "content": prompt}]}
         )
         try:
             stream = self.graph.astream(

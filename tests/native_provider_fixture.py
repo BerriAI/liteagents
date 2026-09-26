@@ -17,10 +17,19 @@ class Provider:
         self.fail_after_tool = False
         self.fail_models = set()
         self.forced_tool = None
+        self.paths = []
+        self.protocols = None
+        self.fail_first = 0
+        self.truncate_stream = False
 
     async def reply(self, request):
         data = await request.json()
         self.requests.append(data)
+        self.paths.append(request.path.removeprefix("/v1/"))
+        if self.protocols is not None and self.paths[-1] not in self.protocols:
+            return web.json_response({"error": {"message": "Wrong provider protocol"}}, status=400)
+        if len(self.requests) <= self.fail_first:
+            return web.json_response({"error": {"message": "Synthetic transient failure"}}, status=503)
         if request.path.endswith("count_tokens"):
             return web.json_response({"input_tokens": 100})
         if data.get("model") in self.fail_models:
@@ -205,13 +214,15 @@ class Provider:
             ]
         self.responses.append(response)
         if data.get("stream"):
+            if self.truncate_stream:
+                frames = frames[:1]
             chunks = []
             for index, event in enumerate(frames):
                 if request.path.endswith("/responses"):
                     event["sequence_number"] = index
                 prefix = "event: " + event["type"] + "\n" if "type" in event else ""
                 chunks.append(prefix + "data: " + json.dumps(event) + "\n\n")
-            if request.path.endswith("completions"):
+            if request.path.endswith("completions") and not self.truncate_stream:
                 chunks.append("data: [DONE]\n\n")
             return web.Response(text="".join(chunks), content_type="text/event-stream")
         return web.json_response(response)

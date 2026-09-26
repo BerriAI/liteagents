@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import json
 from collections.abc import AsyncIterator
 from pathlib import Path
 from uuid import uuid4
@@ -17,8 +19,9 @@ from ..errors import (
 )
 from ..harnesses import get_capabilities
 from ..profiles import ProfileOptions
+from ..runtime.conversation import dump_history
 from ..tools import Tool
-from ..types import AgentEvent, Message
+from ..types import AgentEvent, Message, UserMessage
 from .handles import TemporalRun
 from .state import run_key, run_store
 
@@ -72,10 +75,6 @@ class TemporalRuntime:
             raise UnsupportedFeatureError(
                 f"Temporal recovery is not yet verified for {profile.harness}"
             )
-        if tools:
-            raise ConfigurationError(
-                "Register temporal tools on LiteAgentWorker(tools=...), not the application client"
-            )
         if session_id:
             raise UnsupportedFeatureError(
                 "Each durable query is an independent run; attach with get_run(run_id)"
@@ -85,6 +84,8 @@ class TemporalRuntime:
         self.store = run_store(profile, cwd)
         self.history: list[Message] = []
         self.client: Client | None = None
+        self._query_active = False
+        self._pending: tuple[TemporalRun, str] | None = None
 
     async def open(self) -> None:
         await self.store.setup()
@@ -95,14 +96,17 @@ class TemporalRuntime:
         self.client = None
 
     async def start_run(self, prompt: str, *, run_id: str | None = None) -> TemporalRun:
+        return await self._submit(prompt, run_id=run_id, history=[])
+
+    async def _submit(self, prompt, *, run_id, history):
         if self.client is None:
             raise RuntimeError("Use LiteAgentClient as an async context manager")
         run_id = uuid4().hex if run_id is None else run_id
         if not run_id.strip():
             raise ConfigurationError("run_id must be nonempty")
-        if len(prompt.encode()) > 1_000_000:
+        if len(json.dumps([prompt, history]).encode()) > 1_000_000:
             raise ConfigurationError(
-                "Prompt exceeds the Temporal payload bound; pass an artifact reference"
+                "Prompt and conversation exceed the Temporal payload bound; start a new client or pass an artifact reference"
             )
         key = run_key(self.profile, run_id)
         try:
@@ -120,6 +124,16 @@ class TemporalRuntime:
             "heartbeat_timeout": options.heartbeat_timeout_seconds,
             "attempts": options.worker_recovery_attempts,
         }
+        if history:
+            # Keep tool results and conversation content in the SDK store, not
+            # in Temporal history. A unique slot cannot be overwritten by a
+            # racing duplicate submission with the same workflow ID.
+            history_key = "conversation:" + uuid4().hex
+            self.store.encode(history)  # Validate the storage bound before creating a row.
+            await self.store.ensure_run(key, self.profile_id)
+            await self.store.put(key, "workflow_id", run_id)
+            await self.store.put(key, history_key, history)
+            request["history_key"] = history_key
         try:
             handle = await self.client.start_workflow(
                 "LiteAgentsRun",
@@ -147,10 +161,31 @@ class TemporalRuntime:
         return TemporalRun(handle, self.store, run_key(self.profile, run_id), self.profile_id)
 
     async def query(self, prompt: str, *, run_id: str | None = None) -> AsyncIterator[AgentEvent]:
-        run = await self.start_run(prompt, run_id=run_id)
-        async for event in run.events():
-            message = event.message
-            if message is not None:
-                yield message
-        result = await run.result()
-        self.history.extend(result.messages)
+        if self._query_active:
+            raise ConfigurationError("Concurrent queries on one conversation are not supported")
+        self._query_active = True
+        try:
+            # A closed subscription does not cancel a durable turn. Settle it
+            # before accepting a follow-up, preserving conversation order.
+            await self._finish_turn()
+            run = await self._submit(prompt, run_id=run_id, history=dump_history(self.history))
+            self._pending = (run, prompt)
+            async for event in run.events():
+                if event.message is not None:
+                    yield event.message
+            await self._finish_turn()
+        finally:
+            self._query_active = False
+
+    async def _finish_turn(self):
+        if self._pending is not None:
+            run, prompt = self._pending
+            try:
+                result = await run.result()
+                self.history.extend([UserMessage(prompt), *result.messages])
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                self._pending = None
+                raise
+            self._pending = None

@@ -17,7 +17,7 @@ def parser(description):
 def setup(args, recipe, *, tools=None):
     workspace = (args.workspace or Path(".liteagents/recipes") / recipe / args.harness).resolve()
     workspace.mkdir(parents=True, exist_ok=True)
-    model_env = "LITEAGENTS_CLAUDE_MODEL" if args.harness == "claude-sdk" else "LITEAGENTS_MODEL"
+    model_env = "LITEAGENTS_MODEL"
     for name in ("LITEAGENTS_API_BASE", "LITELLM_API_KEY", model_env):
         if not os.environ.get(name):
             raise SystemExit(f"Set {name}; see cookbook/recipes/README.md")

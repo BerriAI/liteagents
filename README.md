@@ -3,6 +3,9 @@
 One Python SDK for running agents with **DeepAgents, Pydantic AI, Claude Agent
 SDK, Codex, and OpenCode**. Choose a harness in a profile, use the same client and
 message types, and add Temporal when a run needs to survive worker failure.
+Change `harness` while keeping your model, tools, MCP configuration, and
+application code. LiteLLM translates model requests internally; `harness_options`
+keeps the selected harness's native controls available.
 
 Each harness runs its own agent loop. LiteAgents adds shared tools and MCP,
 named subagents, operation retries, model and harness fallback, approval gates,
@@ -13,12 +16,13 @@ application tools, MCP, and optional durable execution.
 
 ## Install
 
-Python 3.11+; Python 3.12 is recommended. Install the **0.2.0** release:
+Python 3.11+; Python 3.12 is recommended. This checkout contains **0.3.0a1**.
+Install it from the repository root:
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install 'liteagents[deepagents] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
+python -m pip install '.[deepagents]' -c constraints-tested.txt
 ```
 
 This installs the first harness. A simple agent needs no Temporal or PostgreSQL
@@ -28,9 +32,9 @@ extras you need:
 `mcp`, `temporal`, and `postgres`. The Claude and Codex extras supply their native
 runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
 
-Use the release URL above: the `liteagents` name on PyPI currently serves a
-different package. This SDK is distributed through
-[GitHub Releases](https://github.com/BerriAI/liteagents/releases/tag/v0.2.0).
+The `liteagents` name on PyPI currently serves a different package. The previous
+[0.2.0 release](https://github.com/BerriAI/liteagents/releases/tag/v0.2.0) remains
+available as a wheel; it does not include the portability changes in this checkout.
 For a source checkout and the cookbooks, follow the
 [getting-started guide](docs/getting-started.md).
 
@@ -63,31 +67,39 @@ asyncio.run(main())
 
 Use `agent.query(prompt)` to consume normalized text/tool messages as they
 arrive. Set `profile.features.streaming = True` to receive `TextDelta` events.
-Repeated direct queries share a conversation.
+Repeated `query()` calls share a conversation, with or without Temporal.
+`start_run()` creates an independent job in either mode.
 
-Omit `tools` (or use `None`) for defaults, set `tools=[]` for no tools, or select
-tools explicitly, such as `tools=["read_file"]`. Application tools and MCP work
-without enabling retries or Temporal. Shared tools on CLI harnesses automatically
-use the managed adapter and require the explicit model endpoint shown above.
+Omit `tools` (or use `None`) to expose registered application and MCP tools,
+set `tools=[]` for no tools, or select names such as `tools=["read_file"]`.
+Defaults are the same across harnesses; workspace tools are opt-in.
+Application tools and MCP work without enabling retries or Temporal.
 
-| Harness | Gateway protocol | Durable recovery |
+| Harness | Model configuration | Durable recovery |
 | --- | --- | --- |
-| `deepagents` | Chat Completions or native Anthropic | LangGraph checkpoints + operation journal |
-| `pydantic-ai` | Chat Completions or Anthropic | Model/tool operation replay |
-| `claude-sdk` | Anthropic Messages | Managed provider/MCP operation replay |
-| `codex` | Responses | Managed provider/MCP operation replay |
-| `opencode-v1` | OpenAI-compatible Chat Completions | Managed provider/MCP operation replay |
-| `opencode-v2` | Same OpenCode server | Managed provider/MCP operation replay |
+| `deepagents` | Shared LiteLLM model/settings | LangGraph checkpoints + operation journal |
+| `pydantic-ai` | Shared LiteLLM model/settings | Model/tool operation replay |
+| `claude-sdk` | Shared LiteLLM model/settings | Managed provider/MCP operation replay |
+| `codex` | Shared LiteLLM model/settings | Managed provider/MCP operation replay |
+| `opencode-v1` | Shared LiteLLM model/settings | Managed provider/MCP operation replay |
+| `opencode-v2` | Shared LiteLLM model/settings | Managed provider/MCP operation replay |
 
 The two OpenCode names represent upstream SDK API generations, not separate
 agent engines. Both use the tested OpenCode 1.18.x server.
 
-For Claude, choose an Anthropic-compatible alias; for Codex, choose a
-Responses-compatible alias. Native CLI recovery requires an explicit
-`model_kwargs.api_base`. In managed mode, application tools, shared workspace
-tools, and forwarded MCP tools pass through LiteAgents' recording gateway;
-uncontrolled native tools are excluded. See the [SDK contract](docs/sdk.md) for
-configuration differences and supported native options.
+The same Chat Completions gateway alias works across all six selectors.
+LiteLLM translates the Claude Messages and Codex Responses protocols internally.
+You can also use a LiteLLM `provider/model` and its usual credentials directly;
+`api_base` is required for `litellm_proxy/` aliases, not for a standard provider.
+No extra translation service or configuration is needed.
+
+Shared model settings include `temperature`, `top_p`, `max_tokens`, `stop`,
+`seed`, penalties, `reasoning_effort`, and `timeout`. The model must support the
+requested setting and tools; unsupported combinations fail explicitly.
+Native controls stay in `harness_options`, such as DeepAgents middleware,
+Claude permission settings, or Codex sandbox settings. Those controls belong to
+the selected harness. See the [SDK contract](docs/sdk.md) for their scope and
+conflicts with shared provider/tool configuration.
 
 ## Configure with JSON or YAML
 
@@ -123,6 +135,7 @@ and expected results. Every recipe accepts `--harness` so you can compare behavi
 
 | Recipe | Demonstrates |
 | --- | --- |
+| [Switch harnesses](cookbook/recipes/10_harness_switch.py) | One model/profile with application tools, MCP, and follow-ups; add `--temporal` for durability |
 | [Simple agent](cookbook/recipes/00_agent.py) | A first response with no tools or durability setup |
 | [Quickstart](cookbook/recipes/01_quickstart.py) | File tools, live text, and conversation follow-up |
 | [Application tools](cookbook/recipes/08_application_tools.py) | Register a Python tool and use stable names across harnesses |
@@ -146,7 +159,7 @@ workers run separately. You can also self-host the open-source service.
 For local development:
 
 ```sh
-python -m pip install 'liteagents[deepagents,temporal] @ https://github.com/BerriAI/liteagents/releases/download/v0.2.0/liteagents-0.2.0-py3-none-any.whl'
+python -m pip install '.[deepagents,temporal]' -c constraints-tested.txt
 brew install temporal
 mkdir -p .liteagents
 temporal server start-dev --ip 127.0.0.1 --db-filename .liteagents/temporal.sqlite
@@ -185,7 +198,8 @@ async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
 ```
 
 Attaching never resubmits. Duplicate run IDs are rejected while Temporal history
-or SDK state is retained. Each durable query is independent. Events, approval decisions,
+or SDK state is retained. Each `start_run()` job is independent; consecutive
+`query()` calls on one client retain completed conversation turns. Events, approval decisions,
 operation results, and final output live in SQLite or PostgreSQL; Temporal stores
 coordination and a small result reference.
 

@@ -12,25 +12,24 @@ from collections import defaultdict
 from typing import Any
 from uuid import uuid4
 
-import httpx
 from aiohttp import web
 
 from ..errors import ConfigurationError
 from ..tools import Tool
 from .control import CURRENT, SCOPE, RunControl, retryable
+from .conversation import dump_history
+from .model_bridge import complete
 from .native_protocol import (
-    ResponseRecorder,
     canonical,
     managed_name,
     select_definitions,
-    split_frames,
-    sse_payload,
 )
 
 
 class NativeGateway:
-    def __init__(self, profile, tools: list[Tool]):
+    def __init__(self, profile, tools: list[Tool], *, history=()):
         self.profile = profile
+        self.history = history
         self.tools = {t.name: t for t in tools}
         self.control: RunControl | None = None
         self.sequence: dict[str, int] = defaultdict(int)
@@ -38,7 +37,6 @@ class NativeGateway:
         self.used: set[str] = set()
         self.error: Exception | None = None
         self.token = uuid4().hex
-        self.http = httpx.AsyncClient(timeout=300)
         self.lock = asyncio.Lock()
         self.handlers: set[asyncio.Task] = set()
 
@@ -69,7 +67,6 @@ class NativeGateway:
         await asyncio.gather(*pending, return_exceptions=True)
         if hasattr(self, "runner"):
             await self.runner.cleanup()
-        await self.http.aclose()
 
     def bind(self, control):
         self.control = control
@@ -92,7 +89,7 @@ class NativeGateway:
             result = {
                 "protocolVersion": params["protocolVersion"],
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "liteagents", "version": "0.2.0"},
+                "serverInfo": {"name": "liteagents", "version": "0.3.0a1"},
             }
         elif method == "tools/list":
             result = {
@@ -210,36 +207,24 @@ class NativeGateway:
             body["tools"] = selected
         lane = path + (":agent" if definitions else ":aux")
         self.sequence[lane] += 1
-        if definitions and self.sequence[lane] > (self.profile.max_turns or 20):
+        if path != "messages/count_tokens" and sum(
+            count for key, count in self.sequence.items() if not key.startswith("messages/count_tokens")
+        ) > (self.profile.max_turns or 20):
             raise ConfigurationError("Native model-call limit reached")
         key = f"native:{lane}:{self.sequence[lane]}"
-        original = body.get("model", self.profile.model)
+        original = self.profile.model
         names = [
             original,
             *(self.profile.recovery.model_fallbacks if self.profile.recovery else []),
         ]
-        headers = {
-            k: v
-            for k, v in request.headers.items()
-            if k.lower() in ("anthropic-version", "anthropic-beta", "content-type")
-        }
-        api_key = self.profile.model_kwargs.get("api_key")
-        if api_key:
-            headers["authorization"] = "Bearer " + api_key
-            headers["x-api-key"] = api_key
-        base = self.profile.model_kwargs["api_base"].rstrip("/").removesuffix("/v1")
         for index, name in enumerate(names):
-            native_name = (
-                name.split("/", 1)[1]
-                if name.startswith(("litellm_proxy/", "openai/", "anthropic/"))
-                else name
-            )
-            data = {**body, "model": native_name}
-            arguments = canonical(data)
+            data = {**body, "model": name}
+            arguments = {**canonical(data), "conversation": dump_history(self.history)}
 
             async def invoke(data=data):
-                return await self.forward(
-                    base + "/v1/" + path, headers, data, publish=bool(definitions)
+                return await complete(
+                    self.profile, path, data, names=set(self.tools),
+                    control=self.control, history=self.history,
                 )
 
             try:
@@ -253,40 +238,3 @@ class NativeGateway:
             {**call, "operation_key": key + ":" + call["id"]} for call in saved["calls"]
         )
         return web.Response(body=saved["body"].encode(), content_type=saved["content_type"])
-
-    async def forward(self, url, headers, body, *, publish=True):
-        assert self.control is not None
-        recorder = ResponseRecorder()
-        chunks = []
-        buffered = ""
-        size = 0
-        async with self.http.stream("POST", url, headers=headers, json=body) as response:
-            response.raise_for_status()
-            content_type = response.headers.get("content-type", "application/json").split(";")[0]
-            async for chunk in response.aiter_text():
-                chunks.append(chunk)
-                size += len(chunk.encode())
-                if size > (
-                    self.profile.temporal.max_payload_bytes if self.profile.temporal else 8_000_000
-                ):
-                    raise ConfigurationError("Provider response exceeds max_payload_bytes")
-                if content_type == "text/event-stream":
-                    frames, buffered = split_frames(buffered + chunk)
-                    for frame in frames:
-                        event = sse_payload(frame)
-                        if event is not None:
-                            text = recorder.read(event)
-                            if text and publish and self.profile.features.streaming:
-                                await self.control.emit(
-                                    "text_delta", text=text, model=body["model"]
-                                )
-            wire = "".join(chunks)
-            if content_type != "text/event-stream":
-                recorder.json_response(json.loads(wire))
-            elif not recorder.complete:
-                raise ConnectionError("Provider stream ended before its completion event")
-        calls = recorder.results()
-        for call in calls:
-            if not managed_name(call["name"], set(self.tools)):
-                raise ConfigurationError("Provider requested a tool outside managed MCP")
-        return {"body": wire, "content_type": content_type, "calls": calls}

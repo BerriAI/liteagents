@@ -83,9 +83,11 @@ async def test_same_application_tools_mcp_and_events(harness, durable, selection
             pytest.skip("Start Temporal on localhost:7233")
     tool = Lookup()
     async with Provider().running() as provider, AsyncExitStack() as stack, asyncio.timeout(90):
+        provider.protocols = {"chat/completions"}
         profile = ProfileOptions(
             harness=harness, model="litellm_proxy/scripted",
-            model_kwargs={"api_base": provider.url, "api_key": "synthetic"},
+            model_kwargs={"api_base": provider.url, "api_key": "synthetic",
+                          "temperature": 0, "top_p": 0.9, "max_tokens": 512},
             tools={"selected": ["lookup", "external_slow"], "none": [], "defaults": None}[selection],
             mcp_servers={"external": {
                 "command": sys.executable,
@@ -122,6 +124,10 @@ async def test_same_application_tools_mcp_and_events(harness, durable, selection
                    if isinstance(m, UserMessage) and isinstance(m.content, list)
                    for b in m.content if isinstance(b, ToolResultBlock)]
         assert result.text == "Validated USD 12"
+        assert provider.paths and set(provider.paths) == {"chat/completions"}
+        assert all(r["model"] == "scripted" and r["temperature"] == 0 and r["top_p"] == 0.9
+                   and r.get("max_tokens", r.get("max_completion_tokens")) == 512
+                   for r in provider.requests)
         assert result.usage.get("native_reports"), "Final native usage must survive normalization"
         assert [b.name for b in calls] == ([] if selection == "none" else ["lookup", "external_slow"])
         assert all(b.id in returns for b in calls)
@@ -141,3 +147,61 @@ async def test_same_application_tools_mcp_and_events(harness, durable, selection
             assert definitions and all(
                 name.endswith(("lookup", "external_slow")) for name in definitions
             )
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("harness", available_harnesses())
+@pytest.mark.parametrize("durable", [False, True], ids=["direct", "temporal"])
+async def test_conversations_and_jobs_keep_their_meaning(harness, durable, tmp_path):
+    if harness in ("deepagents", "pydantic-ai"):
+        pytest.importorskip(harness.replace("-", "_"))
+    else:
+        available(harness)
+    if durable:
+        pytest.importorskip("temporalio")
+        try:
+            with socket.create_connection(("127.0.0.1", 7233), timeout=0.2):
+                pass
+        except OSError:
+            pytest.skip("Start Temporal on localhost:7233")
+    tool = Lookup()
+    async with Provider().running() as provider, AsyncExitStack() as stack, asyncio.timeout(90):
+        provider.protocols = {"chat/completions"}
+        profile = ProfileOptions(
+            harness=harness, model="litellm_proxy/scripted",
+            model_kwargs={"api_base": provider.url, "api_key": "synthetic", "temperature": 0},
+            max_turns=4,
+        )
+        if durable:
+            from liteagents.temporal import LiteAgentWorker
+
+            profile.temporal = TemporalOptions(
+                profile_id="conversation-" + uuid4().hex,
+                checkpoint_path=str(tmp_path / "checkpoint.sqlite"),
+            )
+            await stack.enter_async_context(
+                LiteAgentWorker(profile=profile, tools=[tool], cwd=tmp_path).running()
+            )
+        async with LiteAgentClient(
+            options=LiteAgentOptions(profile=profile, tools=[tool], cwd=tmp_path)
+        ) as client:
+            first = [event async for event in client.query("Look up the order")]
+            followup_id = "followup-" + uuid4().hex
+            following = [event async for event in client.query("Repeat the total", run_id=followup_id)]
+            assert tool.calls == 1
+            assert any(isinstance(b, ToolUseBlock) for m in first if isinstance(m, AssistantMessage)
+                       for b in m.content)
+            assert not any(isinstance(b, ToolUseBlock) for m in following if isinstance(m, AssistantMessage)
+                           for b in m.content)
+            history = list(client.history)
+            assert sum(isinstance(m, UserMessage) and isinstance(m.content, str) for m in history) == 2
+            for expected in (2, 3):
+                result = await (await client.start_run("Look up the order")).result()
+                assert result.text == "Validated USD 12"
+                assert tool.calls == expected
+            assert client.history == history
+            if durable:
+                attached = await client.get_run(followup_id)
+                workflow_history = await attached.handle.fetch_history()
+                raw = b"".join(event.SerializeToString() for event in workflow_history.events)
+                assert b"USD 12" not in raw, "Tool content must stay out of Temporal history"

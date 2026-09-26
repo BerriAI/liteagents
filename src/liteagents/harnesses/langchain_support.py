@@ -70,6 +70,9 @@ async def build_model(profile: ProfileOptions, stack: AsyncExitStack) -> Any:
         if profile.model_kwargs:
             raise ConfigurationError("Configure model_kwargs on the supplied model_instance")
         return profile.harness_options["model_instance"]
+    from ..runtime.model_endpoint import translated_profile
+
+    profile = await translated_profile(profile, stack)
     provider, separator, name = profile.model.partition("/")
     if not separator:
         raise ConfigurationError("Use provider/model or litellm_proxy/alias for Python harnesses")
