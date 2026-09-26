@@ -4,6 +4,9 @@ Switch between **DeepAgents, Pydantic AI, Claude Agent SDK, Codex, and OpenCode*
 through one Python SDK. Change `harness` while keeping your model, tools, MCP
 configuration, and application code.
 
+[Read our blog post](https://docs.litellm.ai/blog/liteagents-sdk) or
+[visit the website](https://www.litellm.ai/liteagents) for an overview.
+
 **The public interface is modeled after the Claude Agent SDK:** an async
 `query()` iterator, a conversation client, and typed messages such as
 `AssistantMessage` and `TextBlock`. Import these from `liteagents`, whichever
