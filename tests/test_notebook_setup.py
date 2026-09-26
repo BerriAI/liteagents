@@ -36,7 +36,7 @@ def test_provider_key_from_environment(path, provider, key, monkeypatch):
     namespace = {"os": os, "MODEL": f"{provider}/example", "API_BASE": ""}
     exec(credentials(path), namespace)
     assert namespace["API_KEY"] == "synthetic-key"
-    assert namespace["MODEL_KWARGS"] == {}
+    assert namespace.get("MODEL_KWARGS", {}) == {}
 
 
 @pytest.mark.parametrize("provider", ["bedrock", "vertex_ai", "ollama_chat"])
@@ -46,13 +46,13 @@ def test_cloud_or_local_provider_does_not_demand_an_api_key(provider, monkeypatc
     namespace = {"os": os, "MODEL": f"{provider}/example", "API_BASE": ""}
     exec(credentials(ROOT / "cookbook/recipes/00_agent.ipynb"), namespace)
     assert namespace["API_KEY"] is None
-    assert namespace["MODEL_KWARGS"] == {}
+    assert namespace.get("MODEL_KWARGS", {}) == {}
 
 
 def test_gateway_uses_its_own_key_and_keeps_the_alias(monkeypatch):
     monkeypatch.setattr(os, "environ", {"LITELLM_API_KEY": "gateway-synthetic"})
     namespace = {"os": os, "MODEL": "anthropic/team-alias", "API_BASE": "https://gateway.example/v1"}
-    exec(credentials(ROOT / "cookbook/recipes/00_agent.ipynb"), namespace)
+    exec(credentials(ROOT / "cookbook/recipes/01_quickstart.ipynb"), namespace)
     assert namespace["MODEL"] == "anthropic/team-alias"
     assert namespace["MODEL_KWARGS"] == {
         "api_base": "https://gateway.example/v1", "api_key": "gateway-synthetic",

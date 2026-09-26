@@ -146,7 +146,9 @@ async def execute_notebook(
 @pytest.mark.integration
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.stem)
 async def test_notebook_runs_and_reruns_in_real_kernel(path, tmp_path):
-    await execute_notebook(path, tmp_path, durable=path.stem == "06_durable")
+    await execute_notebook(
+        path, tmp_path, durable=path.stem == "06_durable", direct=path.stem == "00_agent",
+    )
 
 
 @pytest.mark.integration
