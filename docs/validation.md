@@ -1,5 +1,27 @@
 # Release validation — September 26, 2026
 
+## 0.3.0a5 feature walkthroughs
+
+All feature notebooks use the same short direct-provider setup and explain one
+feature at a time. Each runs twice in a disposable kernel, with real harnesses,
+MCP processes, tools, and controlled model responses. Checks cover approvals
+and cancellation, streaming history, retries, model fallback, JSON/YAML profiles,
+independent coding tests, and changing the harness with the same application tool.
+
+The Temporal notebook kills a separate worker during a tool call and restarts
+it with the same checkpoints. The test checks for one receipt and two attempts
+at the interrupted check. It runs against an existing service and a notebook-owned
+service. This exposed a native Pydantic AI conversation ID in the model request
+fingerprint; a focused regression also reopens the native loop and verifies that
+completed model requests and the tool execute only once.
+
+The application-tools, MCP, harness-switching, and Temporal walkthroughs also
+pass twice from a fresh, non-editable wheel installation. Its dependency check
+is clean. The replay regression fails when the previous fingerprint behavior
+is restored, confirming it detects the duplicate execution.
+
+These model responses are fixtures, not live-provider acceptance tests.
+
 ## 0.3.0a4 final-result quickstart
 
 - `run()` uses the existing independent-job path. Checks cover final text and

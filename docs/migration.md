@@ -3,6 +3,17 @@
 Install the preview wheel using the command in [Getting started](getting-started.md).
 The PyPI project currently named `liteagents` is a different package.
 
+## Updating from 0.3.0a4 to 0.3.0a5
+
+This release simplifies the feature Colabs and fixes Pydantic AI operation
+replay after a worker restarts. Native conversation IDs are excluded from model
+request fingerprints, so a fresh loop reuses completed model and tool results.
+Application IDs inside tool inputs and outputs are preserved.
+
+Upgrade clients and workers together. Finish existing durable jobs on their
+original SDK version and use a new profile version for new jobs; stored request
+fingerprints change in this release. The public SDK API is unchanged.
+
 ## Updating from 0.3.0a3 to 0.3.0a4
 
 This release adds `await run(prompt, profile=profile)` for independent tasks

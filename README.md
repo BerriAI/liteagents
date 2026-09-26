@@ -15,7 +15,7 @@ through one Python SDK. Pick a harness and model, run your agent, then change
 Install LiteAgents and the two harnesses used below (Python 3.11+):
 
 ```sh
-python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a4/liteagents-0.3.0a4-py3-none-any.whl"
+python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a5/liteagents-0.3.0a5-py3-none-any.whl"
 export OPENAI_API_KEY="your-openai-key"
 ```
 
@@ -218,26 +218,13 @@ Start with [your first agent](https://colab.research.google.com/github/BerriAI/l
 [switching harnesses](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/10_harness_switch.ipynb),
 or [comparing coding runs](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/compare_harnesses/compare.ipynb).
 
-The [guided recipes](cookbook/recipes/README.md) contain setup, runnable commands,
-and expected results. Every recipe accepts `--harness` so you can compare behavior.
+Each notebook teaches one task with the SDK calls visible. The
+[cookbook index](cookbook/README.md) follows a progression from tools and MCP to
+approvals, subagents, retries, and Temporal recovery.
 
-| Recipe | Demonstrates |
-| --- | --- |
-| [Switch harnesses](cookbook/recipes/10_harness_switch.py) | One model/profile with application tools, MCP, and follow-ups; add `--temporal` for durability |
-| [Simple agent](cookbook/recipes/00_agent.py) | A first response with no tools or durability setup |
-| [Quickstart](cookbook/recipes/01_quickstart.py) | File tools, live text, and conversation follow-up |
-| [Application tools](cookbook/recipes/08_application_tools.py) | Register a Python tool and use stable names across harnesses |
-| [JSON/YAML profiles](cookbook/recipes/09_profile_files.py) | Load the same agent from either format, with environment variables |
-| [MCP](cookbook/recipes/02_mcp.py) | Discover and call a real local MCP server |
-| [Subagents](cookbook/recipes/03_subagents.py) | Named delegation, a child model, and restricted tools |
-| [Approvals](cookbook/recipes/04_approvals.py) | Inspect and approve an edit before it runs |
-| [Retries](cookbook/recipes/05_retries.py) | Inject tool failures and verify stable idempotency keys |
-| [Durable runs](cookbook/recipes/06_durable.py) | Separate worker/client processes, reconnect, and worker crash recovery |
-| [Model fallback](cookbook/recipes/07_model_fallback.py) | Inject a provider outage and switch models |
-
-The [six-harness coding comparison](cookbook/compare_harnesses/README.md) runs a
-small repair task in isolated workspaces and records diffs, tests, duration,
-answers, and available usage.
+For terminal use, the [recipe scripts](cookbook/recipes/README.md) and
+[six-harness comparison runner](cookbook/compare_harnesses/README.md) remain
+available from a checkout.
 
 ## Add Temporal
 

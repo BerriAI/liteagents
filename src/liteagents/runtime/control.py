@@ -64,7 +64,12 @@ def stable(value: Any) -> Any:
     if isinstance(value, (tuple, list)):
         return [stable(v) for v in value]
     if isinstance(value, dict):
-        result = {k: v for k, v in value.items() if k not in ("timestamp", "run_id")}
+        # Pydantic AI generates fresh run/conversation IDs when the native loop
+        # restarts. They must not change a recorded model request's identity.
+        result = {
+            k: v for k, v in value.items()
+            if k not in ("timestamp", "run_id", "conversation_id")
+        }
         if "data" in result and "type" in result:
             result["data"] = {
                 k: v

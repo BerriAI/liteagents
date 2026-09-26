@@ -53,13 +53,12 @@ def test_every_current_cookbook_has_a_clean_valid_notebook():
 
 
 async def execute_notebook(
-    path, tmp_path, *, harness="deepagents", approve=True, durable=False,
-    direct=False, start_temporal=False,
+    path, tmp_path, *, harness="pydantic-ai", approve=True, durable=False,
+    start_temporal=False,
 ):
-    if path.stem == "00_agent":
-        pytest.importorskip("pydantic_ai")
+    if path.stem in ("00_agent", "10_harness_switch", "compare"):
         available("claude-sdk")
-    elif harness in ("deepagents", "pydantic-ai"):
+    if harness in ("deepagents", "pydantic-ai"):
         pytest.importorskip(harness.replace("-", "_"))
     else:
         available(harness)
@@ -77,15 +76,25 @@ async def execute_notebook(
                 pytest.skip("Start Temporal on localhost:7233 for notebook recovery tests")
     notebook = nbformat.read(path, as_version=4)
     for cell in notebook.cells:
+        if cell.cell_type != "code":
+            continue
         if "install" in cell.metadata.get("tags", []):
             # Dependencies are installed by CI; execute the real installer separately
             # against the built release wheel in a clean environment.
-            cell.source = "import shutil\nimport sys"
-        if "parameters" in cell.metadata.get("tags", []):
-            cell.source += (
-                f"\nAPPROVE_EDIT = {approve!r}\nDELAY_SECONDS = 3\n"
-                f"RUN_CRASH_DEMO = {durable!r}\nUSE_TEMPORAL = {durable!r}\n"
-            )
+            cell.source = "# Installed by CI."
+        # Run the authored examples with another selector; test configuration
+        # belongs here rather than in each user's notebook setup.
+        cell.source = cell.source.replace('harness="pydantic-ai"', f'harness="{harness}"')
+        cell.source = cell.source.replace('harness: pydantic-ai', f'harness: {harness}')
+        cell.source = cell.source.replace('"harness": "pydantic-ai"', f'"harness": "{harness}"')
+        if "temporal-service" in cell.metadata.get("tags", []) and not start_temporal:
+            cell.source = 'temporal_environment = None\ntemporal_address = "127.0.0.1:7233"'
+        if "worker-setup" in cell.metadata.get("tags", []):
+            cell.source = cell.source.replace('DELAY_SECONDS = 20', 'DELAY_SECONDS = 3')
+    notebook.cells.insert(0, nbformat.v4.new_code_cell(
+        f"input = lambda prompt: {'y' if approve else 'n'!r}",
+        id="test-input",
+    ))
     # Rerun all cells in the same kernel: catches fixed run IDs and leaked resources.
     rerun = copy.deepcopy(notebook.cells)
     for cell in rerun:
@@ -107,19 +116,13 @@ async def execute_notebook(
         resources={"metadata": {"path": str(tmp_path)}},
     )
     async with NotebookProvider().running() as provider:
+        (tmp_path / "work").mkdir()
         env = {
-            **os.environ, "LITEAGENTS_API_BASE": provider.url,
-            "LITELLM_API_KEY": "notebook-synthetic-key", "LITEAGENTS_MODEL": "notebook-model",
-            "LITEAGENTS_HARNESS": harness, "LITEAGENTS_NOTEBOOK_WORKSPACE": str(tmp_path / "work"),
+            **os.environ, "OPENAI_API_BASE": provider.url,
+            "OPENAI_API_KEY": "notebook-synthetic-key", "TMPDIR": str(tmp_path / "work"),
             "LANGSMITH_TRACING": "false", "LANGCHAIN_TRACING_V2": "false",
             "PYDANTIC_AI_NO_BANNER": "1", "LITELLM_LOCAL_MODEL_COST_MAP": "True",
-            "LITEAGENTS_TEMPORAL_ADDRESS": "" if start_temporal else "127.0.0.1:7233",
         }
-        if direct:
-            env.update(
-                LITEAGENTS_API_BASE="", LITEAGENTS_MODEL="openai/notebook-model",
-                OPENAI_API_KEY="notebook-synthetic-key", OPENAI_API_BASE=provider.url,
-            )
         try:
             executed = await client.async_execute(env=env)
         finally:
@@ -127,8 +130,7 @@ async def execute_notebook(
             if await manager.is_alive():
                 await manager.shutdown_kernel(now=True)
         assert provider.requests
-        expected_model = "gpt-5.4-mini" if path.stem == "00_agent" else "notebook-model"
-        assert all(r["model"] == expected_model for r in provider.requests)
+        assert all(r["model"] == "gpt-5.4-mini" for r in provider.requests)
     output = "\n".join(
         out.get("text", "") for cell in executed.cells if cell.cell_type == "code"
         for out in cell.outputs
@@ -136,11 +138,25 @@ async def execute_notebook(
     assert "notebook-synthetic-key" not in output
     if path.stem == "00_agent":
         assert output.count("READY") == 4  # First run and harness switch; twice.
+    expected = {
+        "01_quickstart": "COBALT-42",
+        "02_mcp": "USD 12",
+        "03_subagents": "subagent_completed auditor",
+        "04_approvals": "File after: status=approved" if approve else "File after: status=pending",
+        "05_retries": "Distinct operation keys: 1",
+        "07_model_fallback": "fallback-ready",
+        "08_application_tools": "Looking up A123",
+        "09_profile_files": "Same profile: True",
+        "10_harness_switch": "lookup_order {'order_id': 'A123'}",
+    }
+    if path.stem in expected:
+        assert output.count(expected[path.stem]) >= 2, output
     if path.stem == "compare":
         reports = list((tmp_path / "work").rglob("results.json"))
         assert len(reports) == 2
         for report in reports:
             assert all(r["status"] == "completed" and r["tests"]["exit_code"] == 0
+                       and not r["tests_modified"]
                        for r in json.loads(report.read_text()))
     if durable and path.stem == "06_durable":
         logs = list((tmp_path / "work").rglob("worker.log"))
@@ -155,7 +171,7 @@ async def execute_notebook(
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.stem)
 async def test_notebook_runs_and_reruns_in_real_kernel(path, tmp_path):
     await execute_notebook(
-        path, tmp_path, durable=path.stem == "06_durable", direct=path.stem == "00_agent",
+        path, tmp_path, durable=path.stem == "06_durable",
     )
 
 
@@ -165,22 +181,11 @@ async def test_notebook_approval_can_cancel(tmp_path):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("harness", ["pydantic-ai", "claude-sdk", "codex", "opencode-v1", "opencode-v2"])
+@pytest.mark.parametrize("harness", ["deepagents", "claude-sdk", "codex", "opencode-v1", "opencode-v2"])
 async def test_notebook_switches_harness(harness, tmp_path):
     await execute_notebook(
         ROOT / "cookbook/recipes/10_harness_switch.ipynb", tmp_path, harness=harness,
     )
-
-
-@pytest.mark.integration
-async def test_notebook_switching_with_temporal(tmp_path):
-    await execute_notebook(ROOT / "cookbook/recipes/10_harness_switch.ipynb", tmp_path, durable=True)
-
-
-@pytest.mark.integration
-@pytest.mark.parametrize("name", ["00_agent", "02_mcp", "07_model_fallback", "09_profile_files"])
-async def test_notebook_direct_provider_without_gateway(name, tmp_path):
-    await execute_notebook(ROOT / f"cookbook/recipes/{name}.ipynb", tmp_path, direct=True)
 
 
 @pytest.mark.integration

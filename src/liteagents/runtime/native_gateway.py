@@ -89,7 +89,7 @@ class NativeGateway:
             result = {
                 "protocolVersion": params["protocolVersion"],
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "liteagents", "version": "0.3.0a4"},
+                "serverInfo": {"name": "liteagents", "version": "0.3.0a5"},
             }
         elif method == "tools/list":
             result = {

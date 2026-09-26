@@ -35,7 +35,7 @@ class NotebookProvider:
         if "fallback-ready" in history:
             text = "fallback-ready"
         elif not names:
-            text = "READY"
+            text = "Your project code is COBALT-42." if "COBALT-42" in history else "READY"
         elif "run_tests" in names:
             plan = [
                 ("read_file", {"path": "calculator.py"}),
