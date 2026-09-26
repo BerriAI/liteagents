@@ -41,7 +41,9 @@ For a copyable Python snippet outside Colab, see [Getting started](../docs/getti
 
 LiteLLM's Python SDK handles translation. Leave `API_BASE` empty for direct
 provider access. A LiteLLM gateway is optional: set `API_BASE`, its exact model
-alias, and `LITELLM_API_KEY`. Model calls use your provider or gateway account.
+alias, and enter its key when prompted (or save it as the `LITELLM_API_KEY`
+Colab secret). No environment-variable setup is required. Model calls use your
+provider or gateway account.
 
 Other providers, including cloud and local authentication, are covered in
 [Model setup](../docs/models.md). Configure those credentials in the Colab
