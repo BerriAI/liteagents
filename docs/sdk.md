@@ -18,26 +18,45 @@ Load a file with `ProfileOptions.from_yaml("agent.yaml")` or
 contents. The [JSON/YAML profile guide](profiles.md) includes complete examples,
 environment setup, and equivalent Python usage.
 
-Python harnesses support `openai/`, `anthropic/`, and `litellm_proxy/` model names.
-They also accept local native model objects through `harness_options.model_instance`.
+All harnesses use LiteLLM for `provider/model` names and `litellm_proxy/` aliases.
+The same model and endpoint carry across harnesses. A gateway alias uses Chat
+Completions; internal adapters translate the native Messages and Responses APIs.
+Python harnesses also accept native model objects through `harness_options.model_instance`.
 Those objects stay on the application/worker; Temporal arguments contain only a
 profile version reference and the prompt. Profiles with native objects need an
 explicit, stable `temporal.profile_id`.
+
+Shared model kwargs are `api_base`, `api_key`, `temperature`, `top_p`,
+`max_tokens`, `stop`, `seed`, `presence_penalty`, `frequency_penalty`,
+`reasoning_effort`, and `timeout`. LiteLLM validates provider support; meaningful
+settings are never silently dropped. `max_turns` applies to every harness,
+including runs without tools. Native model objects configure their own settings.
 
 ## Direct and durable execution
 
 | Behavior | Direct | Temporal |
 | --- | --- | --- |
-| Conversation | Consecutive queries on one client share history | Each submission is independent |
+| Conversation | Consecutive `query()` calls share history | Consecutive `query()` calls share completed turns |
 | Client exit | Cancels active local work | Leaves the workflow running |
-| `start_run()` | Starts work and returns a local handle | Submits once and returns a durable handle |
+| `start_run()` | Starts an independent job and returns a local handle | Submits an independent job and returns a durable handle |
 | `get_run(id)` | Finds a run belonging to that client | Attaches to an existing workflow |
 | Worker loss | No durable recovery | Restores recorded operations/checkpoints |
 | Application tools | Pass on `LiteAgentOptions` | Register on `LiteAgentWorker` |
 
-One direct conversation permits one active query. Closing a direct query stream
+One client conversation permits one active query. Independent jobs do not read
+or change that conversation. Closing a direct query stream
 cancels that run. Closing a Temporal query subscription leaves execution with the
 worker; call `run.cancel()` to request cancellation explicitly.
+
+A durable follow-up carries the previous completed messages into a fresh native
+conversation. An immutable snapshot lives in that turn's SDK state; Temporal
+receives only its reference, so tool results stay out of workflow history and
+a worker restart sees the same context. Closing a durable subscription leaves its turn
+running; the next query waits for that turn before continuing. Client-lifetime
+conversation history is not restored by `get_run()`, which only attaches to a job
+or turn. An ongoing native session/checkpoint cannot migrate between harnesses.
+The current prompt must fit the 1 MB workflow input bound; the stored
+conversation snapshot is bounded by `max_payload_bytes`.
 
 Native Claude/Codex/OpenCode session IDs can reopen ordinary direct conversations
 using `session_id`. DeepAgents and Pydantic AI direct conversations last for the
@@ -110,14 +129,16 @@ its retries and worker recovery.
 
 | Value | Selection |
 | --- | --- |
-| Omitted or `None` (`null` in YAML) | Adapter defaults, plus registered application/MCP tools |
+| Omitted or `None` (`null` in YAML) | Registered application and discovered MCP tools |
 | `[]` | No tools, including no registered tools or MCP tools |
 | A list of names | Only those shared tools; an unknown name fails explicitly |
 
-Defaults vary by adapter: DeepAgents retains its native tools, Pydantic AI exposes
-registered/discovered tools, and managed CLI execution defaults to registered
-tools plus `read_file`, `edit_file`, and `run_tests`. Ordinary CLI mode preserves
-native defaults. Use an explicit list for comparable tool sets across harnesses.
+Defaults are identical across shared profiles. Workspace tools (`read_file`,
+`edit_file`, `run_tests`) require explicit selection. Native built-in tools are
+excluded from shared execution. A bare native model name without shared features
+can still select the ordinary Claude/Codex adapter and its native defaults.
+An attached OpenCode server can likewise retain its native provider setup when
+no shared tools or managed features are requested.
 Named subagents separately add their declared delegation tools; combining
 `tools=[]` with enabled subagents is rejected. A child's empty tool list grants
 no tools.
@@ -148,8 +169,8 @@ covered separately.
 `allowed_tools: []` exposes no tools from that server; omission exposes its
 catalog. Legacy `http_headers` and `enabled_tools` spellings are accepted as
 aliases for `headers` and `allowed_tools`; conflicting values fail validation.
-Native-only MCP controls belong in native `harness_options.config` where the
-ordinary adapter supports it, and cannot be mixed with managed execution.
+Native-only MCP controls belong in ordinary native configuration; shared
+execution owns the MCP connection and allowlist.
 
 Named subagents are exposed as `delegate_<name>` tools. Each child runs the same
 selected native harness in its own conversation, with a model override, merged
@@ -191,7 +212,7 @@ budgets, and approval decisions are persisted for durable runs; worker retries
 do not reset them.
 
 Model fallback preserves the native conversation at the failed model boundary.
-Fallback models must use the selected harness's protocol. Harness fallback starts
+LiteLLM translates fallback models through the same provider layer. Harness fallback starts
 the original prompt in a fresh conversation, preserving portable configuration.
 It is permitted only before any tool or child delegation has begun. Native
 harness-specific options do not carry to a different harness. Choose fallback
@@ -210,13 +231,14 @@ tools need application idempotency or reconciliation.
 ## Native CLI execution modes
 
 Ordinary direct Claude/Codex/OpenCode adapters preserve native sessions, native
-tools, and native configuration. Application tools, an explicit `profile.tools`
+tools, and native configuration. A `provider/model` name, application tools, an explicit `profile.tools`
 selection (including `[]`), shared MCP servers, recovery, Temporal, approvals,
 or subagents automatically select **managed execution**. Enabling retries is
 unnecessary for tool adaptation. It still runs the chosen harness's own loop.
 
-Managed execution requires an explicit gateway `api_base`. A private local
-provider/MCP gateway records complete model responses before delivering tool
+LiteLLM connects to the selected provider or gateway. Private local protocol
+adapters are started and stopped by the SDK with no user setup. The native
+provider/MCP adapter records complete model responses before delivering tool
 calls to the native process. The process still owns its loop. Only selected
 managed tool definitions reach its model, and returned calls outside that set
 are rejected before dispatch. Text can stream to run subscribers while the full
@@ -229,9 +251,13 @@ tool timing annotation are excluded from comparison; actual tool content remains
 part of validation. Keep runtime versions, instructions, workspace paths, and
 profile versions stable for in-flight runs.
 
-Managed mode owns provider and tool configuration; raw native `config`, attached
-OpenCode servers, and native tool-policy overrides cannot be combined with it.
-Use the shared tool/MCP/approval fields instead. Ordinary direct mode continues
+Managed mode owns provider and tool configuration. Codex/OpenCode `config`
+continues to accept unrelated native controls, such as instruction files and
+non-tool feature flags. Overrides of managed providers, model settings, MCP,
+tools, or permissions fail explicitly; use the shared fields for those settings.
+Attached OpenCode servers cannot be combined with managed execution.
+Native sandbox settings affect the native process; shared Python/MCP tools run
+with the worker's permissions. Ordinary direct mode continues
 to accept the native controls described below. Shared `mcp_servers` always uses
 the common schema, including when no durability is requested.
 
@@ -240,10 +266,11 @@ the common schema, including when no durability is requested.
 | DeepAgents | `model_instance`, `middleware`, `backend`, `skills`, `memory`, `debug` |
 | Pydantic AI | `model_instance`, `tool_timeout` |
 | Claude | `permission_mode`, `cli_path`, `env`, `max_budget_usd`, `timeout_seconds`, `sandbox`; direct mode also native tool policies |
-| Codex | `sandbox`, `approval_mode`, `env`, `codex_bin`, `timeout_seconds`, `state_dir`; direct mode also `config` and `ephemeral` |
-| OpenCode | `binary`, `env`, `timeout_seconds`, `state_dir`; direct mode also attached `base_url`, credentials, agent and native config |
+| Codex | `sandbox`, `approval_mode`, `env`, `codex_bin`, `timeout_seconds`, `state_dir`, compatible `config`; ordinary mode also `ephemeral` |
+| OpenCode | `binary`, `env`, `timeout_seconds`, `state_dir`, compatible `config`; ordinary mode also attached `base_url`, credentials and agent |
 
-Unknown adapter options fail explicitly. Native model objects and middleware are
+Independent local OpenCode jobs use separate state subdirectories, including
+when a custom `state_dir` root is supplied. Unknown adapter options fail explicitly. Native model objects and middleware are
 local Python escape hatches; side effects performed outside registered operation
 boundaries need their own persistence and idempotency.
 

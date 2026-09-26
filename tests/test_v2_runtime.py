@@ -60,6 +60,49 @@ async def test_failed_run_retains_error(controlled):
             await run.result()
 
 
+async def test_independent_jobs_do_not_share_the_conversation_lock(controlled):
+    async with controlled as client, aclosing(client.query("conversation", run_id="chat")) as stream:
+        await anext(stream)
+        first = await client.start_run("job one")
+        second = await client.start_run("job two")
+        await first.cancel()
+        await second.cancel()
+        for job in (first, second):
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(job.result(), 3)
+        assert await first.status() == "cancelled"
+        assert await second.status() == "cancelled"
+        assert await (await client.get_run("chat")).status() != "cancelled"
+
+
+async def test_attaching_during_job_startup_keeps_the_same_handle(monkeypatch, tmp_path):
+    entered, release = asyncio.Event(), asyncio.Event()
+    instances = []
+
+    class SlowOpen(ControlledAdapter):
+        async def open(self):
+            if len(instances) > 1:
+                entered.set()
+                await release.wait()
+
+    def create(profile, **kwargs):
+        adapter = SlowOpen(profile, **kwargs)
+        instances.append(adapter)
+        return adapter
+
+    monkeypatch.setattr(direct, "create_adapter", create)
+    profile = ProfileOptions(harness="deepagents", model="test")
+    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=tmp_path)) as client:
+        starting = asyncio.create_task(client.start_run("start", run_id="job"))
+        await asyncio.wait_for(entered.wait(), 3)
+        attached = await client.get_run("job")
+        release.set()
+        assert attached is await starting
+        await attached.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(attached.result(), 3)
+
+
 @pytest.mark.parametrize(
     "harness,factory", [("deepagents", deep_model), ("pydantic-ai", pydantic_model)]
 )

@@ -21,10 +21,13 @@ async def main():
         result = await (await client.get_run("intro")).result()
         assert "COBALT-42" in result.text, result.text
         print("\nCompleted:", result.text)
-        run = await client.start_run(
-            "Repeat the code from our conversation without calling a tool."
-        )
-        print("Follow-up:", (await run.result()).text)
+        async for _ in client.query(
+            "Repeat the code from our conversation without calling a tool.", run_id="followup"
+        ):
+            pass
+        answer = (await (await client.get_run("followup")).result()).text
+        assert "COBALT-42" in answer, answer
+        print("Follow-up:", answer)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ async def test_harness_fallback_only_before_first_tool(tmp_path, durable, after_
     pytest.importorskip("deepagents")
     pytest.importorskip("openai_codex")
     provider = Provider()
-    provider.fail_chat = not after_tool
+    provider.fail_first = 0 if after_tool else 2
     provider.fail_after_tool = after_tool
     tools = [FixtureTool(name, tmp_path / "calls.txt") for name in ("lookup", "slow")]
     async with provider.running(), AsyncExitStack() as stack, asyncio.timeout(40):

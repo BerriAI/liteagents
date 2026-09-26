@@ -59,6 +59,7 @@ class LiteAgentClient:
     async def query(
         self, prompt: str, *, run_id: str | None = None
     ) -> AsyncGenerator[AgentEvent, None]:
+        """Continue this client's conversation, in direct or durable execution."""
         async with aclosing(self._runtime.query(prompt, run_id=run_id)) as events:
             async for event in events:
                 yield event
@@ -79,7 +80,7 @@ class LiteAgentClient:
         return await self._runtime.get_run(run_id)
 
     async def start_run(self, prompt: str, *, run_id: str | None = None) -> Any:
-        """Start without waiting. Temporal runs outlive this client; local runs do not."""
+        """Start an independent job. Temporal jobs outlive this client; local jobs do not."""
         return await self._runtime.start_run(prompt, run_id=run_id)
 
 

@@ -17,6 +17,7 @@ from ..harnesses.base import create_adapter
 from ..profiles import ProfileOptions
 from ..runs import RunResult
 from ..runtime.control import CURRENT, RunControl, operation_failed, retryable
+from ..runtime.conversation import load_history
 from ..runtime.events import payload
 from ..runtime.fallback import fallback_profile
 from ..runtime.serialization import dump_result
@@ -60,6 +61,12 @@ class LiteAgentWorker:
             await asyncio.sleep(min(1, self.profile.temporal.heartbeat_timeout_seconds / 3))
 
     async def _run(self, request, control, session_id):
+        history = []
+        if request.get("history_key"):
+            snapshot = await control.get(request["history_key"])
+            if snapshot is None:
+                raise ConfigurationError("Conversation snapshot is unavailable")
+            history = load_history(snapshot)
         fallbacks = self.profile.recovery.harness_fallbacks if self.profile.recovery else []
         choices = [self.profile.harness, *fallbacks]
         selected = await control.get("active_harness") or self.profile.harness
@@ -74,6 +81,7 @@ class LiteAgentWorker:
                     cwd=self.cwd,
                     tools=self.tools,
                     session_id=session_id + ":" + profile.harness,
+                    history=history,
                 )
                 messages = []
                 occurrences: dict[str, int] = {}

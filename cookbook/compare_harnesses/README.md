@@ -7,12 +7,11 @@ the repository README. The six profiles use environment references:
 export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
 export LITELLM_API_KEY='your-key'
 export LITEAGENTS_MODEL='your-tool-capable-model-alias'
-export LITEAGENTS_CLAUDE_MODEL='your-anthropic-compatible-alias'
 ```
 
-`LITEAGENTS_MODEL` must support Chat Completions for the Python/OpenCode harnesses
-and Responses for Codex. Use separate profile files/model aliases when your
-gateway requires different routes. Claude requires Anthropic Messages.
+`LITEAGENTS_MODEL` is the same Chat Completions alias for every harness.
+LiteLLM translates the native protocols internally. No separate Claude model
+or Responses endpoint is required.
 
 From the repository root:
 

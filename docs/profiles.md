@@ -74,10 +74,10 @@ python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.json
 ```
 
 The two files describe the same agent. Edit `harness` in either file, or use
-`--harness pydantic-ai` after installing that extra. Select a model compatible
-with the harness: Claude uses Anthropic Messages, Codex uses Responses, and the
-Python/OpenCode examples use Chat Completions. The recipe's optional `--harness`
-override leaves the model and all other settings from the file unchanged.
+`--harness pydantic-ai` after installing that extra. The optional `--harness`
+override leaves the model and all other settings unchanged. LiteLLM translates
+the native protocols internally, so the same gateway alias works with Claude,
+Codex, and the other harnesses.
 
 ## Environment variables and validation
 
@@ -104,7 +104,7 @@ These methods and the Python constructor use the supplied values directly;
 
 ## Tools and MCP
 
-Omit `tools` or use `null` for adapter defaults, use `[]` for no tools, or list
+Omit `tools` or use `null` for registered application and MCP tools, use `[]` for no tools, or list
 the shared tool names you want. Python tool implementations stay in your code:
 register them with `LiteAgentOptions(tools=[...])`, or with
 `LiteAgentWorker(tools=[...])` for durable runs. Profile files select tool names;
@@ -145,7 +145,7 @@ client; give each process the necessary environment variables. Register Python
 tools on the worker. See the [durable cookbook](../cookbook/recipes/README.md#durable-run-and-worker-crash)
 for the worker/client lifecycle. Recipe 09 is a direct-execution example.
 
-Direct queries on one client share history; each Temporal submission is an
-independent job. Bump `profile_id` when execution code or configuration changes,
+`query()` calls on one client share history in both direct and Temporal
+execution. `start_run()` always submits an independent job. Bump `profile_id` when execution code or configuration changes,
 and finish existing runs with their original profile and SDK version.
 The [SDK contract](sdk.md) describes every shared feature and its limits.

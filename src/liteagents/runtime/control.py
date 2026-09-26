@@ -47,6 +47,8 @@ def retryable(error: BaseException) -> bool:
         return error.transient
     if isinstance(error, (ConfigurationError, PermissionError, ValueError)):
         return False
+    if getattr(error, "code", None) == "liteagents_transient_stream":
+        return True
     status = getattr(error, "status_code", None)
     if isinstance(error, httpx.HTTPStatusError):
         status = error.response.status_code

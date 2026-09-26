@@ -28,8 +28,7 @@ HARNESSES = ["deepagents", "pydantic-ai", "claude-sdk", "codex", "opencode-v1", 
 
 
 def live_profile(harness, *, mcp=False):
-    model = os.environ["LITEAGENTS_CLAUDE_MODEL" if harness == "claude-sdk" else "LITEAGENTS_MODEL"]
-    options = {"timeout_seconds": 120} if harness in HARNESSES[2:] else {}
+    model = os.environ["LITEAGENTS_MODEL"]
     tools = ["read_file"]
     servers = {}
     if mcp:
@@ -49,7 +48,7 @@ def live_profile(harness, *, mcp=False):
         },
         tools=tools,
         mcp_servers=servers,
-        harness_options=options,
+        max_turns=10,
         features={"streaming": not mcp},
         system_prompt="Use the requested tool, report its actual result, and be concise.",
     )

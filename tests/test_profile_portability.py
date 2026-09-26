@@ -24,7 +24,9 @@ def test_tool_selection_survives_profile_serialization(harness, tmp_path):
 @pytest.mark.parametrize("harness", available_harnesses())
 def test_capabilities_follow_profile_and_application_tools(harness):
     profile = ProfileOptions(harness=harness, model="litellm_proxy/test")
-    assert get_capabilities(profile).execution_mode == "native"
+    assert get_capabilities(profile).execution_mode == (
+        "native" if harness in ("deepagents", "pydantic-ai") else "managed"
+    )
     for change in ({"tools": []}, {"mcp_servers": {"a": {"command": "python"}}},
                    {"recovery": {}}, {"temporal": {}}):
         configured = ProfileOptions.model_validate({**profile.model_dump(), **change})
@@ -48,6 +50,14 @@ def test_mcp_aliases_are_canonical_without_mutating_caller():
     assert "http_headers" in server
 
 
+def test_attached_opencode_keeps_native_server_control():
+    profile = ProfileOptions(harness="opencode-v2", model="openai/test",
+                             harness_options={"base_url": "http://127.0.0.1:4096"})
+    assert get_capabilities(profile).execution_mode == "native"
+    profile.tools = []
+    assert get_capabilities(profile).execution_mode == "managed"
+
+
 @pytest.mark.parametrize("config", [
     {"url": "https://example.test", "allowed_tools": "read"},
     {"url": "https://example.test", "allowed_tools": ["read", "read"]},
@@ -69,15 +79,15 @@ def test_managed_model_settings_fail_before_mcp_or_process_start(harness, module
     pytest.importorskip(module)
     profile = ProfileOptions(
         harness=harness, model="litellm_proxy/test", tools=["lookup"],
-        model_kwargs={"api_base": "http://127.0.0.1:1/v1", "temperature": 0},
+        model_kwargs={"api_base": "http://127.0.0.1:1/v1", "imaginary_setting": 0},
         mcp_servers={"a": {"command": "this-command-must-never-start"}},
     )
-    with pytest.raises(ConfigurationError, match="temperature"):
+    with pytest.raises(ConfigurationError, match="imaginary_setting"):
         LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=tmp_path, tools=[Lookup()]))
 
 
 def test_automatic_native_tools_explain_required_endpoint(tmp_path):
-    profile = ProfileOptions(harness="codex", model="openai/test")
+    profile = ProfileOptions(harness="codex", model="litellm_proxy/test")
     with pytest.raises(ConfigurationError, match="api_base"):
         LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=tmp_path, tools=[Lookup()]))
 

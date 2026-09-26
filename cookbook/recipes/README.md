@@ -14,24 +14,24 @@ source .venv/bin/activate
 pip install '.[deepagents,mcp]' -c constraints-tested.txt
 export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
 export LITELLM_API_KEY='your-key'
-export LITEAGENTS_MODEL='your-chat-and-responses-model-alias'
+export LITEAGENTS_MODEL='your-tool-capable-model-alias'
 ```
 
 This is sufficient for the DeepAgents recipes except durable runs. Add
 `.[temporal]` for recipe 06. To compare every harness, install `.[all]` with the
-same constraints and set `LITEAGENTS_CLAUDE_MODEL` to an Anthropic-compatible alias.
+same constraints. All selectors use the same `LITEAGENTS_MODEL`.
 For OpenCode, also install `npm install -g opencode-ai@1.18.29`.
 The Claude and Codex Python extras supply their native runtimes.
 
 Every recipe accepts `--harness deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
-`opencode-v1`, or `opencode-v2`. DeepAgents is the default. Use a model that speaks
-the selected harness's protocol: Chat Completions for Python/OpenCode examples,
-Responses for Codex, and Anthropic Messages for Claude. The aliases can be different.
+`opencode-v1`, or `opencode-v2`. DeepAgents is the default. Use a tool-capable
+Chat Completions alias. LiteLLM translates each native protocol internally.
 
 ## Recipes and expected results
 
 | Recipe | Command | What to look for |
 | --- | --- | --- |
+| Switch harnesses | `python cookbook/recipes/10_harness_switch.py --all` | Same profile/model, Python tool, MCP tool, and follow-up across all six; add `--temporal` for durability |
 | Simple agent | `python cookbook/recipes/00_agent.py` | Prints `READY`; no tools, Temporal, or PostgreSQL setup |
 | Streaming and conversation | `python cookbook/recipes/01_quickstart.py` | Reads `facts.txt`, streams `COBALT-42`, and remembers it in a follow-up |
 | Application tool | `python cookbook/recipes/08_application_tools.py` | Prints `Tool: lookup_order` and reports A123 as paid, total USD 12 |
@@ -111,7 +111,7 @@ file write if a crash happens between the write and recording its return value.
 You can repeat with `--harness codex` (or any of the six) on **both** the worker
 and client commands. Use the same `--workspace` and `--delay` values in all
 processes if you override their defaults. Native CLI recovery uses the managed
-provider/MCP gateway; it requires the explicit API base configured above.
+provider/MCP adapter and the same LiteLLM model configuration.
 
 Other operations:
 

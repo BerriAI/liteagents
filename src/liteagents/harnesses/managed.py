@@ -10,6 +10,7 @@ from ..errors import ConfigurationError, MissingDependencyError, UnsupportedFeat
 from ..profiles import FeatureOptions
 from ..runtime.control import CURRENT
 from ..runtime.delegation import delegate_tools
+from ..runtime.model_bridge import validate_settings
 from ..runtime.native_gateway import NativeGateway
 from ..runtime.tool_names import normalize_tool_names
 from ..runtime.tooling import load_servers, select_tools
@@ -23,18 +24,13 @@ class ManagedAdapter(HarnessAdapter):
             raise ConfigurationError("Set features.subagents=true with at least one named subagent")
         if self.profile.tools == [] and self.profile.features.subagents:
             raise ConfigurationError("tools=[] disables tools; remove subagents or select tools")
-        if not self.profile.model_kwargs.get("api_base"):
-            raise ConfigurationError(
-                "Shared tools, MCP, explicit tool selection, and recovery on native CLI harnesses "
-                "require model_kwargs.api_base (your compatible model endpoint)"
-            )
+        validate_settings(self.profile)
         if self.resume_session and self.profile.temporal:
             raise UnsupportedFeatureError(
                 "Attach to durable runs with get_run; native session resume is independent"
             )
         forbidden = {
             "base_url",
-            "config",
             "allowed_tools",
             "disallowed_tools",
             "setting_sources",
@@ -43,6 +39,7 @@ class ManagedAdapter(HarnessAdapter):
             raise ConfigurationError(
                 f"Managed native runs own provider/tool configuration; unsupported overrides: {sorted(forbidden)}"
             )
+        self.native_config()
         # Validate the underlying adapter before opening any MCP or provider connection.
         options = dict(self.profile.harness_options)
         options.pop("interrupt_on", None)
@@ -51,10 +48,33 @@ class ManagedAdapter(HarnessAdapter):
             "temporal": None, "recovery": None, "tools": None, "mcp_servers": {},
             "harness_options": options, "features": FeatureOptions(), "subagents": {},
             "max_turns": None if self.profile.harness == "codex" else self.profile.max_turns,
+            "model": "litellm_proxy/" + self.profile.model.split("/", 1)[-1],
+            "model_kwargs": {"api_base": "http://127.0.0.1", "api_key": "local"},
         })
         self.native_factory()(
             native_profile, cwd=self.cwd, tools=[], session_id=self.session_id
         )
+
+    def native_config(self):
+        """Preserve native controls while keeping provider/tool ownership explicit."""
+        config = dict(self.profile.harness_options.get("config", {}))
+        if self.profile.harness == "codex":
+            owned = {"model", "model_provider", "model_providers", "mcp_servers", "web_search",
+                     "model_reasoning_effort", "model_reasoning_summary"}
+            features = dict(config.get("features", {}))
+            for name in ("shell_tool", "multi_agent", "multi_agent_v2"):
+                if features.get(name):
+                    raise ConfigurationError(f"Managed execution owns native tool feature {name}")
+                features[name] = False
+            config["features"] = features
+        else:
+            owned = {"provider", "model", "mcp", "permission", "tools", "agent"}
+        conflict = owned & config.keys()
+        if conflict:
+            raise ConfigurationError(
+                f"Use shared model/tool settings for managed native config: {sorted(conflict)}"
+            )
+        return config
 
     def native_factory(self):
         harness = self.profile.harness
@@ -81,7 +101,7 @@ class ManagedAdapter(HarnessAdapter):
             names = (
                 set(self.profile.tools)
                 if self.profile.tools is not None
-                else {t.name for t in registered} | {"read_file", "edit_file", "run_tests"}
+                else {t.name for t in registered}
             )
         names |= {t.name for t in delegates}
         selected = select_tools(
@@ -98,14 +118,13 @@ class ManagedAdapter(HarnessAdapter):
                 "liteagents_" + tool.name,
             )
         }
-        self.gateway = NativeGateway(self.profile, selected)
+        self.gateway = NativeGateway(self.profile, selected, history=self.history)
         self.stack.push_async_callback(self.gateway.close)
         await self.gateway.open()
         options = dict(self.profile.harness_options)
         options.pop("interrupt_on", None)
         options.pop("subagent_model_instances", None)
         kwargs = {
-            **self.profile.model_kwargs,
             "api_base": self.gateway.url + "/v1",
             "api_key": "liteagents-local",
         }
@@ -120,12 +139,13 @@ class ManagedAdapter(HarnessAdapter):
                 t.name: {"approval_mode": "approve"} for t in selected
             }
             options["config"] = {
-                "features": {"shell_tool": False, "multi_agent": False, "multi_agent_v2": False},
+                **self.native_config(),
                 "web_search": "disabled",
             }
             options["ephemeral"] = bool(self.profile.temporal)
         else:
-            options["config"] = {"permission": {"*": "deny", "liteagents_*": "allow"}}
+            options["config"] = {**self.native_config(),
+                                 "permission": {"*": "deny", "liteagents_*": "allow"}}
         if self.profile.temporal or self.tool_allowlist is not None:
             # OpenCode needs an isolated server directory per attempt. Codex and
             # Claude can share their run directory across fresh native sessions.
@@ -149,6 +169,7 @@ class ManagedAdapter(HarnessAdapter):
                 "temporal": None,
                 "recovery": None,
                 "model_kwargs": kwargs,
+                "model": "litellm_proxy/" + self.profile.model.split("/", 1)[-1],
                 "mcp_servers": servers,
                 "tools": native_tools,
                 "harness_options": options,

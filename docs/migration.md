@@ -1,8 +1,30 @@
-# Upgrading to LiteAgents 0.2.0
+# Upgrading LiteAgents
 
-Install the new package from the [release wheel](../README.md#install). The PyPI
-project currently named `liteagents` is a different package; an unqualified
-`pip install --upgrade liteagents` does not install this SDK.
+Install the development version from the repository checkout with
+`pip install '.[all]' -c constraints-tested.txt`. The PyPI project currently
+named `liteagents` is a different package.
+
+## Updating from 0.2.0 to 0.3.0a1
+
+The client and profile API is unchanged. LiteLLM now handles shared model
+configuration across every harness. Keep one `provider/model` or gateway alias;
+remove harness-specific model substitutions from application code.
+
+Two behavioral changes make application configuration consistent:
+
+- Omitted `profile.tools` now exposes only registered application and discovered
+  MCP tools. Select `read_file`, `edit_file`, or `run_tests` explicitly if needed.
+  DeepAgents/CLI native built-ins are no longer implicit in shared profiles.
+- `start_run()` now always creates an independent job. Use `query()` for
+  conversation follow-ups, which now retain completed turns with Temporal too.
+
+Shared `model_kwargs` are validated consistently. Configure native model objects
+through `harness_options.model_instance` when native Python model features are
+needed. Compatible Codex/OpenCode native configuration still passes through;
+shared provider/tool overrides fail clearly instead of being ignored.
+
+Finish existing durable runs using their original SDK, runtime, and profile
+versions. Upgrade clients and workers together and assign new profile IDs.
 
 ## Updating from the v2 previews
 
@@ -56,12 +78,12 @@ options = LiteAgentOptions(
 `system` becomes `profile.system_prompt`; `stream` becomes
 `profile.features.streaming`; `model_kwargs` and `max_turns` move into the
 profile. `Tool`, text/tool messages, and the asynchronous `query()` pattern stay.
-Model kwargs must be supported by the chosen harness. The old LiteLLM loop's
-arbitrary provider parameters are not automatically forwarded by native SDKs.
+Shared model kwargs are translated by LiteLLM. The model must support the
+requested settings; native-only parameters belong in the appropriate escape hatch.
 
-Direct queries on one client share a native conversation. Durable queries are
-independent runs: register application tools on `LiteAgentWorker`, use
-`start_run()` to submit, and use `get_run()` to attach. Initial typed `history`
+`query()` calls on one client share a conversation with or without Temporal.
+Register application tools on `LiteAgentWorker` for durable execution. Use
+`start_run()` for independent jobs and `get_run()` to attach. Initial typed `history`
 is a v1 feature; native session continuation uses `session_id` where supported.
 
 For existing applications that need the old custom loop, JEV router, fusion, or

@@ -62,8 +62,10 @@ def available_harnesses() -> tuple[str, ...]:
 
 
 def uses_managed_execution(profile: ProfileOptions, *, tools: Sequence[Tool] = ()) -> bool:
+    attached = profile.harness.startswith("opencode") and profile.harness_options.get("base_url")
     return profile.harness not in ("deepagents", "pydantic-ai") and bool(
-        profile.temporal
+        ("/" in profile.model and not attached)
+        or profile.temporal
         or profile.recovery
         or profile.tools is not None
         or profile.mcp_servers
@@ -101,12 +103,14 @@ class HarnessAdapter(ABC):
         session_id: str,
         resume_session: bool = False,
         tool_allowlist: set[str] | None = None,
+        history: list | None = None,
     ):
         self.profile = profile
         self.cwd = cwd
         self.tools = tools
         self.session_id = session_id
         self.tool_allowlist = tool_allowlist
+        self.history = history or []
         self.resume_session = resume_session
         self.native_session_id: str | None = None
         self.validate()

@@ -1,5 +1,39 @@
 # Release validation — September 25, 2026
 
+## 0.3.0a1 portability preview
+
+The development version routes shared model configuration through LiteLLM 1.83.0
+for every harness. Validation uses the runtime versions below.
+
+- **Full local regression:** 261 passed, 31 skipped; live-provider cases run
+  separately and shared PostgreSQL coverage runs in CI. Focused checks also
+  cover the final conversation snapshot and local startup refinements.
+- **Fresh wheel:** source contents match the SDK; a clean DeepAgents/MCP install
+  passes simple agent, streaming/follow-up, application tool, MCP, and file-profile
+  recipes with neither Temporal nor PostgreSQL installed.
+- **Same-profile matrix:** the same Chat Completions model alias, `temperature`,
+  `top_p`, token budget, application tool and real MCP server run across six
+  selectors, all three tool selections, and direct/Temporal execution (36 cases).
+  The fixture rejects every upstream endpoint except Chat Completions.
+- **Conversations and jobs:** all six selectors retain completed `query()` turns
+  and isolate `start_run()` jobs, with and without Temporal (12 cases).
+- **Live providers:** all 23 provider acceptance checks passed with one unchanged
+  model alias. They cover file tools, follow-ups, streaming, MCP, native session
+  reopening, and durable MCP/reconnects.
+- **Recovery:** the 36 native recovery checks passed, including worker kills
+  during tools, approvals, and child agents. Completed operations are replayed.
+- **Runnable demonstration:** recipe 10 passed with all six harnesses in direct
+  and Temporal execution using the same model, Python tool, MCP server and
+  follow-up prompt. Only the harness selector changes inside each comparison.
+- **Boundary checks:** native options pass through where compatible; conflicting
+  provider/tool overrides fail before execution. Tests also cover truncated
+  streams, model-call limits without tools, concurrent independent jobs, and
+  attaching while a local job starts.
+
+These checks do not claim that a model supports every optional parameter, that
+native-only controls are interchangeable, or that an existing native session can
+move between harnesses. The 0.2.0 validation below describes the prior release.
+
 ## 0.2.0
 
 The release packages the implementation tested at SDK revision
@@ -142,7 +176,7 @@ python -m build
 ```
 
 Paid checks require `LITEAGENTS_LIVE=1`, `LITEAGENTS_API_BASE`, `LITELLM_API_KEY`,
-`LITEAGENTS_MODEL`, and `LITEAGENTS_CLAUDE_MODEL`:
+`LITEAGENTS_MODEL`:
 
 ```sh
 pytest -q tests/test_live_harnesses.py -k durable_mcp

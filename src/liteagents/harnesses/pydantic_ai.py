@@ -62,6 +62,9 @@ def build_model(profile: Any) -> tuple[Any, dict[str, Any]]:
     kwargs = dict(profile.model_kwargs)
     base_url = kwargs.pop("api_base", None)
     api_key = kwargs.pop("api_key", None)
+    if "stop" in kwargs:
+        stop = kwargs.pop("stop")
+        kwargs["stop_sequences"] = [stop] if isinstance(stop, str) else stop
     if provider in ("openai", "litellm_proxy") and "reasoning_effort" in kwargs:
         kwargs["openai_reasoning_effort"] = kwargs.pop("reasoning_effort")
     from pydantic_ai.models.anthropic import AnthropicModelSettings
@@ -158,6 +161,10 @@ class PydanticAIAdapter(HarnessAdapter):
             raise UnsupportedFeatureError(
                 "Pydantic AI history lasts for one client; session resume is not supported"
             )
+        if "model_instance" not in self.profile.harness_options:
+            from ..runtime.model_bridge import validate_settings
+
+            validate_settings(self.profile)
 
     async def open(self) -> None:
         self.stack = AsyncExitStack()
@@ -177,7 +184,12 @@ class PydanticAIAdapter(HarnessAdapter):
             else registered
         )
 
-        model, settings = build_model(self.profile)
+        from ..runtime.model_endpoint import translated_profile
+
+        local = self.profile
+        if "model_instance" not in local.harness_options:
+            local = await translated_profile(local, self.stack)
+        model, settings = build_model(local)
         if "model_instance" not in self.profile.harness_options:
             self.stack.push_async_callback(model.client.close)
         models = [(self.profile.model, model, settings)]
@@ -189,6 +201,8 @@ class PydanticAIAdapter(HarnessAdapter):
             if index < len(supplied):
                 native["model_instance"] = supplied[index]
             alternative = self.profile.model_copy(update={"model": name, "harness_options": native})
+            if "model_instance" not in native:
+                alternative = await translated_profile(alternative, self.stack)
             other, other_settings = build_model(alternative)
             if "model_instance" not in native:
                 self.stack.push_async_callback(other.client.close)
@@ -205,7 +219,9 @@ class PydanticAIAdapter(HarnessAdapter):
             tool_timeout=self.profile.harness_options.get("tool_timeout"),
         )
         await self.stack.enter_async_context(self.agent)
-        self.messages: list[Any] = []
+        from ..runtime.conversation import pydantic_history
+
+        self.messages: list[Any] = pydantic_history(self.history)
 
     async def close(self) -> None:
         if hasattr(self, "stack"):
