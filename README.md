@@ -1,18 +1,35 @@
 # LiteAgents
 
-One Python SDK for running agents with **DeepAgents, Pydantic AI, Claude Agent
-SDK, Codex, and OpenCode**. Choose a harness in a profile, use the same client and
-message types, and add Temporal when a run needs to survive worker failure.
-Change `harness` while keeping your model, tools, MCP configuration, and
-application code. LiteLLM translates model requests internally; `harness_options`
-keeps the selected harness's native controls available.
+Switch between **DeepAgents, Pydantic AI, Claude Agent SDK, Codex, and OpenCode**
+through one Python SDK. Change `harness` while keeping your model, tools, MCP
+configuration, and application code.
 
-Each harness runs its own agent loop. LiteAgents adds shared tools and MCP,
-named subagents, operation retries, model and harness fallback, approval gates,
-streaming, and durable run handles.
+**The public interface is modeled after the Claude Agent SDK:** an async
+`query()` iterator, a conversation client, and typed messages such as
+`AssistantMessage` and `TextBlock`. Import these from `liteagents`, whichever
+harness you select. Each harness still runs its own agent loop; selecting
+DeepAgents runs DeepAgents without requiring the Claude Agent SDK.
+
+A simple agent runs locally. Temporal and PostgreSQL are optional.
 
 Follow the [getting-started guide](docs/getting-started.md) for a first agent,
 application tools, MCP, and optional durable execution.
+
+## How it works
+
+| Part | Responsibility |
+| --- | --- |
+| Your application | Supplies a prompt, profile, and tools; reads LiteAgents messages. |
+| LiteAgents | Adapts shared configuration, tools, and MCP to the selected harness and normalizes its output. Exposes harness-specific settings through `harness_options`. |
+| Selected harness | Owns the agent loop: builds context, calls the model and tools, and decides when the task is complete. |
+| LiteLLM | Translates model requests to the chosen provider or your LiteLLM gateway. A gateway is optional. |
+| Temporal, when enabled | Coordinates durable runs on a worker. LiteAgents stores checkpoints, operation results, and events in SQLite or PostgreSQL. |
+
+For example, a DeepAgents run with an OpenAI model follows
+`your app → LiteAgents → DeepAgents → LiteLLM → OpenAI`. Change the harness to
+Pydantic AI and LiteAgents adapts the same shared configuration to Pydantic AI.
+Your response-handling code stays the same. Native options remain specific to
+the selected harness, and the model must support the requested settings and tools.
 
 ## Install
 
@@ -32,43 +49,83 @@ extras you need:
 `mcp`, `temporal`, and `postgres`. The Claude and Codex extras supply their native
 runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
 
-The `liteagents` name on PyPI currently serves a different package. The previous
-[0.2.0 release](https://github.com/BerriAI/liteagents/releases/tag/v0.2.0) remains
-available as a wheel; it does not include the portability changes in this checkout.
+The `liteagents` name on PyPI currently serves a different package. To install
+without cloning, use the wheel and tested constraints from the
+[0.3.0a1 preview release](https://github.com/BerriAI/liteagents/releases/tag/v0.3.0a1).
 For a source checkout and the cookbooks, follow the
 [getting-started guide](docs/getting-started.md).
 
 ## Run an agent
 
-Set `LITEAGENTS_API_BASE` to your gateway's `/v1` URL, `LITELLM_API_KEY` to its
-key, and `LITEAGENTS_MODEL` to a compatible model alias. Then:
+Set `OPENAI_API_KEY` for this example, then run:
 
 ```python
 import asyncio
-import os
-from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
+from liteagents import (
+    AssistantMessage, LiteAgentOptions, ProfileOptions, TextBlock, query,
+)
+
+profile = ProfileOptions(
+    harness="deepagents",  # Change to "pydantic-ai", "claude-sdk", or "codex".
+    model="openai/gpt-5.4-mini",
+    tools=[],
+)
+options = LiteAgentOptions(profile=profile)
 
 async def main():
-    profile = ProfileOptions(
-        harness="deepagents",
-        model="litellm_proxy/" + os.environ["LITEAGENTS_MODEL"],
-        model_kwargs={
-            "api_base": os.environ["LITEAGENTS_API_BASE"],
-            "api_key": os.environ["LITELLM_API_KEY"],
-        },
-        tools=[],
-    )
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=".")) as agent:
-        run = await agent.start_run("Reply with exactly READY.")
-        print((await run.result()).text)
+    async for message in query(prompt="Reply with exactly READY.", options=options):
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    print(block.text)
 
 asyncio.run(main())
 ```
 
-Use `agent.query(prompt)` to consume normalized text/tool messages as they
-arrive. Set `profile.features.streaming = True` to receive `TextDelta` events.
-Repeated `query()` calls share a conversation, with or without Temporal.
-`start_run()` creates an independent job in either mode.
+Install each harness integration you want to use. After changing `harness`, run
+the same code again. LiteAgents selects the installed harness; it does not
+download one during a query or migrate a conversation between harnesses.
+
+To use a LiteLLM gateway instead of a provider directly, set
+`model="litellm_proxy/your-model-alias"` and pass its `/v1` URL and key in
+`model_kwargs={"api_base": ..., "api_key": ...}`. See the
+[gateway example](docs/getting-started.md) for environment-variable configuration.
+
+## Read responses and continue conversations
+
+`query()` yields **LiteAgents Python dataclasses modeled after the Claude Agent
+SDK's messages**. These are the same across harnesses and model providers.
+Even when the model is OpenAI, read `message.content` as shown above rather than
+`response.choices[0].message`.
+
+| Type | Content |
+| --- | --- |
+| `AssistantMessage` | A `content` list of `TextBlock` and/or `ToolUseBlock`, plus `model` and available `usage`. Read text from `block.text`; tool calls expose `name`, `input`, and `id`. |
+| `UserMessage` | Input text or content blocks, including tool results as `ToolResultBlock`. |
+| `TextDelta` | Incremental `text` when `profile.features.streaming = True`. A complete `AssistantMessage` follows; avoid displaying both as separate answers. |
+
+For a conversation, keep one `LiteAgentClient` open and call `agent.query()` for
+each turn. Consecutive queries on that client share history in direct and Temporal
+execution. The top-level `query()` helper above creates a fresh client per call.
+
+For an independent job, use `start_run()`. If you only need the final answer,
+read `result.text`:
+
+```python
+from liteagents import LiteAgentClient
+
+# Inside an async function, using the options defined above:
+async with LiteAgentClient(options=options) as agent:
+    run = await agent.start_run("Reply with exactly READY.")
+    result = await run.result()
+    print(result.text)
+    # result.messages contains the normalized messages for this run.
+```
+
+See the [events and streaming guide](docs/sdk.md#events-and-streaming) for
+tool-call names, run events, and reconnectable subscriptions.
+
+## Switch harnesses and keep shared settings
 
 Omit `tools` (or use `None`) to expose registered application and MCP tools,
 set `tools=[]` for no tools, or select names such as `tools=["read_file"]`.
