@@ -135,7 +135,7 @@ async def execute_notebook(
     )
     assert "notebook-synthetic-key" not in output
     if path.stem == "00_agent":
-        assert output.count("READY") == 6  # First run, harness switch, new prompt; twice.
+        assert output.count("READY") == 4  # First run and harness switch; twice.
     if path.stem == "compare":
         reports = list((tmp_path / "work").rglob("results.json"))
         assert len(reports) == 2

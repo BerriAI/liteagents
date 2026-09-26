@@ -3,6 +3,15 @@
 Install the preview wheel using the command in [Getting started](getting-started.md).
 The PyPI project currently named `liteagents` is a different package.
 
+## Updating from 0.3.0a3 to 0.3.0a4
+
+This release adds `await run(prompt, profile=profile)` for independent tasks
+that return a final `RunResult`. Read `result.text` for the answer. Existing
+`query()`, `LiteAgentClient`, profiles, and run handles are unchanged.
+The README, getting-started guide, and first Colab now introduce this simpler
+path before streaming and conversation APIs. Upgrade with the preview wheel
+in [Getting started](getting-started.md) to use the new helper.
+
 ## Updating from 0.3.0a2 to 0.3.0a3
 
 The client and profile API is unchanged. This release fixes stdio MCP connections

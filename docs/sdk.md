@@ -1,5 +1,31 @@
 # SDK contract
 
+## Run a task
+
+```python
+from liteagents import ProfileOptions, run
+
+profile = ProfileOptions(harness="pydantic-ai", model="openai/gpt-5.4-mini")
+result = await run("Explain what an agent harness does.", profile=profile)
+print(result.text)
+```
+
+`await run(prompt, profile=profile, cwd=".", tools=None, run_id=None)` starts an
+independent job and waits for its `RunResult`. `cwd` selects the workspace;
+`tools` registers application `Tool` instances. The profile still selects which
+tools are exposed and carries native harness options. Each call creates and
+closes a client; no conversation history is shared between calls.
+
+Errors propagate to the caller. Cancelling the call cancels local execution;
+with Temporal it stops waiting but leaves the worker's job running. Supply a
+`run_id` to attach later through `client.get_run()`. Duplicate durable IDs fail
+rather than submitting another job. Use `client.start_run()` directly when you
+need approvals, explicit cancellation, or a handle without waiting for completion.
+
+Temporal still needs a running worker, with application tools registered on the
+worker. Adding `profile.temporal` selects that existing durable execution path.
+For follow-up turns, use a persistent `LiteAgentClient` and `query()`.
+
 ## Profiles and native loops
 
 `LiteAgentOptions(profile=..., cwd=..., tools=..., session_id=...)` configures a

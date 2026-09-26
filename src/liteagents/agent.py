@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Self
 
 from .profiles import ProfileOptions
+from .runs import RunResult
 from .tools import Tool
 from .types import AgentEvent, Message
 
@@ -93,3 +94,24 @@ async def query(
     ):
         async for event in events:
             yield event
+
+
+async def run(
+    prompt: str,
+    *,
+    profile: ProfileOptions,
+    cwd: str | Path = ".",
+    tools: list[Tool] | None = None,
+    run_id: str | None = None,
+) -> RunResult:
+    """Run an independent task and return its final result.
+
+    Each call uses a fresh client and closes it before returning. Local work is
+    cancelled if this call is cancelled; Temporal work continues on its worker.
+    For conversation history, streaming, approvals, or explicit cancellation of
+    durable work, use LiteAgentClient and its query/run-handle methods.
+    """
+    options = LiteAgentOptions(profile=profile, cwd=cwd, tools=tools or [])
+    async with LiteAgentClient(options=options) as client:
+        handle = await client.start_run(prompt, run_id=run_id)
+        return await handle.result()

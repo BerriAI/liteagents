@@ -16,7 +16,10 @@ from liteagents import (
     RunNotFoundError,
     TemporalOptions,
 )
-from tests.test_python_harnesses import Lookup, deep_model
+from liteagents import (
+    run as run_agent,
+)
+from tests.test_python_harnesses import Lookup, deep_model, pydantic_model
 
 pytestmark = pytest.mark.integration
 
@@ -78,6 +81,33 @@ async def test_public_sdk_detach_attach_duplicate_and_replay(tmp_path, temporal_
         restrictions=SandboxRestrictions.default.with_passthrough_modules("liteagents")
     )
     await Replayer(workflows=[AgentWorkflow], workflow_runner=runner).replay_workflow(history)
+
+
+@pytest.mark.parametrize(
+    "harness,factory", [("deepagents", deep_model), ("pydantic-ai", pydantic_model)]
+)
+async def test_run_helper_with_temporal_worker(tmp_path, temporal_available, harness, factory):
+    from liteagents.temporal import LiteAgentWorker
+
+    tool = Lookup()
+    profile = ProfileOptions(
+        harness=harness, model="scripted/test", tools=["lookup"],
+        harness_options={"model_instance": factory()},
+        temporal=TemporalOptions(
+            profile_id=f"run-helper-{uuid4().hex}",
+            checkpoint_path=str(tmp_path / "graph.sqlite"),
+        ),
+    )
+    run_id = f"run-{uuid4().hex}"
+    async with LiteAgentWorker(profile=profile, tools=[tool], cwd=tmp_path).running():
+        result = await asyncio.wait_for(
+            run_agent("Look up order A123", profile=profile, cwd=tmp_path, run_id=run_id), 30,
+        )
+        assert result.text == "Order total: USD 12"
+        assert result.harness == harness and result.run_id == run_id
+        assert tool.calls == [{"order": "A123"}]
+        with pytest.raises(RunAlreadyExistsError):
+            await run_agent("must not resubmit", profile=profile, cwd=tmp_path, run_id=run_id)
 
 
 @pytest.mark.parametrize("harness", ["deepagents", "pydantic-ai"])

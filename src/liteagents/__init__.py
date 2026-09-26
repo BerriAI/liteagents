@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .agent import LiteAgentClient, LiteAgentOptions, query
+from .agent import LiteAgentClient, LiteAgentOptions, query, run
 from .errors import (
     ConfigurationError,
     HarnessError,
@@ -65,4 +65,5 @@ __all__ = [
     "get_capabilities",
     "operation_id",
     "query",
+    "run",
 ]

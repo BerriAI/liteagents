@@ -1,4 +1,20 @@
-# Release validation — September 25, 2026
+# Release validation — September 26, 2026
+
+## 0.3.0a4 final-result quickstart
+
+- `run()` uses the existing independent-job path. Checks cover final text and
+  metadata, separate calls, errors, cancellation, and closing local resources.
+- The same prompt and OpenAI model setting run through all six installed native
+  harness selectors using a controlled local provider. DeepAgents and Pydantic
+  AI also complete real tool loops through the helper.
+- Both Python harnesses return results through a real Temporal worker, including
+  rejecting duplicate durable run IDs.
+- The first Colab runs twice in a real kernel, switching between Pydantic AI and
+  Claude Agent SDK. Provider decisions are fixtures, not paid model calls.
+  Notebook setup tests cover hidden key entry and reuse without printing secrets.
+
+These tests verify SDK/runtime behavior, not live acceptance of every provider
+or model. The existing `query()` and conversation APIs remain available.
 
 ## 0.3.0a3 Colab cookbooks
 
