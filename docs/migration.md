@@ -3,6 +3,46 @@
 Install the preview wheel using the command in [Getting started](getting-started.md).
 The PyPI project currently named `liteagents` is a different package.
 
+## Updating from 0.3.0a5 to 0.3.0a6
+
+Use `LiteAgentClient(profile=profile, tools=[lookup_order])` or
+`query(prompt=prompt, profile=profile)` directly. `LiteAgentOptions` remains
+supported. Tool lists now also accept typed synchronous or asynchronous Python
+functions; existing `Tool` classes keep working. Declaring `profile.subagents`
+is sufficient to enable delegation; the extra feature flag is no longer needed.
+
+Native options can now be scoped by harness, for example
+`harness_options={"deepagents": {"debug": True}}`. Changing `profile.harness`
+selects only that harness's controls. Existing flat options remain supported;
+move harness-specific ones into named dictionaries if you want to switch without
+editing them. Harness fallback preserves those dictionaries and applies the
+selected fallback's approval settings.
+
+The provider-first examples use the same setup as the quickstart. Gateway
+configuration is optional, including in the terminal recipes. These API changes
+are additive. Upgrade durable clients and workers together and keep existing
+jobs on their original SDK and profile versions.
+
+## Updating from 0.3.0a4 to 0.3.0a5
+
+This release simplifies the feature Colabs and fixes Pydantic AI operation
+replay after a worker restarts. Native conversation IDs are excluded from model
+request fingerprints, so a fresh loop reuses completed model and tool results.
+Application IDs inside tool inputs and outputs are preserved.
+
+Upgrade clients and workers together. Finish existing durable jobs on their
+original SDK version and use a new profile version for new jobs; stored request
+fingerprints change in this release. The public SDK API is unchanged.
+
+## Updating from 0.3.0a3 to 0.3.0a4
+
+This release adds `await run(prompt, profile=profile)` for independent tasks
+that return a final `RunResult`. Read `result.text` for the answer. Existing
+`query()`, `LiteAgentClient`, profiles, and run handles are unchanged.
+The README, getting-started guide, and first Colab now introduce this simpler
+path before streaming and conversation APIs. Upgrade with the preview wheel
+in [Getting started](getting-started.md) to use the new helper.
+
 ## Updating from 0.3.0a2 to 0.3.0a3
 
 The client and profile API is unchanged. This release fixes stdio MCP connections

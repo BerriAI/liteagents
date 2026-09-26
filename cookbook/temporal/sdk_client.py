@@ -3,7 +3,7 @@
 import argparse
 import asyncio
 
-from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
+from liteagents import LiteAgentClient, ProfileOptions
 
 
 async def main():
@@ -16,7 +16,7 @@ async def main():
     if args.action == "start" and not args.prompt:
         parser.error("start requires --prompt")
     profile = ProfileOptions.from_yaml(args.profile)
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+    async with LiteAgentClient(profile=profile) as client:
         if args.action == "start":
             print((await client.start_run(args.prompt, run_id=args.run_id)).run_id)
         else:

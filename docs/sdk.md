@@ -1,9 +1,37 @@
 # SDK contract
 
+## Run a task
+
+```python
+from liteagents import ProfileOptions, run
+
+profile = ProfileOptions(harness="pydantic-ai", model="openai/gpt-5.4-mini")
+result = await run("Explain what an agent harness does.", profile=profile)
+print(result.text)
+```
+
+`await run(prompt, profile=profile, cwd=".", tools=None, run_id=None)` starts an
+independent job and waits for its `RunResult`. `cwd` selects the workspace;
+`tools` registers typed Python functions or application `Tool` instances. The profile still selects which
+tools are exposed and carries native harness options. Each call creates and
+closes a client; no conversation history is shared between calls.
+
+Errors propagate to the caller. Cancelling the call cancels local execution;
+with Temporal it stops waiting but leaves the worker's job running. Supply a
+`run_id` to attach later through `client.get_run()`. Duplicate durable IDs fail
+rather than submitting another job. Use `client.start_run()` directly when you
+need approvals, explicit cancellation, or a handle without waiting for completion.
+
+Temporal still needs a running worker, with application tools registered on the
+worker. Adding `profile.temporal` selects that existing durable execution path.
+For follow-up turns, use a persistent `LiteAgentClient` and `query()`.
+
 ## Profiles and native loops
 
-`LiteAgentOptions(profile=..., cwd=..., tools=..., session_id=...)` configures a
-client. The profile selects one of the six harness names. Each selected harness
+`LiteAgentClient(profile=..., cwd=..., tools=..., session_id=...)` uses the same
+setup as `run()`. `query(prompt=..., profile=..., tools=...)` provides a standalone
+message stream. Existing `options=LiteAgentOptions(...)` calls remain supported;
+pass either the options object or direct arguments to avoid conflicting values. The profile selects one of the six harness names. Each selected harness
 runs its native loop; LiteAgents manages execution boundaries and normalizes
 messages. `cwd` must exist.
 
@@ -53,7 +81,7 @@ including runs without tools. Native model objects configure their own settings.
 | `start_run()` | Starts an independent job and returns a local handle | Submits an independent job and returns a durable handle |
 | `get_run(id)` | Finds a run belonging to that client | Attaches to an existing workflow |
 | Worker loss | No durable recovery | Restores recorded operations/checkpoints |
-| Application tools | Pass on `LiteAgentOptions` | Register on `LiteAgentWorker` |
+| Application tools | Pass `tools=[...]` to `run()` or the client | Register on `LiteAgentWorker` |
 
 One client conversation permits one active query. Independent jobs do not read
 or change that conversation. Closing a direct query stream
@@ -132,8 +160,18 @@ messages/results as authoritative output.
 
 ## Tools, MCP, and subagents
 
-Application tools implement `Tool.name`, `description`, `input_schema`, and
-`async execute(input)`. Tool results must be JSON serializable for durability.
+Pass functions through `tools=[lookup_order]` on `run()`, `LiteAgentClient`, or
+`LiteAgentWorker`. The function name and docstring identify the tool; annotated
+parameters generate its schema. Inputs are validated before invocation. Defaults,
+keyword-only parameters, nested Pydantic models, and annotated constraints are
+supported. Parameters need type hints; variadic and positional-only signatures
+fail explicitly. Synchronous functions run in a thread with operation context
+preserved. Strings are returned as text; other JSON-serializable results become
+JSON text. Functions that yield results are not supported.
+
+For manual schemas or stateful implementations, `Tool` classes still implement
+`name`, `description`, `input_schema`, and `async execute(input)`. Tool results
+must be JSON serializable for durability.
 Use `operation_id()` while a tool runs to obtain an idempotency key stable across
 its retries and worker recovery.
 
@@ -189,8 +227,6 @@ selected native harness in its own conversation, with a model override, merged
 model kwargs, prompt, and explicit tool allowlist:
 
 ```yaml
-features:
-  subagents: true
 subagents:
   auditor:
     description: Verify facts against source files.
@@ -198,6 +234,9 @@ subagents:
     tools: [read_file]
     system_prompt: Report evidence and uncertainty.
 ```
+
+Declaring a subagent enables it; no feature flag is required. The older
+`features.subagents=True` setting remains accepted when subagents are defined.
 
 Children inherit the parent's model connection. With a gateway endpoint,
 child model overrides are also exact gateway aliases.
@@ -280,6 +319,32 @@ Native sandbox settings affect the native process; shared Python/MCP tools run
 with the worker's permissions. Ordinary direct mode continues
 to accept the native controls described below. Shared `mcp_servers` always uses
 the common schema, including when no durability is requested.
+
+## Native controls
+
+Use shared profile fields for portable behavior. To tune individual harnesses
+without changing your application when switching, scope their native settings:
+
+```python
+profile.harness_options = {
+    "interrupt_on": {"edit_file": True},
+    "deepagents": {"debug": True},
+    "pydantic-ai": {"tool_timeout": 30},
+    "claude-sdk": {"max_budget_usd": 1.00},
+}
+```
+
+Only the selected harness's dictionary is applied. Flat settings remain
+compatible and apply to the selected harness; its named settings override
+matching flat keys. In this example, the shared approval policy applies to all
+harnesses, while `debug` applies only to DeepAgents. A native option is not
+translated into an equivalent feature on other harnesses. Unsupported controls
+and conflicts with shared configuration fail before execution.
+
+Harness fallback also selects the destination's named settings and keeps shared
+`interrupt_on` approvals; unrelated flat native settings are dropped on fallback.
+The same structure works in Python, JSON, and YAML. Native Python objects belong
+inside their harness's dictionary and cannot be represented in JSON or YAML.
 
 | Harness | Selected native options |
 | --- | --- |

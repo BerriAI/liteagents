@@ -6,7 +6,7 @@ from typing import ClassVar
 
 from _common import parser, setup
 
-from liteagents import LiteAgentClient, LiteAgentOptions, TemporalOptions, Tool, operation_id
+from liteagents import LiteAgentClient, TemporalOptions, Tool, operation_id
 from liteagents.temporal import LiteAgentWorker
 
 
@@ -84,7 +84,7 @@ async def main():
         return
     if not args.run_id:
         cli.error("run_id is required for this action")
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=cwd)) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd) as client:
         if args.action == "start":
             run = await client.start_run(
                 "Call save_receipt once, then slow_check once. Report their results.",

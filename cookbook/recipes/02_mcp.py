@@ -6,7 +6,7 @@ from pathlib import Path
 
 from _common import parser, setup
 
-from liteagents import LiteAgentClient, LiteAgentOptions
+from liteagents import LiteAgentClient
 
 
 async def main():
@@ -19,7 +19,7 @@ async def main():
             "allowed_tools": ["lookup_order"],
         }
     }
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=cwd)) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd) as client:
         run = await client.start_run(
             "Call orders_lookup_order for order A123 and report its total and payment status."
         )

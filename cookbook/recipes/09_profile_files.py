@@ -4,7 +4,7 @@ import argparse
 import asyncio
 from pathlib import Path
 
-from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions, available_harnesses
+from liteagents import LiteAgentClient, ProfileOptions, available_harnesses
 
 
 async def main():
@@ -29,7 +29,7 @@ async def main():
         profile.harness = args.harness
     cwd = (args.workspace or Path(".liteagents/recipes/profile-files") / profile.harness).resolve()
     cwd.mkdir(parents=True, exist_ok=True)
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=cwd)) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd) as client:
         run = await client.start_run(args.prompt)
         print((await run.result()).text)
 

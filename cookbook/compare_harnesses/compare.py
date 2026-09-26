@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
+from liteagents import LiteAgentClient, ProfileOptions
 
 IGNORED = {".git", ".venv", "node_modules", "__pycache__", ".liteagents", ".pytest_cache", ".env"}
 
@@ -156,18 +156,16 @@ async def compare(
         started = time.monotonic()
         try:
             async with asyncio.timeout(timeout):
-                async with LiteAgentClient(
-                    options=LiteAgentOptions(profile=profile, cwd=work)
-                ) as client:
+                async with LiteAgentClient(profile=profile, cwd=work) as client:
                     _ = [event async for event in client.query(prompt, run_id=name)]
                     run = await (await client.get_run(name)).result()
                     result.update(status="completed", text=run.text, usage=run.usage or None)
-        except Exception as exc:  # Each independent comparison still gets its own result.
+        except Exception as exc:  # noqa: BLE001 - report each independent comparison.
             result["error"] = f"{type(exc).__name__}: {exc}"
         result["duration_seconds"] = round(time.monotonic() - started, 3)
         try:
             result["tests"] = await run_tests(test_command, work, min(timeout, 120))
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - preserve a test failure in the report.
             result["tests"] = {"exit_code": None, "error": f"{type(exc).__name__}: {exc}"}
         (run_dir / "changes.diff").write_text(redact(changes(before, snapshot(work)), sensitive))
         result = json.loads(redact(json.dumps(result), sensitive))

@@ -20,9 +20,9 @@ from .base import HarnessAdapter
 
 class ManagedAdapter(HarnessAdapter):
     def validate(self):
-        if bool(self.profile.subagents) != self.profile.features.subagents:
-            raise ConfigurationError("Set features.subagents=true with at least one named subagent")
-        if self.profile.tools == [] and self.profile.features.subagents:
+        if self.profile.features.subagents and not self.profile.subagents:
+            raise ConfigurationError("Configure at least one named subagent")
+        if self.profile.tools == [] and self.profile.subagents:
             raise ConfigurationError("tools=[] disables tools; remove subagents or select tools")
         validate_settings(self.profile)
         if self.resume_session and self.profile.temporal:

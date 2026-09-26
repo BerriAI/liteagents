@@ -88,6 +88,6 @@ class DelegateTool(Tool):
 
 
 def delegate_tools(profile: ProfileOptions, cwd: Path, tools: list[Tool]) -> list[Tool]:
-    if bool(profile.subagents) != profile.features.subagents:
-        raise ConfigurationError("Set features.subagents=true with at least one named subagent")
+    if profile.features.subagents and not profile.subagents:
+        raise ConfigurationError("Configure at least one named subagent")
     return [DelegateTool(name, profile, cwd, tools) for name in profile.subagents]

@@ -1,4 +1,55 @@
-# Release validation — September 25, 2026
+# Release validation — September 26, 2026
+
+## 0.3.0a6 usability and portability
+
+The same application, typed function tool, MCP server, model, and model settings
+run through all six harnesses, changing only `profile.harness`, in direct and
+Temporal execution. Tests verify stable tool names, scoped native controls, and
+unchanged profile setup. Fallback tests verify that the destination harness's
+approval settings apply in both modes.
+Function checks cover input validation before side effects, nested typed values,
+defaults, output serialization, and operation context for synchronous functions.
+Subagent checks omit the redundant enable flag in both Python and native CLI
+harnesses. Existing options objects, Tool classes, and native controls retain
+regression coverage.
+
+## 0.3.0a5 feature walkthroughs
+
+All feature notebooks use the same short direct-provider setup and explain one
+feature at a time. Each runs twice in a disposable kernel, with real harnesses,
+MCP processes, tools, and controlled model responses. Checks cover approvals
+and cancellation, streaming history, retries, model fallback, JSON/YAML profiles,
+independent coding tests, and changing the harness with the same application tool.
+
+The Temporal notebook kills a separate worker during a tool call and restarts
+it with the same checkpoints. The test checks for one receipt and two attempts
+at the interrupted check. It runs against an existing service and a notebook-owned
+service. This exposed a native Pydantic AI conversation ID in the model request
+fingerprint; a focused regression also reopens the native loop and verifies that
+completed model requests and the tool execute only once.
+
+The application-tools, MCP, harness-switching, and Temporal walkthroughs also
+pass twice from a fresh, non-editable wheel installation. Its dependency check
+is clean. The replay regression fails when the previous fingerprint behavior
+is restored, confirming it detects the duplicate execution.
+
+These model responses are fixtures, not live-provider acceptance tests.
+
+## 0.3.0a4 final-result quickstart
+
+- `run()` uses the existing independent-job path. Checks cover final text and
+  metadata, separate calls, errors, cancellation, and closing local resources.
+- The same prompt and OpenAI model setting run through all six installed native
+  harness selectors using a controlled local provider. DeepAgents and Pydantic
+  AI also complete real tool loops through the helper.
+- Both Python harnesses return results through a real Temporal worker, including
+  rejecting duplicate durable run IDs.
+- The first Colab runs twice in a real kernel, switching between Pydantic AI and
+  Claude Agent SDK. Provider decisions are fixtures, not paid model calls.
+  Notebook setup tests cover hidden key entry and reuse without printing secrets.
+
+These tests verify SDK/runtime behavior, not live acceptance of every provider
+or model. The existing `query()` and conversation APIs remain available.
 
 ## 0.3.0a3 Colab cookbooks
 

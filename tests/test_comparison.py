@@ -18,8 +18,8 @@ async def test_comparison_copies_workspaces_reports_failures_and_redacts(monkeyp
     observed = []
 
     class Client:
-        def __init__(self, *, options):
-            self.cwd = Path(options.cwd)
+        def __init__(self, *, profile, cwd):
+            self.cwd = Path(cwd)
 
         async def __aenter__(self):
             return self

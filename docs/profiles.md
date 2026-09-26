@@ -1,87 +1,64 @@
 # Configure agents with JSON or YAML
 
-`ProfileOptions` accepts the same configuration in Python, JSON, or YAML.
-`from_json()` and `from_yaml()` read a **file path** (`str` or `pathlib.Path`),
-expand environment variables, and return a validated `ProfileOptions` instance.
-YAML support is included in the core package.
+A profile is the same setup in Python, JSON, or YAML. Choose a model and a
+harness; changing the harness leaves your application code unchanged.
 
 ## A first profile
 
 Save this as `agent.yaml`:
 
 ```yaml
-harness: deepagents
-model: ${LITEAGENTS_MODEL}
-model_kwargs:
-  api_base: ${LITEAGENTS_API_BASE}
-  api_key: ${LITELLM_API_KEY}
+harness: pydantic-ai
+model: openai/gpt-5.4-mini
 system_prompt: Be concise.
-tools: []
-max_turns: 10
 ```
 
-Or save the equivalent configuration as `agent.json`:
+Or use the equivalent `agent.json`:
 
 ```json
 {
-  "harness": "deepagents",
-  "model": "${LITEAGENTS_MODEL}",
-  "model_kwargs": {
-    "api_base": "${LITEAGENTS_API_BASE}",
-    "api_key": "${LITELLM_API_KEY}"
-  },
-  "system_prompt": "Be concise.",
-  "tools": [],
-  "max_turns": 10
+  "harness": "pydantic-ai",
+  "model": "openai/gpt-5.4-mini",
+  "system_prompt": "Be concise."
 }
 ```
 
-`model` is the exact alias configured on the gateway at `model_kwargs.api_base`.
-No prefix is needed. A slash in an alias is preserved, even in a name such as
-`anthropic/team-model`. The gateway decides which provider serves it.
-
-Set the environment variables in the process that loads the file:
-
-```sh
-export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
-export LITELLM_API_KEY='your-endpoint-key'
-export LITEAGENTS_MODEL='your-chat-compatible-model-alias'
-```
-
-After [installing the DeepAgents extra](../README.md#install), run:
+Use the [quickstart installation](getting-started.md#1-install) and set
+`OPENAI_API_KEY`. Inside your async application or Colab:
 
 ```python
-import asyncio
-from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
+from liteagents import ProfileOptions, run
 
-async def main():
-    profile = ProfileOptions.from_yaml("agent.yaml")
-    # For JSON instead: profile = ProfileOptions.from_json("agent.json")
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=".")) as agent:
-        run = await agent.start_run("Reply with exactly READY.")
-        print((await run.result()).text)
-
-asyncio.run(main())
+profile = ProfileOptions.from_yaml("agent.yaml")
+# For JSON: profile = ProfileOptions.from_json("agent.json")
+result = await run("Explain what an agent harness does in one sentence.", profile=profile)
+print(result.text)
 ```
 
-Expected: `READY`. This profile disables tools and needs neither Temporal nor
-PostgreSQL. `cwd` is a client/worker option and must exist; it is not a profile
-field. Paths in the profile are not automatically relative to the profile file.
+Edit `harness` to use another installed integration. Edit `model` and set the
+matching provider credentials to use [another provider](models.md). LiteLLM
+handles model translation. Neither a gateway nor Temporal is required.
 
-## Try the checked-in examples
+The loaders accept a **file path**, not the file contents. YAML support is
+included. `cwd` belongs on `run()`, the client, or the worker; it is not a profile
+field. Paths inside a profile are not automatically relative to the profile file.
 
-From a checkout with the [cookbook environment](../cookbook/recipes/README.md#setup):
+[Try this walkthrough in Colab](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/09_profile_files.ipynb).
 
-```sh
-python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.yaml
-python cookbook/recipes/09_profile_files.py cookbook/recipes/profiles/agent.json
+## Optional gateway connection
+
+If you already use a gateway, replace the model setting and add its connection:
+
+```yaml
+model: my-team-model
+model_kwargs:
+  api_base: ${LITEAGENTS_API_BASE}
+  api_key: ${LITELLM_API_KEY}
 ```
 
-The two files describe the same agent. Edit `harness` in either file, or use
-`--harness pydantic-ai` after installing that extra. The optional `--harness`
-override leaves the model and all other settings unchanged. LiteLLM translates
-the native protocols internally, so the same gateway alias works with Claude,
-Codex, and the other harnesses.
+Set those two environment variables before loading the file. `model` is sent as
+the gateway's exact alias, including any slashes. The same loaded profile works
+across harnesses. [Gateway setup](models.md#optional-litellm-gateway) has more detail.
 
 ## Environment variables and validation
 
@@ -110,11 +87,12 @@ These methods and the Python constructor use the supplied values directly;
 
 Omit `tools` or use `null` for registered application and MCP tools, use `[]` for no tools, or list
 the shared tool names you want. Python tool implementations stay in your code:
-register them with `LiteAgentOptions(tools=[...])`, or with
+pass typed Python functions or `Tool` instances to `run(..., tools=[...])`,
+`LiteAgentClient(profile=profile, tools=[...])`, or
 `LiteAgentWorker(tools=[...])` for durable runs. Profile files select tool names;
 they do not import or define Python functions.
 
-To use an HTTP MCP server, replace `tools: []` in the YAML profile with:
+To use an HTTP MCP server, add this to the YAML profile:
 
 ```yaml
 mcp_servers:
@@ -129,7 +107,25 @@ tools: [orders_lookup_order]
 
 Install the `mcp` extra, set `MCP_TOKEN`, and supply your server URL. The allowlist
 uses the remote tool name; the profile selects the public `<server>_<tool>` name.
-See the [MCP cookbook](../cookbook/recipes/README.md) for a local server you can run.
+Try the [MCP Colab](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/02_mcp.ipynb) for a complete example.
+
+## Optional native controls
+
+Keep harness-specific settings under their harness name:
+
+```yaml
+harness_options:
+  deepagents:
+    debug: true
+  claude-sdk:
+    max_budget_usd: 1.0
+```
+
+Changing only `harness` selects the corresponding controls. The shared model,
+tools, and MCP configuration stay the same. A native control affects only the
+harness that implements it. Flat options remain supported and apply to the
+selected harness; named settings override flat settings of the same name.
+See [native controls](sdk.md#native-controls) for the supported settings.
 
 ## Durable profiles
 

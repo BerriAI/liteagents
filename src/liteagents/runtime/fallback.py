@@ -1,4 +1,6 @@
-from ..profiles import ProfileOptions
+from typing import get_args
+
+from ..profiles import HarnessName, ProfileOptions
 
 
 def fallback_profile(profile: ProfileOptions, harness: str) -> ProfileOptions:
@@ -9,7 +11,7 @@ def fallback_profile(profile: ProfileOptions, harness: str) -> ProfileOptions:
             "harness_options": {
                 key: value
                 for key, value in profile.harness_options.items()
-                if key == "interrupt_on"
+                if key == "interrupt_on" or key in get_args(HarnessName)
             },
         }
     )

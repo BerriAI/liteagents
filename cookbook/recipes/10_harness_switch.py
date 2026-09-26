@@ -12,7 +12,6 @@ from _common import parser, setup
 from liteagents import (
     AssistantMessage,
     LiteAgentClient,
-    LiteAgentOptions,
     TemporalOptions,
     Tool,
     ToolUseBlock,
@@ -47,9 +46,7 @@ async def application(profile, cwd, *, durable):
             await stack.enter_async_context(
                 LiteAgentWorker(profile=profile, cwd=cwd, tools=[tool]).running()
             )
-        client = await stack.enter_async_context(LiteAgentClient(
-            options=LiteAgentOptions(profile=profile, cwd=cwd, tools=[tool])
-        ))
+        client = await stack.enter_async_context(LiteAgentClient(profile=profile, cwd=cwd, tools=[tool]))
         run_id = uuid4().hex
         used = set()
         async for message in client.query(

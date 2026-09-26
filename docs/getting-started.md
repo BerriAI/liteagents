@@ -1,209 +1,133 @@
 # Getting started with LiteAgents
 
-Install LiteAgents, choose a harness and model, and call `query()`.
-No repository checkout, gateway, Temporal, or database is needed for a first agent.
+Run an agent, then switch its harness while keeping the same model and code.
 
-**Try it in your browser:**
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb)
 
-## Install
+## 1. Install
 
-Use Python 3.11 or newer. This preview installs from a GitHub release wheel;
-the `liteagents` name on PyPI currently belongs to a different package.
+Use Python 3.11+. This installs LiteAgents and the two harnesses used below:
 
 ```sh
-python -m pip install "liteagents[deepagents] ` https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
+python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a6/liteagents-0.3.0a6-py3-none-any.whl"
 ```
 
-`[deepagents]` installs that harness integration along with the SDK. Existing
-compatible dependencies are reused. Install only the harnesses you want to try.
+The preview uses a GitHub release wheel because the PyPI name belongs to another
+package. No repository checkout is needed.
 
-## Run an agent
+## 2. Set your API key
 
-Set your provider key:
+Use an [OpenAI API key](https://platform.openai.com/api-keys) with API credit:
 
 ```sh
 export OPENAI_API_KEY="your-openai-key"
 ```
 
-Then copy and run this Python example:
+## 3. Run an agent
+
+Save this as `agent.py` and run `python agent.py`. It prints the agent's answer.
 
 ```python
 import asyncio
-from liteagents import (
-    AssistantMessage, LiteAgentOptions, ProfileOptions, TextBlock, query,
-)
+from liteagents import ProfileOptions, run
 
 profile = ProfileOptions(
-    harness="deepagents",
+    harness="pydantic-ai",
     model="openai/gpt-5.4-mini",
-    tools=[],
 )
+prompt = "Explain what an agent harness does in one sentence."
 
 async def main():
-    async for message in query(
-        prompt="Explain what an agent harness does in one sentence.",
-        options=LiteAgentOptions(profile=profile),
-    ):
-        if isinstance(message, AssistantMessage):
-            for block in message.content:
-                if isinstance(block, TextBlock):
-                    print(block.text)
+    result = await run(prompt, profile=profile)
+    print(result.text)
 
 asyncio.run(main())
 ```
 
+`harness` chooses the agent framework. `model` chooses the model it calls.
+LiteLLM's Python SDK connects to the provider using your key. No gateway is required.
+
 In Colab, use `await main()` instead of `asyncio.run(main())`.
 
-The harness runs the agent loop. LiteAgents translates its model calls through
-the **LiteLLM Python SDK** and returns a consistent stream of messages.
-The public interface is modeled after the Claude Agent SDK: text is in
-`AssistantMessage.content` as `TextBlock.text`, even when the model is OpenAI.
+## 4. Switch the harness
 
-### Use Anthropic or OpenRouter
+Change `harness="pydantic-ai"` to `harness="claude-sdk"` and run the same example.
+Claude Agent SDK now runs your prompt with the same OpenAI model and key.
+The response still comes back as `result.text`.
 
-Keep the same code and change `model` and the provider key:
+Or, inside `main()` after your first run (or directly in Colab):
 
-| Provider | `model` | Environment variable |
+```python
+profile.harness = "claude-sdk"
+result = await run(prompt, profile=profile)
+print(result.text)
+```
+
+Both harnesses were installed in step 1. Each `run()` is an independent task;
+switching does not transfer a running session. Edit `prompt` to try your own task.
+
+## Use another provider
+
+Set the matching key and change `profile.model`. The harness can stay the same.
+
+| Provider | Model example | Key |
 | --- | --- | --- |
 | OpenAI | `openai/gpt-5.4-mini` | `OPENAI_API_KEY` |
 | Anthropic | `anthropic/claude-sonnet-4-6` | `ANTHROPIC_API_KEY` |
 | OpenRouter | `openrouter/anthropic/claude-sonnet-4.6` | `OPENROUTER_API_KEY` |
 
-Requests go directly to the selected provider through LiteLLM. You do not need
-a Claude Agent SDK installation to use an Anthropic model with DeepAgents.
+[Model setup](models.md) covers these providers plus Gemini, Groq, Mistral,
+DeepSeek, Together AI, xAI, Azure, Bedrock, Vertex AI, and Ollama.
+Choose a model enabled for your account that supports the tools and settings you use.
 
-For Gemini, Groq, Mistral, DeepSeek, Together AI, xAI, Azure, Bedrock, Vertex AI,
-and local Ollama, see [Model setup](models.md).
+## Install other harnesses
 
-## Switch the harness
+Select the integrations you need in the installation command's square brackets.
+Compatible packages already installed in that Python environment are reused.
 
-Install the integrations you want into the same environment:
-
-```sh
-python -m pip install "liteagents[deepagents,pydantic-ai] ` https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
-```
-
-Change one field and run the same application:
-
-```python
-profile.harness = "pydantic-ai"
-```
-
-The model, shared tools, MCP configuration, and response-handling code stay the
-same. This starts a run with the chosen harness; it does not transfer an existing
-native session to another harness.
-
-| Harness selector | Install extra |
+| Harness | Install extra |
 | --- | --- |
 | `deepagents` | `deepagents` |
 | `pydantic-ai` | `pydantic-ai` |
 | `claude-sdk` | `claude-sdk` |
 | `codex` | `codex` |
-| `opencode-v1` / `opencode-v2` | Either selector; also `npm install -g opencode-ai`1.18.29` |
+| `opencode-v1` / `opencode-v2` | Either selector; also `npm install -g opencode-ai@1.18.29` |
 
-The Claude and Codex extras include their runtimes. `[all]` installs all Python
-integrations; OpenCode still needs its executable. Colab's setup cell installs
-your selected integrations for you. Each fresh Colab runtime needs setup again.
+Claude and Codex extras include their runtimes. `[all]` installs all Python
+integrations; OpenCode still needs its executable. LiteAgents uses installed
+harnesses and does not download them during a run.
 
-Try [switching harnesses with tools and MCP](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/10_harness_switch.ipynb)
-or [comparing fixes on a coding task](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/compare_harnesses/compare.ipynb).
+## Next steps
 
-## Continue a conversation
+| Try | Walkthrough |
+| --- | --- |
+| Give the agent a Python tool | [Look up an order](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/08_application_tools.ipynb) |
+| Stream output and keep conversation history | [Streaming and conversations](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/01_quickstart.ipynb) |
+| Connect an MCP server | [MCP tools](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/02_mcp.ipynb) |
+| Keep native controls or load JSON/YAML | [Profiles](profiles.md) |
+| Recover work after a worker stops | [Temporal walkthrough](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/06_durable.ipynb) |
 
-Keep one client open for follow-up turns. If you only need the final text,
-`start_run()` returns an independent job with `result.text`.
-
-```python
-from liteagents import LiteAgentClient
-
-async def conversation():
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as agent:
-        async for message in agent.query("Remember the code COBALT-42."):
-            print(message)
-        async for message in agent.query("What code did I give you?"):
-            print(message)
-
-asyncio.run(conversation())
-```
-
-See the [streaming and conversation notebook](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/01_quickstart.ipynb)
-for typed streaming events and inspecting results.
-
-## Add tools, MCP, and native controls
-
-Application tools implement `Tool.execute()` and are registered through
-`LiteAgentOptions(tools=[...])`. For example:
-
-```python
-from liteagents import Tool
-
-class LookupOrder(Tool):
-    name = "lookup_order"
-    description = "Look up an order's payment status."
-    input_schema = {
-        "type": "object",
-        "properties": {"order_id": {"type": "string"}},
-        "required": ["order_id"],
-    }
-
-    async def execute(self, input):
-        return f"Order {input['order_id']} is paid."
-
-profile.tools = ["lookup_order"]
-options = LiteAgentOptions(profile=profile, tools=[LookupOrder()])
-# Use options in the same query() call shown above.
-```
-
-Run the [application tools notebook](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/08_application_tools.ipynb)
-to inspect tool calls. The [MCP notebook](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/02_mcp.ipynb)
-includes a working MCP server and shows `profile.mcp_servers`.
-
-Omitting `profile.tools` exposes registered application and MCP tools.
-`tools=[]` disables tools; a list selects named tools. Native harness settings
-go in `harness_options`, for example `{"debug": True}` for DeepAgents.
-These native options stay specific to their harness. See the
-[profile guide](profiles.md), including [JSON/YAML examples](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/09_profile_files.ipynb).
+`run()` returns a `RunResult` with final text, normalized messages, and available
+usage. For live messages, `query()` uses the Claude Agent SDK's interface style;
+for follow-ups, keep a `LiteAgentClient` open. See the [SDK reference](sdk.md).
 
 ## Optional: use a LiteLLM gateway
 
-Replace the model configuration with your gateway's exact alias, URL, and key.
-Your application does not need the underlying provider keys. These settings can
-be passed directly; environment variables are optional:
+If you already use a gateway, set its exact model alias, endpoint, and key:
 
 ```python
 from getpass import getpass
 
 profile = ProfileOptions(
-    harness="deepagents",
+    harness="pydantic-ai",
     model="my-model",
     model_kwargs={
         "api_base": "https://your-gateway.example/v1",
         "api_key": getpass("Gateway API key: "),
     },
-    tools=[],
 )
 ```
 
-The alias is sent unchanged, including any slashes. No routing prefix is needed.
-Pass this profile to the same `query()` example above. To start a new gateway,
-follow the [LiteLLM Gateway quickstart](https://docs.litellm.ai/docs/proxy/docker_quick_start).
-In Colab, the gateway must be reachable from its cloud runtime; your laptop's
-`localhost` endpoint is not reachable there by default.
-
-## Optional: add durability with Temporal
-
-A durable run adds `TemporalOptions` to the profile and runs on a
-`LiteAgentWorker` connected to Temporal. Your application still uses the same
-client. The [durable notebook](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/06_durable.ipynb)
-starts a demo service and worker, then lets you kill the worker and reconnect to
-the original run.
-
-Completed recorded operations are reused after worker loss. Interrupted external
-actions can run again and need application idempotency. Keep the workspace and
-checkpoint stores across worker restarts. Colab runtime resets erase its local
-demo state; use the [self-hosting guide](self-hosting.md) for persistent deployment.
-
-Explore [all Colab cookbooks](../cookbook/README.md), including approvals,
-subagents, retries, and model fallback. See [validation](validation.md) for test
-coverage and [migration](migration.md) when updating an existing installation.
+Use this profile with the same `run()` call. The alias is sent unchanged,
+including slashes. Your application uses the gateway key instead of provider
+keys. [Gateway setup](models.md#optional-litellm-gateway) has more detail.

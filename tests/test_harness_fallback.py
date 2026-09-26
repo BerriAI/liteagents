@@ -24,6 +24,10 @@ async def test_harness_fallback_only_before_first_tool(tmp_path, durable, after_
             model="litellm_proxy/scripted",
             model_kwargs={"api_base": provider.url, "api_key": "synthetic"},
             tools=["lookup", "slow"],
+            harness_options={
+                "deepagents": {"debug": False},
+                "codex": {"timeout_seconds": 60, "interrupt_on": {"lookup": True}},
+            },
             recovery={"retries": {"max_attempts": 2}, "harness_fallbacks": ["codex"]},
         )
         if durable:
@@ -51,6 +55,12 @@ async def test_harness_fallback_only_before_first_tool(tmp_path, durable, after_
             assert (tmp_path / "calls.txt").read_text().splitlines() == ["lookup"]
             assert not any([e.kind == "harness_fallback" async for e in run.events()])
         else:
+            approvals = []
+            async for event in run.events():
+                if event.kind == "approval_requested":
+                    approvals.append(event.data["tool"])
+                    await run.approve(event.data["id"])
+            assert approvals == ["lookup"], "Fallback must apply its own approval controls"
             result = await run.result()
             assert result.harness == "codex"
             assert result.text == "Validated USD 12"

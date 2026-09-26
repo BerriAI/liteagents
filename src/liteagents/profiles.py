@@ -7,7 +7,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -110,6 +110,19 @@ class ProfileOptions(StrictOptions):
         if any(not name.strip() for name in names) or len(set(names)) != len(names):
             raise ValueError("Tool names must be nonempty and unique")
         return names
+
+    @field_validator("harness_options")
+    @classmethod
+    def validate_harness_options(cls, options: dict[str, Any]) -> dict[str, Any]:
+        for name in get_args(HarnessName):
+            if name in options and not isinstance(options[name], dict):
+                raise ValueError(f"harness_options.{name} must be a dictionary")
+        return options
+
+    def native_options(self) -> dict[str, Any]:
+        """Resolve common options and overrides for the selected harness."""
+        common = {k: v for k, v in self.harness_options.items() if k not in get_args(HarnessName)}
+        return {**common, **self.harness_options.get(self.harness, {})}
 
     @field_validator("model_kwargs")
     @classmethod

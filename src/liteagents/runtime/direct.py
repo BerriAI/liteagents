@@ -132,8 +132,10 @@ class DirectRuntime:
         profile = self.profile
         if profile.harness.startswith("opencode"):
             options = dict(profile.harness_options)
-            base = Path(options.get("state_dir", self.cwd / ".liteagents" / "jobs"))
-            options["state_dir"] = str(base / uuid4().hex)
+            base = Path(profile.native_options().get("state_dir", self.cwd / ".liteagents" / "jobs"))
+            options[profile.harness] = {
+                **options.get(profile.harness, {}), "state_dir": str(base / uuid4().hex),
+            }
             profile = profile.model_copy(update={"harness_options": options})
         job = DirectRuntime(profile, cwd=self.cwd, tools=self.tools, session_id=None)
         self.jobs.add(job)
@@ -189,6 +191,7 @@ class DirectRuntime:
         fallbacks = self.profile.recovery.harness_fallbacks if self.profile.recovery else []
         try:
             for index, harness in enumerate([self.profile.harness, *fallbacks]):
+                run.control.profile = self.adapter.profile
                 try:
                     async with aclosing(self.adapter.query(prompt, run_id=run.run_id)) as stream:
                         async for event in stream:

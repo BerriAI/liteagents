@@ -64,7 +64,12 @@ def stable(value: Any) -> Any:
     if isinstance(value, (tuple, list)):
         return [stable(v) for v in value]
     if isinstance(value, dict):
-        result = {k: v for k, v in value.items() if k not in ("timestamp", "run_id")}
+        # Pydantic AI generates fresh run/conversation IDs when the native loop
+        # restarts. They must not change a recorded model request's identity.
+        result = {
+            k: v for k, v in value.items()
+            if k not in ("timestamp", "run_id", "conversation_id")
+        }
         if "data" in result and "type" in result:
             result["data"] = {
                 k: v
@@ -122,7 +127,7 @@ class RunControl:
             raise asyncio.CancelledError("Run cancellation requested")
 
     async def approval(self, name: str, arguments: dict[str, Any], key: str) -> None:
-        approvals = self.profile.harness_options.get("interrupt_on", {})
+        approvals = self.profile.native_options().get("interrupt_on", {})
         if not approvals.get(name):
             return
         approval_id = digest([self.run_key, key])[:32]

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from ..errors import MissingDependencyError, UnsupportedFeatureError
+from ..function_tools import ToolInput
 from ..profiles import ProfileOptions
 from ..tools import Tool
 from ..types import AgentEvent
@@ -61,8 +62,9 @@ def available_harnesses() -> tuple[str, ...]:
     return tuple(_ADAPTERS)
 
 
-def uses_managed_execution(profile: ProfileOptions, *, tools: Sequence[Tool] = ()) -> bool:
-    attached = profile.harness.startswith("opencode") and profile.harness_options.get("base_url")
+def uses_managed_execution(profile: ProfileOptions, *, tools: Sequence[ToolInput] = ()) -> bool:
+    options = profile.native_options()
+    attached = profile.harness.startswith("opencode") and options.get("base_url")
     shared_model = "/" in profile.model or any(
         profile.model_kwargs.get(name) for name in ("api_base", "custom_llm_provider")
     )
@@ -73,13 +75,14 @@ def uses_managed_execution(profile: ProfileOptions, *, tools: Sequence[Tool] = (
         or profile.tools is not None
         or profile.mcp_servers
         or tools
-        or profile.harness_options.get("interrupt_on")
+        or options.get("interrupt_on")
         or profile.features.subagents
+        or profile.subagents
     )
 
 
 def get_capabilities(
-    profile: str | ProfileOptions, *, tools: Sequence[Tool] = ()
+    profile: str | ProfileOptions, *, tools: Sequence[ToolInput] = ()
 ) -> HarnessCapabilities:
     """Pass a profile and registered tools for the effective execution capabilities.
 
@@ -120,11 +123,11 @@ class HarnessAdapter(ABC):
 
     def validate(self) -> None:
         capabilities = get_capabilities(self.profile.harness)
-        if bool(self.profile.subagents) != self.profile.features.subagents:
+        if self.profile.features.subagents and not self.profile.subagents:
             raise UnsupportedFeatureError(
-                "Set features.subagents=true with at least one named subagent"
+                "Configure at least one named subagent"
             )
-        if self.profile.tools == [] and self.profile.features.subagents:
+        if self.profile.tools == [] and self.profile.subagents:
             raise UnsupportedFeatureError("tools=[] disables tools; remove subagents or select tools")
         if self.profile.recovery is not None and self.profile.harness not in (
             "deepagents",
@@ -162,6 +165,7 @@ class HarnessAdapter(ABC):
 
 
 def create_adapter(profile: ProfileOptions, **kwargs: Any) -> HarnessAdapter:
+    profile = profile.model_copy(update={"harness_options": profile.native_options()})
     if uses_managed_execution(profile, tools=kwargs.get("tools", ())):
         from .managed import ManagedAdapter
 

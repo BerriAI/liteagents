@@ -62,7 +62,6 @@ async def test_named_child_model_tools_attribution_and_journal_scope(harness, ch
         harness=harness,
         model="scripted/parent",
         tools=["read_file"],
-        features={"subagents": True},
         subagents={
             "auditor": {
                 "description": "Audit an order",

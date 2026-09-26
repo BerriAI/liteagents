@@ -13,6 +13,7 @@ from temporalio.worker import Worker
 from temporalio.worker.workflow_sandbox import SandboxedWorkflowRunner, SandboxRestrictions
 
 from ..errors import ConfigurationError
+from ..function_tools import ToolInput, adapt_tools
 from ..harnesses.base import create_adapter
 from ..profiles import ProfileOptions
 from ..runs import RunResult
@@ -23,7 +24,6 @@ from ..runtime.fallback import fallback_profile
 from ..runtime.serialization import dump_result
 from ..storage.ownership import own_run
 from ..storage.store import digest
-from ..tools import Tool
 from ..types import AssistantMessage, UserMessage
 from .client import connect, queue_name
 from .state import run_key, run_store
@@ -34,12 +34,12 @@ class LiteAgentWorker:
     """Execute native harnesses with durable operations and exclusive run ownership."""
 
     def __init__(
-        self, *, profile: ProfileOptions, tools: list[Tool] | None = None, cwd: str | Path = "."
+        self, *, profile: ProfileOptions, tools: list[ToolInput] | None = None, cwd: str | Path = "."
     ):
         if profile.temporal is None:
             raise ConfigurationError("LiteAgentWorker requires profile.temporal")
         self.profile, self.profile_id = profile, profile.identity()
-        self.tools, self.cwd = tools or [], Path(cwd).resolve()
+        self.tools, self.cwd = adapt_tools(tools or []), Path(cwd).resolve()
         if not self.cwd.is_dir():
             raise ConfigurationError(f"Working directory does not exist: {self.cwd}")
         create_adapter(profile, cwd=self.cwd, tools=self.tools, session_id="validate")
@@ -76,6 +76,7 @@ class LiteAgentWorker:
                 profile = (
                     self.profile if index == 0 else fallback_profile(self.profile, choices[index])
                 )
+                control.profile = profile
                 adapter = create_adapter(
                     profile,
                     cwd=self.cwd,

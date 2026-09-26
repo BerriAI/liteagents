@@ -1,8 +1,5 @@
 harness: opencode-v1
-model: ${LITEAGENTS_MODEL}
-model_kwargs:
-  api_base: ${LITEAGENTS_API_BASE}
-  api_key: ${LITELLM_API_KEY}
+model: openai/gpt-5.4-mini
 system_prompt: Complete the task using tools in the current workspace. Do not change
   test files. Use python3 when running Python tests. Be concise.
 tools:
