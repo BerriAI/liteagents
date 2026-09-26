@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from collections.abc import AsyncIterator
 from pathlib import Path
 from uuid import uuid4
@@ -104,9 +103,9 @@ class TemporalRuntime:
         run_id = uuid4().hex if run_id is None else run_id
         if not run_id.strip():
             raise ConfigurationError("run_id must be nonempty")
-        if len(json.dumps([prompt, history]).encode()) > 1_000_000:
+        if len(prompt.encode()) > 1_000_000:
             raise ConfigurationError(
-                "Prompt and conversation exceed the Temporal payload bound; start a new client or pass an artifact reference"
+                "Prompt exceeds the Temporal payload bound; pass an artifact reference"
             )
         key = run_key(self.profile, run_id)
         try:

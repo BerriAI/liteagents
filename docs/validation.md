@@ -5,6 +5,12 @@
 The development version routes shared model configuration through LiteLLM 1.83.0
 for every harness. Validation uses the runtime versions below.
 
+- **Full local regression:** 261 passed, 31 skipped; live-provider cases run
+  separately and shared PostgreSQL coverage runs in CI. Focused checks also
+  cover the final conversation snapshot and local startup refinements.
+- **Fresh wheel:** source contents match the SDK; a clean DeepAgents/MCP install
+  passes simple agent, streaming/follow-up, application tool, MCP, and file-profile
+  recipes with neither Temporal nor PostgreSQL installed.
 - **Same-profile matrix:** the same Chat Completions model alias, `temperature`,
   `top_p`, token budget, application tool and real MCP server run across six
   selectors, all three tool selections, and direct/Temporal execution (36 cases).

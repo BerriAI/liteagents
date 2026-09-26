@@ -55,7 +55,8 @@ a worker restart sees the same context. Closing a durable subscription leaves it
 running; the next query waits for that turn before continuing. Client-lifetime
 conversation history is not restored by `get_run()`, which only attaches to a job
 or turn. An ongoing native session/checkpoint cannot migrate between harnesses.
-The prompt and conversation together must fit the 1 MB workflow input bound.
+The current prompt must fit the 1 MB workflow input bound; the stored
+conversation snapshot is bounded by `max_payload_bytes`.
 
 Native Claude/Codex/OpenCode session IDs can reopen ordinary direct conversations
 using `session_id`. DeepAgents and Pydantic AI direct conversations last for the
