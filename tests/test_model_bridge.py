@@ -111,12 +111,20 @@ def test_native_controls_cannot_bypass_shared_boundaries(config):
 
 
 @pytest.mark.parametrize("stream", [False, True])
-async def test_python_endpoint_uses_litellm_and_exact_shared_settings(stream):
+@pytest.mark.parametrize("model,expected", [
+    ("scripted", "scripted"),
+    ("team/production/chat", "team/production/chat"),
+    ("anthropic/team/chat", "anthropic/team/chat"),
+    ("openai/chat", "openai/chat"),
+    ("litellm_proxy/anthropic/team/chat", "anthropic/team/chat"),
+    ("litellm_proxy/scripted", "scripted"),
+])
+async def test_python_endpoint_uses_litellm_and_exact_shared_settings(stream, model, expected):
     async with Provider().running() as provider:
         provider.protocols = {"chat/completions"}
         profile = ProfileOptions(
             harness="deepagents",
-            model="litellm_proxy/scripted",
+            model=model,
             model_kwargs={
                 "api_base": provider.url,
                 "api_key": "synthetic",
@@ -138,7 +146,7 @@ async def test_python_endpoint_uses_litellm_and_exact_shared_settings(stream):
             assert result.status_code == 200
             assert "Validated USD 12" in result.text
         request = provider.requests[0]
-        assert request["model"] == "scripted"
+        assert request["model"] == expected
         assert request["temperature"] == 0
         assert request["stop"] == ["END"]
         assert request.get("max_tokens", request.get("max_completion_tokens")) == 500
@@ -182,3 +190,49 @@ async def test_turn_limit_applies_without_tools_and_cannot_be_reset_by_native_la
     await gateway.model_request(Request())
     with pytest.raises(ConfigurationError, match="limit"):
         await gateway.model_request(Request())
+
+
+@pytest.mark.parametrize("provider,model,path,expected", [
+    ("anthropic", "anthropic/claude-sonnet-4-6", "messages", "claude-sonnet-4-6"),
+    ("openai", "openai/scripted", "chat/completions", "scripted"),
+])
+async def test_explicit_provider_override_uses_litellm_with_custom_endpoint(
+    provider, model, path, expected,
+):
+    async with Provider().running() as upstream:
+        upstream.protocols = {path}
+        base_url = upstream.url.removesuffix("/v1") if provider == "anthropic" else upstream.url
+        profile = ProfileOptions(
+            harness="deepagents", model=model,
+            model_kwargs={"api_base": base_url, "api_key": "synthetic",
+                          "custom_llm_provider": provider, "max_tokens": 500},
+        )
+        async with ModelEndpoint(profile) as endpoint, httpx.AsyncClient() as client:
+            response = await client.post(endpoint.url + "/chat/completions", json={
+                "model": "native-default", "messages": [{"role": "user", "content": "Hello"}],
+            })
+            assert response.status_code == 200, response.text
+            assert "Validated USD 12" in response.text
+        assert upstream.paths == [path]
+        assert upstream.requests[0]["model"] == expected
+
+
+def test_direct_provider_configuration_is_unchanged():
+    from liteagents.runtime.model_bridge import completion_arguments, validate_settings
+
+    profile = ProfileOptions(harness="deepagents", model="anthropic/claude-sonnet-4-6")
+    validate_settings(profile)
+    arguments = completion_arguments(profile, {"messages": []}, profile.model)
+    assert arguments == {"model": profile.model, "messages": []}
+
+
+@pytest.mark.parametrize("model,settings,error", [
+    ("my-model", {}, "api_base"),
+    ("litellm_proxy/my-model", {}, "api_base"),
+    ("openai/test", {"custom_llm_provider": "unknown"}, "custom_llm_provider"),
+    ("openai/test", {"custom_llm_provider": []}, "custom_llm_provider"),
+])
+def test_model_routing_configuration_fails_before_connection(model, settings, error):
+    profile = ProfileOptions(harness="deepagents", model=model, model_kwargs=settings)
+    with pytest.raises(ConfigurationError, match=error):
+        ModelEndpoint(profile)

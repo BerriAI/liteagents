@@ -4,6 +4,27 @@ Install the development version from the repository checkout with
 `pip install '.[all]' -c constraints-tested.txt`. The PyPI project currently
 named `liteagents` is a different package.
 
+## Updating from 0.3.0a1 to 0.3.0a2
+
+With `model_kwargs.api_base`, set `model` to the gateway's exact alias. The
+endpoint selects an OpenAI-compatible connection, and aliases containing `/`
+are preserved. Existing `litellm_proxy/alias` configurations continue to work.
+Provider-prefixed models without an endpoint keep their existing LiteLLM routing.
+
+If you previously used `api_base` to override a direct provider's native endpoint,
+add `custom_llm_provider` to `model_kwargs`, for example `"anthropic"` or `"openai"`.
+This preserves that provider's protocol and prefix handling. Without the override,
+`model="anthropic/foo"` with an endpoint now means the literal gateway alias
+`anthropic/foo`. Gateway configurations need no additional setting.
+
+A bare alias plus a model endpoint now selects shared LiteLLM execution for
+unattached CLI harnesses, including runs without tools. This keeps model
+settings and tool defaults consistent when changing harnesses. Attached OpenCode
+servers and explicit native Python model objects retain their existing behavior.
+
+Finish existing durable runs on their original SDK/profile version. Upgrade
+clients and workers together; use new profile IDs for changed configuration.
+
 ## Updating from 0.2.0 to 0.3.0a1
 
 The client and profile API is unchanged. LiteLLM now handles shared model

@@ -51,7 +51,7 @@ async def test_application_tool_alone_selects_supported_execution(harness, tmp_p
     tool = Lookup()
     async with Provider().running() as provider, asyncio.timeout(60):
         profile = ProfileOptions(
-            harness=harness, model="litellm_proxy/scripted",
+            harness=harness, model="scripted",
             model_kwargs={"api_base": provider.url, "api_key": "synthetic"},
         )
         assert profile.recovery is None and profile.tools is None and not profile.mcp_servers
@@ -85,7 +85,7 @@ async def test_same_application_tools_mcp_and_events(harness, durable, selection
     async with Provider().running() as provider, AsyncExitStack() as stack, asyncio.timeout(90):
         provider.protocols = {"chat/completions"}
         profile = ProfileOptions(
-            harness=harness, model="litellm_proxy/scripted",
+            harness=harness, model="anthropic/team/production",
             model_kwargs={"api_base": provider.url, "api_key": "synthetic",
                           "temperature": 0, "top_p": 0.9, "max_tokens": 512},
             tools={"selected": ["lookup", "external_slow"], "none": [], "defaults": None}[selection],
@@ -125,7 +125,7 @@ async def test_same_application_tools_mcp_and_events(harness, durable, selection
                    for b in m.content if isinstance(b, ToolResultBlock)]
         assert result.text == "Validated USD 12"
         assert provider.paths and set(provider.paths) == {"chat/completions"}
-        assert all(r["model"] == "scripted" and r["temperature"] == 0 and r["top_p"] == 0.9
+        assert all(r["model"] == "anthropic/team/production" and r["temperature"] == 0 and r["top_p"] == 0.9
                    and r.get("max_tokens", r.get("max_completion_tokens")) == 512
                    for r in provider.requests)
         assert result.usage.get("native_reports"), "Final native usage must survive normalization"
@@ -168,7 +168,7 @@ async def test_conversations_and_jobs_keep_their_meaning(harness, durable, tmp_p
     async with Provider().running() as provider, AsyncExitStack() as stack, asyncio.timeout(90):
         provider.protocols = {"chat/completions"}
         profile = ProfileOptions(
-            harness=harness, model="litellm_proxy/scripted",
+            harness=harness, model="scripted",
             model_kwargs={"api_base": provider.url, "api_key": "synthetic", "temperature": 0},
             max_turns=4,
         )
@@ -205,3 +205,24 @@ async def test_conversations_and_jobs_keep_their_meaning(harness, durable, tmp_p
                 workflow_history = await attached.handle.fetch_history()
                 raw = b"".join(event.SerializeToString() for event in workflow_history.events)
                 assert b"USD 12" not in raw, "Tool content must stay out of Temporal history"
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("harness", available_harnesses())
+async def test_gateway_endpoint_selects_shared_execution_without_tools(harness, tmp_path):
+    if harness in ("deepagents", "pydantic-ai"):
+        pytest.importorskip(harness.replace("-", "_"))
+    else:
+        available(harness)
+    async with Provider().running() as provider, asyncio.timeout(60):
+        provider.protocols = {"chat/completions"}
+        profile = ProfileOptions(
+            harness=harness, model="scripted",
+            model_kwargs={"api_base": provider.url, "api_key": "synthetic", "temperature": 0},
+        )
+        async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=tmp_path)) as client:
+            result = await (await client.start_run("Hello")).result()
+        assert result.text == "Validated USD 12"
+        assert provider.requests
+        assert all(r["model"] == "scripted" and r["temperature"] == 0
+                   and not r.get("tools") for r in provider.requests)

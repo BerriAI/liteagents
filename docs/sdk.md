@@ -18,15 +18,27 @@ Load a file with `ProfileOptions.from_yaml("agent.yaml")` or
 contents. The [JSON/YAML profile guide](profiles.md) includes complete examples,
 environment setup, and equivalent Python usage.
 
-All harnesses use LiteLLM for `provider/model` names and `litellm_proxy/` aliases.
-The same model and endpoint carry across harnesses. A gateway alias uses Chat
+All harnesses use LiteLLM for shared model requests. With `model_kwargs.api_base`,
+`model` is the exact alias sent to that OpenAI-compatible gateway. No prefix is
+needed. Slashes, including provider-looking names such as `anthropic/team-model`,
+are preserved. Existing `litellm_proxy/alias` configurations still work; only that
+legacy marker is removed. Without an endpoint, use LiteLLM's `provider/model`
+names and usual credentials to connect to a provider directly.
+
+The same model and endpoint carry across harnesses. A gateway uses Chat
 Completions; internal adapters translate the native Messages and Responses APIs.
+For an advanced direct-provider connection with a custom endpoint, set
+`model_kwargs.custom_llm_provider` to the LiteLLM provider name, for example
+`anthropic`. This explicitly selects that provider's native protocol and model
+naming rules while still routing through LiteLLM. Gateway connections do not
+need this setting.
+
 Python harnesses also accept native model objects through `harness_options.model_instance`.
 Those objects stay on the application/worker; Temporal arguments contain only a
 profile version reference and the prompt. Profiles with native objects need an
 explicit, stable `temporal.profile_id`.
 
-Shared model kwargs are `api_base`, `api_key`, `temperature`, `top_p`,
+Shared model kwargs are `api_base`, `api_key`, `custom_llm_provider`, `temperature`, `top_p`,
 `max_tokens`, `stop`, `seed`, `presence_penalty`, `frequency_penalty`,
 `reasoning_effort`, and `timeout`. LiteLLM validates provider support; meaningful
 settings are never silently dropped. `max_turns` applies to every harness,
@@ -182,10 +194,13 @@ features:
 subagents:
   auditor:
     description: Verify facts against source files.
-    model: litellm_proxy/another-compatible-alias
+    model: another-compatible-alias
     tools: [read_file]
     system_prompt: Report evidence and uncertainty.
 ```
+
+Children inherit the parent's model connection. With a gateway endpoint,
+child model overrides are also exact gateway aliases.
 
 An empty child tool list exposes no tools. Children do not inherit permission to
 edit or run commands from their parent. Parent/child operations use separate
@@ -198,7 +213,7 @@ built-in delegation tools are excluded from managed execution.
 recovery:
   retries:
     max_attempts: 3
-  model_fallbacks: [litellm_proxy/backup-alias]
+  model_fallbacks: [backup-alias]
   harness_fallbacks: [pydantic-ai]
 harness_options:
   interrupt_on:
@@ -210,6 +225,10 @@ connection failures, HTTP 429, and HTTP 5xx. Authentication, invalid parameters,
 and denied approvals are not transient retries. Completed operations, exhausted
 budgets, and approval decisions are persisted for durable runs; worker retries
 do not reset them.
+
+Model fallbacks inherit the profile's model connection; with a gateway endpoint,
+fallback names are exact aliases on that gateway. If the gateway already handles
+model fallback, no SDK model fallback configuration is needed.
 
 Model fallback preserves the native conversation at the failed model boundary.
 LiteLLM translates fallback models through the same provider layer. Harness fallback starts
@@ -231,9 +250,10 @@ tools need application idempotency or reconciliation.
 ## Native CLI execution modes
 
 Ordinary direct Claude/Codex/OpenCode adapters preserve native sessions, native
-tools, and native configuration. A `provider/model` name, application tools, an explicit `profile.tools`
-selection (including `[]`), shared MCP servers, recovery, Temporal, approvals,
-or subagents automatically select **managed execution**. Enabling retries is
+tools, and native configuration. A `provider/model` name, a shared model endpoint
+or provider override, application tools, an explicit `profile.tools` selection
+(including `[]`), shared MCP servers, recovery, Temporal, approvals, or subagents
+automatically select **managed execution**. Enabling retries is
 unnecessary for tool adaptation. It still runs the chosen harness's own loop.
 
 LiteLLM connects to the selected provider or gateway. Private local protocol

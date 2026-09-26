@@ -17,6 +17,7 @@ from .wire_response import encode_response
 SETTINGS = {
     "api_base",
     "api_key",
+    "custom_llm_provider",
     "temperature",
     "top_p",
     "max_tokens",
@@ -35,8 +36,17 @@ def validate_settings(profile):
         raise ConfigurationError(f"Unsupported shared model settings: {sorted(unknown)}")
     if profile.model.startswith("litellm_proxy/") and not profile.model_kwargs.get("api_base"):
         raise ConfigurationError("litellm_proxy models require model_kwargs.api_base")
-    if "/" not in profile.model:
-        raise ConfigurationError("Use provider/model or litellm_proxy/alias for shared execution")
+    provider = profile.model_kwargs.get("custom_llm_provider")
+    if provider is not None:
+        from litellm import provider_list
+
+        if not isinstance(provider, str) or provider not in provider_list:
+            raise ConfigurationError("custom_llm_provider must name a supported LiteLLM provider")
+    if "/" not in profile.model and not profile.model_kwargs.get("api_base") and not provider:
+        raise ConfigurationError(
+            "A model alias requires model_kwargs.api_base; "
+            "without a gateway, use provider/model for shared execution"
+        )
 
 
 def translate_request(path: str, body: dict) -> dict:
@@ -102,6 +112,11 @@ def completion_arguments(profile, translated, model):
     arguments.update(profile.model_kwargs)
     if model.startswith("litellm_proxy/"):
         model = "openai/" + model.split("/", 1)[1]
+    elif arguments.get("api_base") and not arguments.get("custom_llm_provider"):
+        # api_base selects an OpenAI-compatible gateway. Its model is an opaque
+        # alias, even when it contains a provider-looking prefix. LiteLLM removes
+        # only this internal prefix before sending the request to the endpoint.
+        model = "openai/" + model
     return {"model": model, **arguments}
 
 

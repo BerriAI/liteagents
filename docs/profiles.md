@@ -11,7 +11,7 @@ Save this as `agent.yaml`:
 
 ```yaml
 harness: deepagents
-model: litellm_proxy/${LITEAGENTS_MODEL}
+model: ${LITEAGENTS_MODEL}
 model_kwargs:
   api_base: ${LITEAGENTS_API_BASE}
   api_key: ${LITELLM_API_KEY}
@@ -25,7 +25,7 @@ Or save the equivalent configuration as `agent.json`:
 ```json
 {
   "harness": "deepagents",
-  "model": "litellm_proxy/${LITEAGENTS_MODEL}",
+  "model": "${LITEAGENTS_MODEL}",
   "model_kwargs": {
     "api_base": "${LITEAGENTS_API_BASE}",
     "api_key": "${LITELLM_API_KEY}"
@@ -35,6 +35,10 @@ Or save the equivalent configuration as `agent.json`:
   "max_turns": 10
 }
 ```
+
+`model` is the exact alias configured on the gateway at `model_kwargs.api_base`.
+No prefix is needed. A slash in an alias is preserved, even in a name such as
+`anthropic/team-model`. The gateway decides which provider serves it.
 
 Set the environment variables in the process that loads the file:
 

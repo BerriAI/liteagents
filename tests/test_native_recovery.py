@@ -190,7 +190,7 @@ async def test_native_subagent_model_and_tool_restriction(harness, tmp_path):
 
         config.subagents = {
             "auditor": SubagentOptions(
-                description="Audit the order", model="litellm_proxy/child", tools=["lookup"]
+                description="Audit the order", model="anthropic/child", tools=["lookup"]
             )
         }
         async with LiteAgentClient(
@@ -202,7 +202,7 @@ async def test_native_subagent_model_and_tool_restriction(harness, tmp_path):
         assert (tmp_path / "calls.txt").read_text().splitlines() == ["lookup"]
         assert any(e.kind == "subagent_completed" and e.data["agent"] == "auditor" for e in events)
         child_requests = [
-            r for r in upstream.requests if r.get("model") == "child" and r.get("tools")
+            r for r in upstream.requests if r.get("model") == "anthropic/child" and r.get("tools")
         ]
         assert child_requests
         from liteagents.runtime.native_protocol import tool_name
@@ -252,7 +252,7 @@ async def test_native_model_retries_then_fallback(harness, tmp_path):
     async with Provider().running() as upstream, asyncio.timeout(70):
         upstream.fail_models = {"scripted"}
         config = profile(harness, upstream.url)
-        config.recovery.model_fallbacks = ["litellm_proxy/backup"]
+        config.recovery.model_fallbacks = ["openai/team/backup"]
         async with LiteAgentClient(
             options=LiteAgentOptions(profile=config, tools=tools, cwd=tmp_path)
         ) as client:
@@ -267,7 +267,7 @@ async def test_native_model_retries_then_fallback(harness, tmp_path):
         assert (
             len([r for r in upstream.requests if r.get("tools") and r["model"] == "scripted"]) == 6
         )
-        assert len([r for r in upstream.requests if r.get("tools") and r["model"] == "backup"]) == 3
+        assert len([r for r in upstream.requests if r.get("tools") and r["model"] == "openai/team/backup"]) == 3
         assert any(e.kind == "operation_retry" for e in events)
         assert any(e.kind == "model_fallback" for e in events)
 

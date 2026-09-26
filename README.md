@@ -33,7 +33,7 @@ the selected harness, and the model must support the requested settings and tool
 
 ## Install
 
-Python 3.11+; Python 3.12 is recommended. This checkout contains **0.3.0a1**.
+Python 3.11+; Python 3.12 is recommended. This checkout contains **0.3.0a2**.
 Install it from the repository root:
 
 ```sh
@@ -51,7 +51,7 @@ runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
 
 The `liteagents` name on PyPI currently serves a different package. To install
 without cloning, use the wheel and tested constraints from the
-[0.3.0a1 preview release](https://github.com/BerriAI/liteagents/releases/tag/v0.3.0a1).
+[0.3.0a2 preview release](https://github.com/BerriAI/liteagents/releases/tag/v0.3.0a2).
 For a source checkout and the cookbooks, follow the
 [getting-started guide](docs/getting-started.md).
 
@@ -86,10 +86,25 @@ Install each harness integration you want to use. After changing `harness`, run
 the same code again. LiteAgents selects the installed harness; it does not
 download one during a query or migrate a conversation between harnesses.
 
-To use a LiteLLM gateway instead of a provider directly, set
-`model="litellm_proxy/your-model-alias"` and pass its `/v1` URL and key in
-`model_kwargs={"api_base": ..., "api_key": ...}`. See the
-[gateway example](docs/getting-started.md) for environment-variable configuration.
+With a LiteLLM gateway, use the model alias configured on your gateway and its
+endpoint and key:
+
+```python
+profile = ProfileOptions(
+    harness="deepagents",
+    model="my-model",
+    model_kwargs={
+        "api_base": "https://your-gateway.example/v1",
+        "api_key": "your-gateway-key",
+    },
+)
+```
+
+LiteAgents sends `my-model` to that endpoint unchanged. No routing prefix is
+needed, including for aliases containing `/`. The gateway selects the provider.
+Without a gateway endpoint, use a `provider/model` name as in the first example;
+the LiteLLM library connects to that provider directly. Both paths use LiteLLM.
+See [getting started](docs/getting-started.md) for environment-variable setup.
 
 ## Read responses and continue conversations
 
@@ -146,8 +161,9 @@ agent engines. Both use the tested OpenCode 1.18.x server.
 
 The same Chat Completions gateway alias works across all six selectors.
 LiteLLM translates the Claude Messages and Codex Responses protocols internally.
-You can also use a LiteLLM `provider/model` and its usual credentials directly;
-`api_base` is required for `litellm_proxy/` aliases, not for a standard provider.
+Use your gateway's exact model alias with `model_kwargs.api_base`, or a LiteLLM
+`provider/model` and its usual credentials without a gateway endpoint.
+Existing `litellm_proxy/alias` configurations remain supported.
 No extra translation service or configuration is needed.
 
 Shared model settings include `temperature`, `top_p`, `max_tokens`, `stop`,
@@ -164,7 +180,7 @@ Profiles can live in files instead of Python code. For example, `agent.yaml`:
 
 ```yaml
 harness: deepagents
-model: litellm_proxy/${LITEAGENTS_MODEL}
+model: ${LITEAGENTS_MODEL}
 model_kwargs:
   api_base: ${LITEAGENTS_API_BASE}
   api_key: ${LITELLM_API_KEY}

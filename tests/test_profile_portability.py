@@ -23,7 +23,8 @@ def test_tool_selection_survives_profile_serialization(harness, tmp_path):
 
 @pytest.mark.parametrize("harness", available_harnesses())
 def test_capabilities_follow_profile_and_application_tools(harness):
-    profile = ProfileOptions(harness=harness, model="litellm_proxy/test")
+    profile = ProfileOptions(harness=harness, model="my-model",
+                             model_kwargs={"api_base": "https://gateway.example/v1"})
     assert get_capabilities(profile).execution_mode == (
         "native" if harness in ("deepagents", "pydantic-ai") else "managed"
     )
