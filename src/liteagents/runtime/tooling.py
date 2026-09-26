@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-from contextlib import AsyncExitStack
+import sys
+from contextlib import AsyncExitStack, contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -82,6 +83,19 @@ def select_tools(profile: ProfileOptions, registered: list[Tool], cwd: Path) -> 
     return selected
 
 
+@contextmanager
+def process_stderr():
+    try:
+        sys.stderr.fileno()
+    except (AttributeError, OSError, ValueError):
+        # Notebook output streams have no OS descriptor. Inherit the kernel's
+        # stderr without replacing or closing its descriptor.
+        with open(2, "w", closefd=False) as stream:
+            yield stream
+    else:
+        yield sys.stderr
+
+
 async def load_servers(profile: ProfileOptions, stack: AsyncExitStack) -> list[Tool]:
     if not profile.mcp_servers:
         return []
@@ -113,13 +127,15 @@ async def load_servers(profile: ProfileOptions, stack: AsyncExitStack) -> list[T
         if unknown:
             raise ConfigurationError(f"Unknown MCP settings for {name}: {sorted(unknown)}")
         if "command" in config and "url" not in config:
+            error_log = stack.enter_context(process_stderr())
             channels = await stack.enter_async_context(
                 stdio_client(
                     StdioServerParameters(
                         command=config["command"],
                         args=config.get("args", []),
                         env=config.get("env"),
-                    )
+                    ),
+                    errlog=error_log,
                 )
             )
         elif "url" in config and "command" not in config:

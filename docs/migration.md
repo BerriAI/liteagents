@@ -1,8 +1,14 @@
 # Upgrading LiteAgents
 
-Install the development version from the repository checkout with
-`pip install '.[all]' -c constraints-tested.txt`. The PyPI project currently
-named `liteagents` is a different package.
+Install the preview wheel using the command in [Getting started](getting-started.md).
+The PyPI project currently named `liteagents` is a different package.
+
+## Updating from 0.3.0a2 to 0.3.0a3
+
+The client and profile API is unchanged. This release fixes stdio MCP connections
+from notebook kernels and adds standalone Colab cookbooks. Install the preview
+wheel as shown in [Getting started](getting-started.md); no checkout is needed.
+For durable deployments, upgrade clients and workers together.
 
 ## Updating from 0.3.0a1 to 0.3.0a2
 

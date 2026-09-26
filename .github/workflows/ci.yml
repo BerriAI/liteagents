@@ -19,7 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev,mcp]" "mcp==${{ matrix.mcp-version }}"
       - run: python scripts/check_loc.py
-      - run: ruff check src/ tests/ cookbook/recipes/
+      - run: ruff check src/ tests/ cookbook/recipes/ cookbook/compare_harnesses/compare.ipynb
       - run: mypy src/liteagents --ignore-missing-imports
       - run: pytest -q
       - run: python -m build

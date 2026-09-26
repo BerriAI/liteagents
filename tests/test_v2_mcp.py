@@ -1,4 +1,5 @@
 import asyncio
+import io
 import socket
 import sys
 from contextlib import AsyncExitStack
@@ -8,6 +9,19 @@ import pytest
 from liteagents import LiteAgentClient, LiteAgentOptions, ProfileOptions
 from liteagents.runtime.tooling import load_servers
 from tests.test_mcp_transport import SERVER
+
+
+async def test_stdio_mcp_with_notebook_style_stderr(monkeypatch):
+    pytest.importorskip("mcp")
+    monkeypatch.setattr(sys, "stderr", io.StringIO())
+    profile = ProfileOptions(
+        harness="deepagents", model="scripted/test",
+        mcp_servers={"evidence": {"command": sys.executable, "args": [str(SERVER)],
+                                  "allowed_tools": ["read_memory"]}},
+    )
+    async with AsyncExitStack() as stack:
+        tools = await load_servers(profile, stack)
+        assert "evidence:notebook" in str(await tools[0].execute({"query": "notebook"}))
 
 
 @pytest.mark.integration
