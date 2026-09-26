@@ -27,7 +27,7 @@ def credentials(path):
     return next(c.source for c in notebook.cells if "credentials" in c.metadata.get("tags", []))
 
 
-@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.stem)
+@pytest.mark.parametrize("path", [p for p in NOTEBOOKS if p.stem != "00_agent"], ids=lambda p: p.stem)
 @pytest.mark.parametrize("provider,key", KEYS.items())
 def test_provider_key_from_environment(path, provider, key, monkeypatch):
     prompt = Mock(side_effect=AssertionError("An existing provider key must not prompt"))
@@ -44,7 +44,7 @@ def test_cloud_or_local_provider_does_not_demand_an_api_key(provider, monkeypatc
     monkeypatch.setattr("getpass.getpass", Mock(side_effect=AssertionError("Unexpected key prompt")))
     monkeypatch.setattr(os, "environ", {})
     namespace = {"os": os, "MODEL": f"{provider}/example", "API_BASE": ""}
-    exec(credentials(ROOT / "cookbook/recipes/00_agent.ipynb"), namespace)
+    exec(credentials(ROOT / "cookbook/recipes/01_quickstart.ipynb"), namespace)
     assert namespace["API_KEY"] is None
     assert namespace.get("MODEL_KWARGS", {}) == {}
 
@@ -87,7 +87,27 @@ def test_colab_secrets_and_hidden_prompt(outcome, monkeypatch):
     prompt = Mock(return_value="prompt-synthetic")
     monkeypatch.setattr("getpass.getpass", prompt)
     namespace = {"os": os, "MODEL": "openrouter/anthropic/example", "API_BASE": ""}
-    exec(credentials(ROOT / "cookbook/recipes/00_agent.ipynb"), namespace)
+    exec(credentials(ROOT / "cookbook/recipes/01_quickstart.ipynb"), namespace)
     expected = "colab-synthetic" if outcome == "secret" else "prompt-synthetic"
     assert namespace["API_KEY"] == os.environ["OPENROUTER_API_KEY"] == expected
     assert prompt.call_count == (outcome != "secret")
+
+
+@pytest.mark.parametrize("existing", [True, False])
+def test_first_agent_key_prompt_and_rerun(existing, monkeypatch, capsys):
+    monkeypatch.setattr(os, "environ", {"OPENAI_API_KEY": "hidden-key"} if existing else {})
+    prompt = Mock(return_value="hidden-key")
+    monkeypatch.setattr("getpass.getpass", prompt)
+    source = credentials(ROOT / "cookbook/recipes/00_agent.ipynb")
+    exec(source, {})
+    exec(source, {})
+    assert os.environ["OPENAI_API_KEY"] == "hidden-key"
+    assert prompt.call_count == (0 if existing else 1)
+    assert "hidden-key" not in capsys.readouterr().out
+
+
+def test_first_agent_empty_key_explains_next_step(monkeypatch):
+    monkeypatch.setattr(os, "environ", {})
+    monkeypatch.setattr("getpass.getpass", Mock(return_value=""))
+    with pytest.raises(ValueError, match="Run this cell again"):
+        exec(credentials(ROOT / "cookbook/recipes/00_agent.ipynb"), {})

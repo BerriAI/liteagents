@@ -11,6 +11,7 @@ from pathlib import Path
 
 import nbformat
 import pytest
+from IPython.core.inputtransformer2 import TransformerManager
 from jupyter_client import AsyncKernelManager
 from jupyter_client.kernelspec import KernelSpecManager
 from nbclient import NotebookClient
@@ -35,8 +36,9 @@ def test_every_current_cookbook_has_a_clean_valid_notebook():
         for cell in notebook.cells:
             if cell.cell_type == "code":
                 assert cell.execution_count is None and not cell.outputs
-                compile(cell.source, str(path), "exec", flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
-                tree = ast.parse(cell.source)
+                source = TransformerManager().transform_cell(cell.source)
+                compile(source, str(path), "exec", flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
+                tree = ast.parse(source)
                 assert not any(
                     isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
                     and isinstance(node.func.value, ast.Name)
@@ -58,6 +60,8 @@ async def execute_notebook(
         pytest.importorskip(harness.replace("-", "_"))
     else:
         available(harness)
+    if path.stem == "00_agent":
+        pytest.importorskip("pydantic_ai")
     pytest.importorskip("mcp")
     if durable:
         pytest.importorskip("temporalio")
@@ -122,12 +126,15 @@ async def execute_notebook(
             if await manager.is_alive():
                 await manager.shutdown_kernel(now=True)
         assert provider.requests
-        assert all(r["model"] == "notebook-model" for r in provider.requests)
+        expected_model = "gpt-5.4-mini" if path.stem == "00_agent" else "notebook-model"
+        assert all(r["model"] == expected_model for r in provider.requests)
     output = "\n".join(
         out.get("text", "") for cell in executed.cells if cell.cell_type == "code"
         for out in cell.outputs
     )
     assert "notebook-synthetic-key" not in output
+    if path.stem == "00_agent":
+        assert output.count("READY") == 6  # First run, harness switch, new prompt; twice.
     if path.stem == "compare":
         reports = list((tmp_path / "work").rglob("results.json"))
         assert len(reports) == 2

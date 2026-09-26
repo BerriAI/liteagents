@@ -39,7 +39,7 @@ the selected harness, and the model must support the requested settings and tool
 Python 3.11+; Python 3.12 is recommended. Install the SDK and your first harness:
 
 ```sh
-python -m pip install "liteagents[deepagents] ` https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
+python -m pip install "liteagents[deepagents] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
 ```
 
 This **0.3.0a3 preview** uses a GitHub release wheel because the `liteagents`
@@ -50,10 +50,10 @@ also provides `constraints-tested.txt` for reproducing the tested dependency ver
 Replace `[deepagents]` with `[all]` to install all Python integrations, or select
 the extras you need: `deepagents`, `pydantic-ai`, `claude-sdk`, `codex`, `mcp`,
 `temporal`, and `postgres`. Claude and Codex include their runtimes.
-OpenCode additionally needs `npm install -g opencode-ai`1.18.29`.
+OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
 A simple agent needs no Temporal or PostgreSQL service.
 
-**Try it without local setup:**
+**Follow the browser walkthrough:** install, add your key, run an agent, then switch harnesses.
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb)
 
 ## Run an agent

@@ -12,7 +12,7 @@ For a copyable Python snippet outside Colab, see [Getting started](../docs/getti
 
 | Notebook | What to try |
 | --- | --- |
-| [First agent](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb) | Call `query()` and inspect typed messages |
+| [First agent](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb) | A guided first run, then switch DeepAgents to Pydantic AI |
 | [Streaming and conversation](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/01_quickstart.ipynb) | Stream a response and ask a follow-up |
 | [Application tools](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/08_application_tools.ipynb) | Define a Python tool and inspect calls |
 | [MCP](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/02_mcp.ipynb) | Connect a demo server included in the notebook |
@@ -26,6 +26,12 @@ For a copyable Python snippet outside Colab, see [Getting started](../docs/getti
 | [Durable runs](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/06_durable.ipynb) | Submit, reconnect, and crash/restart the worker |
 
 ## Setup in Colab
+
+The **First agent** walkthrough walks you through installation, a hidden API-key
+prompt, your first response, and a one-line harness switch. Start there; it
+does not require Colab Secrets or environment configuration.
+
+The feature notebooks below use a more configurable setup:
 
 1. Click a notebook above and connect to a **Python CPU runtime**.
 2. Choose `HARNESS` (or `HARNESSES` for comparisons) and `MODEL` at the top.

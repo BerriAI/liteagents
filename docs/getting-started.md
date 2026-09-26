@@ -3,7 +3,7 @@
 Install LiteAgents, choose a harness and model, and call `query()`.
 No repository checkout, gateway, Temporal, or database is needed for a first agent.
 
-**Try it in your browser:**
+**Follow the browser walkthrough:** install, add your key, run an agent, then switch harnesses.
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb)
 
 ## Install
@@ -12,7 +12,7 @@ Use Python 3.11 or newer. This preview installs from a GitHub release wheel;
 the `liteagents` name on PyPI currently belongs to a different package.
 
 ```sh
-python -m pip install "liteagents[deepagents] ` https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
+python -m pip install "liteagents[deepagents] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
 ```
 
 `[deepagents]` installs that harness integration along with the SDK. Existing
@@ -81,7 +81,7 @@ and local Ollama, see [Model setup](models.md).
 Install the integrations you want into the same environment:
 
 ```sh
-python -m pip install "liteagents[deepagents,pydantic-ai] ` https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
+python -m pip install "liteagents[deepagents,pydantic-ai] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
 ```
 
 Change one field and run the same application:
@@ -100,7 +100,7 @@ native session to another harness.
 | `pydantic-ai` | `pydantic-ai` |
 | `claude-sdk` | `claude-sdk` |
 | `codex` | `codex` |
-| `opencode-v1` / `opencode-v2` | Either selector; also `npm install -g opencode-ai`1.18.29` |
+| `opencode-v1` / `opencode-v2` | Either selector; also `npm install -g opencode-ai@1.18.29` |
 
 The Claude and Codex extras include their runtimes. `[all]` installs all Python
 integrations; OpenCode still needs its executable. Colab's setup cell installs
