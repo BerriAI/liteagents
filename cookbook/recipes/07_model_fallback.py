@@ -47,7 +47,7 @@ async def main():
         await runner.setup()
         await web.TCPSite(runner, "127.0.0.1", 0).start()
         try:
-            profile.model = "litellm_proxy/synthetic-unavailable"
+            profile.model = "synthetic-unavailable"
             profile.model_kwargs["api_base"] = f"http://127.0.0.1:{runner.addresses[0][1]}/v1"
             profile.recovery = RecoveryOptions(
                 retries={"max_attempts": 2}, model_fallbacks=[original_model]

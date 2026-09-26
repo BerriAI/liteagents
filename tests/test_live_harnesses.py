@@ -41,7 +41,7 @@ def live_profile(harness, *, mcp=False):
         tools = ["evidence_read_memory"]
     return ProfileOptions(
         harness=harness,
-        model="litellm_proxy/" + model,
+        model=model,
         model_kwargs={
             "api_base": os.environ["LITEAGENTS_API_BASE"],
             "api_key": os.environ["LITELLM_API_KEY"],

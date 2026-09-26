@@ -17,7 +17,7 @@ async def main():
     profile.subagents = {
         "auditor": SubagentOptions(
             description="Verify orders against receipt.txt; report the evidence.",
-            model="litellm_proxy/" + child_model if child_model else profile.model,
+            model=child_model or profile.model,
             tools=["read_file"],
         )
     }

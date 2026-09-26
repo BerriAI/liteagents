@@ -4,8 +4,8 @@ LiteAgents runs real DeepAgents, Pydantic AI, Claude Agent SDK, Codex, and OpenC
 loops through one Python client. Start with a simple agent, add your own tools,
 then try durable execution if your task needs it.
 
-This guide uses the **0.3.0a1** source checkout and its runnable cookbooks.
-Install from this checkout; the older 0.2.0 wheel predates these changes.
+This guide uses the **0.3.0a2** source checkout and its runnable cookbooks.
+Install from this checkout or the matching preview release.
 
 ## 1. Get a first response
 
@@ -32,7 +32,9 @@ python cookbook/recipes/00_agent.py
 Expected: `READY`. No Temporal or PostgreSQL service is needed. The model
 endpoint can be an existing LiteLLM gateway or a compatible provider endpoint;
 the variable names do not require you to deploy a LiteLLM server. Calls use your
-model account.
+model account. Set `LITEAGENTS_MODEL` to the exact alias configured at that
+endpoint. No `litellm_proxy/` prefix is needed; aliases containing `/` are sent
+unchanged. The recipes use LiteLLM for every harness's model requests.
 
 Next, try file tools, streaming, and a follow-up in the same conversation:
 

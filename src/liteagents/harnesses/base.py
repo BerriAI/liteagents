@@ -63,8 +63,11 @@ def available_harnesses() -> tuple[str, ...]:
 
 def uses_managed_execution(profile: ProfileOptions, *, tools: Sequence[Tool] = ()) -> bool:
     attached = profile.harness.startswith("opencode") and profile.harness_options.get("base_url")
+    shared_model = "/" in profile.model or any(
+        profile.model_kwargs.get(name) for name in ("api_base", "custom_llm_provider")
+    )
     return profile.harness not in ("deepagents", "pydantic-ai") and bool(
-        ("/" in profile.model and not attached)
+        (shared_model and not attached)
         or profile.temporal
         or profile.recovery
         or profile.tools is not None

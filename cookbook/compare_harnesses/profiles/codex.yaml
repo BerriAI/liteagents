@@ -1,5 +1,5 @@
 harness: codex
-model: litellm_proxy/${LITEAGENTS_MODEL}
+model: ${LITEAGENTS_MODEL}
 model_kwargs:
   api_base: ${LITEAGENTS_API_BASE}
   api_key: ${LITELLM_API_KEY}

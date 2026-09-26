@@ -23,7 +23,7 @@ def setup(args, recipe, *, tools=None):
             raise SystemExit(f"Set {name}; see cookbook/recipes/README.md")
     profile = ProfileOptions(
         harness=args.harness,
-        model="litellm_proxy/" + os.environ[model_env],
+        model=os.environ[model_env],
         model_kwargs={
             "api_base": os.environ["LITEAGENTS_API_BASE"],
             "api_key": os.environ["LITELLM_API_KEY"],
