@@ -7,10 +7,13 @@ import pytest
 from liteagents import (
     AssistantMessage,
     HarnessError,
+    LiteAgentClient,
+    LiteAgentOptions,
     ProfileOptions,
     TextBlock,
     TextDelta,
     ToolUseBlock,
+    query,
     run,
 )
 from liteagents.harnesses.base import HarnessAdapter
@@ -101,6 +104,25 @@ async def test_cancelling_run_closes_local_work(adapters, tmp_path):
     with pytest.raises(asyncio.CancelledError):
         await asyncio.wait_for(task, 3)
     assert all(a.closed for a in adapters)
+
+
+async def test_client_and_query_accept_the_same_profile_setup(adapters, tmp_path):
+    profile = ProfileOptions(harness="pydantic-ai", model="test")
+    async with LiteAgentClient(profile=profile, cwd=tmp_path) as client:
+        first = [m async for m in client.query("one")]
+        second = [m async for m in client.query("two")]
+        assert first and second and client.history
+    messages = [m async for m in query(prompt="three", profile=profile, cwd=tmp_path)]
+    assert messages
+    assert all(a.closed for a in adapters)
+
+
+@pytest.mark.parametrize("override", [{"profile": True}, {"cwd": "."}, {"tools": []},
+                                     {"session_id": "existing"}])
+def test_client_rejects_ambiguous_setup(adapters, override):
+    profile = ProfileOptions(harness="pydantic-ai", model="test")
+    with pytest.raises(TypeError, match="not both"):
+        LiteAgentClient(options=LiteAgentOptions(profile=profile), **override)
 
 
 @pytest.mark.integration

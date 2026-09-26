@@ -4,7 +4,7 @@ import asyncio
 
 from _common import parser, setup
 
-from liteagents import LiteAgentClient, LiteAgentOptions
+from liteagents import LiteAgentClient
 
 
 async def main():
@@ -17,7 +17,7 @@ async def main():
     target = cwd / "status.txt"
     target.write_text("status=pending\n")
     profile.harness_options["interrupt_on"] = {"edit_file": True}
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=cwd)) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd) as client:
         run = await client.start_run(
             "Read status.txt, then use edit_file to replace status=pending with status=approved."
         )

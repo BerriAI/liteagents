@@ -9,7 +9,7 @@ Run an agent, then switch its harness while keeping the same model and code.
 Use Python 3.11+. This installs LiteAgents and the two harnesses used below:
 
 ```sh
-python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a5/liteagents-0.3.0a5-py3-none-any.whl"
+python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a6/liteagents-0.3.0a6-py3-none-any.whl"
 ```
 
 The preview uses a GitHub release wheel because the PyPI name belongs to another

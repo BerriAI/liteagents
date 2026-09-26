@@ -127,7 +127,7 @@ class RunControl:
             raise asyncio.CancelledError("Run cancellation requested")
 
     async def approval(self, name: str, arguments: dict[str, Any], key: str) -> None:
-        approvals = self.profile.harness_options.get("interrupt_on", {})
+        approvals = self.profile.native_options().get("interrupt_on", {})
         if not approvals.get(name):
             return
         approval_id = digest([self.run_key, key])[:32]

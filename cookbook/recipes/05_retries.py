@@ -5,7 +5,7 @@ from typing import ClassVar
 
 from _common import parser, setup
 
-from liteagents import LiteAgentClient, LiteAgentOptions, RecoveryOptions, Tool, operation_id
+from liteagents import LiteAgentClient, RecoveryOptions, Tool, operation_id
 
 
 class UnstableLookup(Tool):
@@ -35,9 +35,7 @@ async def main():
     cwd, profile = setup(args, "retries", tools=["unstable_lookup"])
     profile.recovery = RecoveryOptions()
     tool = UnstableLookup()
-    async with LiteAgentClient(
-        options=LiteAgentOptions(profile=profile, cwd=cwd, tools=[tool])
-    ) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd, tools=[tool]) as client:
         run = await client.start_run("Call unstable_lookup once and report its result.")
         print((await run.result()).text)
     assert tool.attempts == 3 and len(set(tool.keys)) == 1

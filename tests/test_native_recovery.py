@@ -185,7 +185,6 @@ async def test_native_subagent_model_and_tool_restriction(harness, tmp_path):
     async with Provider().running() as upstream, asyncio.timeout(70):
         config = profile(harness, upstream.url)
         config.tools = ["read_file"]
-        config.features.subagents = True
         from liteagents.profiles import SubagentOptions
 
         config.subagents = {

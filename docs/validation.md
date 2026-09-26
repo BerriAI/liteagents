@@ -1,5 +1,18 @@
 # Release validation — September 26, 2026
 
+## 0.3.0a6 usability and portability
+
+The same application, typed function tool, MCP server, model, and model settings
+run through all six harnesses, changing only `profile.harness`, in direct and
+Temporal execution. Tests verify stable tool names, scoped native controls, and
+unchanged profile setup. Fallback tests verify that the destination harness's
+approval settings apply in both modes.
+Function checks cover input validation before side effects, nested typed values,
+defaults, output serialization, and operation context for synchronous functions.
+Subagent checks omit the redundant enable flag in both Python and native CLI
+harnesses. Existing options objects, Tool classes, and native controls retain
+regression coverage.
+
 ## 0.3.0a5 feature walkthroughs
 
 All feature notebooks use the same short direct-provider setup and explain one

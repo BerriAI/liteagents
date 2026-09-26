@@ -4,9 +4,9 @@ For the browser experience, use the [standalone Colab notebooks](../README.md).
 For a copyable SDK quickstart, see [Getting started](../../docs/getting-started.md).
 The scripts below are the checkout-based versions for terminal use.
 
-These recipes use the public SDK and your model gateway. Each creates a small
+These recipes use the public SDK with your model-provider account. Each creates a small
 workspace under `.liteagents/recipes/<recipe>/<harness>`; they do not edit your
-project files. Model calls use your gateway account.
+project files. A gateway is optional.
 
 ## Setup
 
@@ -15,21 +15,19 @@ From the repository root, with Python 3.12:
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install '.[deepagents,mcp]' -c constraints-tested.txt
-export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
-export LITELLM_API_KEY='your-key'
-export LITEAGENTS_MODEL='your-tool-capable-model-alias'
+pip install '.[pydantic-ai,mcp]' -c constraints-tested.txt
+export OPENAI_API_KEY='your-openai-key'
 ```
 
-This is sufficient for the DeepAgents recipes except durable runs. Add
+The defaults are Pydantic AI and `openai/gpt-5.4-mini`. This is sufficient except for durable runs. Add
 `.[temporal]` for recipe 06. To compare every harness, install `.[all]` with the
-same constraints. All selectors use the same `LITEAGENTS_MODEL`.
+same constraints. To change models, optionally set `LITEAGENTS_MODEL` and the matching provider credentials.
 For OpenCode, also install `npm install -g opencode-ai@1.18.29`.
 The Claude and Codex Python extras supply their native runtimes.
 
 Every recipe accepts `--harness deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
-`opencode-v1`, or `opencode-v2`. DeepAgents is the default. Use a tool-capable
-Chat Completions alias. LiteLLM translates each native protocol internally.
+`opencode-v1`, or `opencode-v2`. Pydantic AI is the default. LiteLLM translates model requests internally.
+Changing the harness does not change your provider setup.
 
 ## Recipes and expected results
 
@@ -38,14 +36,14 @@ Chat Completions alias. LiteLLM translates each native protocol internally.
 | Switch harnesses | `python cookbook/recipes/10_harness_switch.py --all` | Same profile/model, Python tool, MCP tool, and follow-up across all six; add `--temporal` for durability |
 | Simple agent | `python cookbook/recipes/00_agent.py` | Prints `READY`; no tools, Temporal, or PostgreSQL setup |
 | Streaming and conversation | `python cookbook/recipes/01_quickstart.py` | Reads `facts.txt`, streams `COBALT-42`, and remembers it in a follow-up |
-| Application tool | `python cookbook/recipes/08_application_tools.py` | Prints `Tool: lookup_order` and reports A123 as paid, total USD 12 |
-| JSON/YAML profiles | `python cookbook/recipes/09_profile_files.py` | Loads `profiles/agent.yaml`, resolves environment variables, and prints `READY` |
+| Application tool | `python cookbook/recipes/08_application_tools.py` | Prints `Looking up A123` and reports A123 as paid, total USD 12 |
+| JSON/YAML profiles | `python cookbook/recipes/09_profile_files.py` | Loads `profiles/agent.yaml` and prints `READY` |
 | MCP | `python cookbook/recipes/02_mcp.py` | Launches a real local MCP server and reports order A123 as paid, total USD 12 |
 | Subagents | `python cookbook/recipes/03_subagents.py` | Shows `subagent_started auditor`, then `subagent_completed auditor`; the child can only read files |
 | Approval before editing | `python cookbook/recipes/04_approvals.py` | Prints proposed arguments while the file is still `status=pending`; answering `y` allows the edit |
 | Operation retries | `python cookbook/recipes/05_retries.py` | Prints attempts 1, 2, 3; verifies the same idempotency key was used each time |
 | Worker recovery | `python cookbook/recipes/06_durable.py worker` | Runs on a separate Temporal worker; follow the instructions below |
-| Model fallback | `python cookbook/recipes/07_model_fallback.py` | Injects HTTP 503 for a synthetic primary, then prints a fallback event and `fallback-ready` from your real model |
+| Model fallback | `python cookbook/recipes/07_model_fallback.py` | Simulates an unavailable primary, then prints `fallback-ready` from your configured model |
 
 To run the same MCP example on Codex:
 
@@ -69,14 +67,27 @@ Both print `READY`. This recipe uses the harness and model in the file;
 [JSON/YAML guide](../../docs/profiles.md) explains environment variables,
 validation, application tools, MCP, and Temporal settings.
 
-For a different child model, set `LITEAGENTS_SUBAGENT_MODEL` to a compatible gateway
-alias before recipe 03. For an automated approval demo, recipe 04 accepts
+For a different child model, set `LITEAGENTS_SUBAGENT_MODEL` to a compatible provider/model name before recipe 03. For an automated approval demo, recipe 04 accepts
 `--approve`. Without it, the recipe asks before changing its sample file.
 
-The model fallback recipe starts a temporary local fault-injection proxy. Only
-the fallback model is sent to your real gateway; the synthetic outage costs no
-provider requests. Harness fallback uses `recovery.harness_fallbacks` and is
+The model fallback recipe deliberately raises an error before calling the
+primary model. Only the fallback reaches your provider; the simulated outage
+makes no provider request. Harness fallback uses `recovery.harness_fallbacks` and is
 allowed only before any tool begins; see the [SDK contract](../../docs/sdk.md).
+
+## Optional gateway
+
+If you already have a gateway, set its alias, endpoint, and key:
+
+```sh
+export LITEAGENTS_MODEL='your-model-alias'
+export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
+export LITELLM_API_KEY='your-gateway-key'
+```
+
+These are convenience variables for the terminal scripts, not required SDK
+configuration. File-based profiles use their own settings; see the
+[profile guide](../../docs/profiles.md#optional-gateway-connection).
 
 ## Durable run and worker crash
 

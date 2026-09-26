@@ -4,7 +4,7 @@ import asyncio
 
 from _common import parser, setup
 
-from liteagents import LiteAgentClient, LiteAgentOptions, TextDelta
+from liteagents import LiteAgentClient, TextDelta
 
 
 async def main():
@@ -12,7 +12,7 @@ async def main():
     cwd, profile = setup(args, "quickstart", tools=["read_file"])
     (cwd / "facts.txt").write_text("The project verification code is COBALT-42.\n")
     profile.features.streaming = True
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=cwd)) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd) as client:
         async for event in client.query(
             "Read facts.txt and report the verification code.", run_id="intro"
         ):

@@ -15,7 +15,7 @@ through one Python SDK. Pick a harness and model, run your agent, then change
 Install LiteAgents and the two harnesses used below (Python 3.11+):
 
 ```sh
-python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a5/liteagents-0.3.0a5-py3-none-any.whl"
+python -m pip install "liteagents[pydantic-ai,claude-sdk] @ https://github.com/BerriAI/liteagents/releases/download/v0.3.0a6/liteagents-0.3.0a6-py3-none-any.whl"
 export OPENAI_API_KEY="your-openai-key"
 ```
 
@@ -111,15 +111,37 @@ These types come from `liteagents` and work across harnesses. They are Python
 dataclasses, not OpenAI `choices` responses. Selecting Pydantic AI does not
 require the Claude Agent SDK; the quickstart installs both to demonstrate switching.
 
+## Add your own tools
+
+Pass typed Python functions. LiteAgents generates the schema and adapts the
+same tools to each harness:
+
+```python
+def lookup_order(order_id: str) -> str:
+    """Look up an order's payment status and total."""
+    return f"Order {order_id}: paid, total USD 12"
+
+result = await run("Look up order A123.", profile=profile, tools=[lookup_order])
+print(result.text)
+
+profile.harness = "claude-sdk"
+result = await run("Look up order A123.", profile=profile, tools=[lookup_order])
+print(result.text)
+```
+
+Regular and `async` functions work. Type hints describe the inputs; a docstring
+describes the tool. Existing `Tool` classes remain supported. MCP servers belong
+in `profile.mcp_servers`; the SDK manages their connection and tool translation.
+
 ## Read responses and continue conversations
 
 Keep one client open for follow-ups. Consecutive `query()` calls share history
 in direct and Temporal execution. For example, inside an async function:
 
 ```python
-from liteagents import AssistantMessage, LiteAgentClient, LiteAgentOptions, TextBlock
+from liteagents import AssistantMessage, LiteAgentClient, TextBlock
 
-async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as agent:
+async with LiteAgentClient(profile=profile) as agent:
     for prompt in ["Remember the code COBALT-42.", "What code did I give you?"]:
         async for message in agent.query(prompt):
             if isinstance(message, AssistantMessage):
@@ -156,8 +178,8 @@ of provider keys. [Model setup](docs/models.md) explains both connection options
 
 ## Shared tools and native controls
 
-Omit `tools` (or use `None`) to expose registered application and MCP tools,
-set `tools=[]` for no tools, or select names such as `tools=["read_file"]`.
+Omit `profile.tools` (or use `None`) to expose registered application and MCP tools,
+set `profile.tools=[]` for no tools, or select names such as `profile.tools=["read_file"]`.
 Defaults are the same across harnesses; workspace tools are opt-in.
 Application tools and MCP work without enabling retries or Temporal.
 
@@ -173,20 +195,27 @@ Application tools and MCP work without enabling retries or Temporal.
 The two OpenCode names represent upstream SDK API generations, not separate
 agent engines. Both use the tested OpenCode 1.18.x server.
 
-The same Chat Completions gateway alias works across all six selectors.
-LiteLLM translates the Claude Messages and Codex Responses protocols internally.
-Use your gateway's exact model alias with `model_kwargs.api_base`, or a LiteLLM
-`provider/model` and its usual credentials without a gateway endpoint.
-Existing `litellm_proxy/alias` configurations remain supported.
-No extra translation service or configuration is needed.
+The same model, provider credentials, tools, MCP settings, and response handling
+work across all six selectors. Change `profile.harness` to choose the loop;
+LiteAgents and LiteLLM handle protocol translation internally.
 
 Shared model settings include `temperature`, `top_p`, `max_tokens`, `stop`,
 `seed`, penalties, `reasoning_effort`, and `timeout`. The model must support the
 requested setting and tools; unsupported combinations fail explicitly.
-Native controls stay in `harness_options`, such as DeepAgents middleware,
-Claude permission settings, or Codex sandbox settings. Those controls belong to
-the selected harness. See the [SDK contract](docs/sdk.md) for their scope and
-conflicts with shared provider/tool configuration.
+For optional native controls, put each harness's settings under its name:
+
+```python
+profile.harness_options = {
+    "deepagents": {"debug": True},
+    "claude-sdk": {"max_budget_usd": 1.00},
+}
+```
+
+Changing `profile.harness` automatically selects its settings. Native controls
+apply only to their own harness; shared fields still configure the model, tools,
+and MCP for all of them. Existing flat `harness_options` also work.
+See the [SDK contract](docs/sdk.md#native-controls) for supported controls and
+conflicts with shared configuration.
 
 ## Configure with JSON or YAML
 
@@ -209,7 +238,7 @@ The loaders accept file paths, expand `${ENVIRONMENT_VARIABLE}` values, and
 validate the same options as the Python constructor. Missing variables and
 unknown fields fail before execution. See the [JSON/YAML guide](docs/profiles.md)
 for equivalent JSON, MCP and Temporal configuration, and a
-[runnable example](cookbook/recipes/09_profile_files.py) with both file formats.
+[Colab walkthrough](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/09_profile_files.ipynb) with both file formats.
 
 ## Try the cookbooks
 
@@ -262,13 +291,13 @@ await LiteAgentWorker(profile=profile, cwd=".", tools=my_tools).run()
 Clients submit or attach using the same profile version and storage settings:
 
 ```python
-from liteagents import LiteAgentClient, LiteAgentOptions
+from liteagents import LiteAgentClient
 
-async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+async with LiteAgentClient(profile=profile) as client:
     handle = await client.start_run("Do the task", run_id="task-001")
 # The Temporal worker keeps running after this client exits.
 
-async with LiteAgentClient(options=LiteAgentOptions(profile=profile)) as client:
+async with LiteAgentClient(profile=profile) as client:
     handle = await client.get_run("task-001")
     print(await handle.status())
     print((await handle.result()).text)

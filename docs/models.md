@@ -18,7 +18,7 @@ export OPENAI_API_KEY="your-openai-key"
 ```
 
 ```python
-profile = ProfileOptions(harness="deepagents", model="openai/gpt-5.4-mini", tools=[])
+profile = ProfileOptions(harness="pydantic-ai", model="openai/gpt-5.4-mini")
 ```
 
 ## Anthropic
@@ -28,7 +28,7 @@ export ANTHROPIC_API_KEY="your-anthropic-key"
 ```
 
 ```python
-profile = ProfileOptions(harness="deepagents", model="anthropic/claude-sonnet-4-6", tools=[])
+profile = ProfileOptions(harness="pydantic-ai", model="anthropic/claude-sonnet-4-6")
 ```
 
 ## OpenRouter
@@ -39,7 +39,7 @@ export OPENROUTER_API_KEY="your-openrouter-key"
 
 ```python
 profile = ProfileOptions(
-    harness="deepagents", model="openrouter/anthropic/claude-sonnet-4.6", tools=[],
+    harness="pydantic-ai", model="openrouter/anthropic/claude-sonnet-4.6",
 )
 ```
 
@@ -49,7 +49,7 @@ LiteLLM knows the OpenRouter endpoint.
 ## More API-key providers
 
 Set the key and use the model string from the table. These use the same
-`ProfileOptions(harness="deepagents", model=..., tools=[])` and `query()` interface.
+`ProfileOptions(harness="pydantic-ai", model=...)` and `run()` call.
 
 | Provider | Example `model` | Setup |
 | --- | --- | --- |
@@ -71,7 +71,7 @@ export AZURE_API_VERSION="2024-10-21"
 ```
 
 ```python
-profile = ProfileOptions(harness="deepagents", model="azure/your-deployment-name", tools=[])
+profile = ProfileOptions(harness="pydantic-ai", model="azure/your-deployment-name")
 ```
 
 Choose the API version required by your deployment. Keep these settings in
@@ -90,9 +90,8 @@ export AWS_REGION_NAME="us-east-1"
 
 ```python
 profile = ProfileOptions(
-    harness="deepagents",
+    harness="pydantic-ai",
     model="bedrock/your-model-or-inference-profile-id",
-    tools=[],
 )
 ```
 
@@ -113,7 +112,7 @@ export VERTEXAI_LOCATION="us-central1"
 ```
 
 ```python
-profile = ProfileOptions(harness="deepagents", model="vertex_ai/gemini-2.5-flash", tools=[])
+profile = ProfileOptions(harness="pydantic-ai", model="vertex_ai/gemini-2.5-flash")
 ```
 
 In a deployment, use the workload's service account or an appropriate credential
@@ -129,7 +128,7 @@ export OLLAMA_API_BASE="http://localhost:11434"
 ```
 
 ```python
-profile = ProfileOptions(harness="deepagents", model="ollama_chat/llama3.1", tools=[])
+profile = ProfileOptions(harness="pydantic-ai", model="ollama_chat/llama3.1")
 ```
 
 Ollama must be reachable from the process running the agent. In Colab,
@@ -146,7 +145,7 @@ not need the underlying provider keys. No environment variable is required:
 from getpass import getpass
 
 profile = ProfileOptions(
-    harness="deepagents",
+    harness="pydantic-ai",
     model="my-model",
     model_kwargs={
         "api_base": "https://your-gateway.example/v1",
@@ -164,8 +163,20 @@ To deploy a gateway, follow the
 
 ## In Colab
 
-For the API-key providers above, store the named key in Colab **Secrets** and
-enable notebook access. The cookbooks read it for you, or ask in a hidden prompt.
+The introductory notebooks ask for an OpenAI key in a hidden prompt. To use
+another provider, change the model and the key's environment-variable name in
+that cell. For example, an Anthropic setup uses `ANTHROPIC_API_KEY` and
+`anthropic/claude-sonnet-4-6`.
+
+If you prefer Colab **Secrets**, add the named key, enable notebook access, and
+read it explicitly instead of using the prompt:
+
+```python
+import os
+from google.colab import userdata
+
+os.environ["ANTHROPIC_API_KEY"] = userdata.get("ANTHROPIC_API_KEY")
+```
 
 Azure needs its endpoint and API version in the runtime environment as well.
 Bedrock and Vertex AI need their cloud authentication configured inside the

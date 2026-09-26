@@ -5,14 +5,13 @@ import os
 
 from _common import parser, setup
 
-from liteagents import LiteAgentClient, LiteAgentOptions, SubagentOptions
+from liteagents import LiteAgentClient, SubagentOptions
 
 
 async def main():
     args = parser(__doc__).parse_args()
     cwd, profile = setup(args, "subagents", tools=["delegate_auditor"])
     (cwd / "receipt.txt").write_text("Order A123 was paid. The total is USD 12.\n")
-    profile.features.subagents = True
     child_model = os.environ.get("LITEAGENTS_SUBAGENT_MODEL")
     profile.subagents = {
         "auditor": SubagentOptions(
@@ -21,7 +20,7 @@ async def main():
             tools=["read_file"],
         )
     }
-    async with LiteAgentClient(options=LiteAgentOptions(profile=profile, cwd=cwd)) as client:
+    async with LiteAgentClient(profile=profile, cwd=cwd) as client:
         run = await client.start_run(
             "Use delegate_auditor to verify the payment and total for order A123. Relay its findings."
         )

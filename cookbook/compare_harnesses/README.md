@@ -8,17 +8,16 @@ See the [notebook index](../README.md).
 The instructions below use the terminal runner from a repository checkout.
 
 Install `liteagents[all]` from this checkout and OpenCode 1.18.29 as described in
-the repository README. The six profiles use environment references:
+the repository README. The six profiles use the same OpenAI model. Set its key:
 
 ```sh
-export LITEAGENTS_API_BASE='https://your-gateway.example/v1'
-export LITELLM_API_KEY='your-key'
-export LITEAGENTS_MODEL='your-tool-capable-model-alias'
+export OPENAI_API_KEY='your-openai-key'
 ```
 
-`LITEAGENTS_MODEL` is the same Chat Completions alias for every harness.
-LiteLLM translates the native protocols internally. No separate Claude model
-or Responses endpoint is required.
+Each profile sets `model: openai/gpt-5.4-mini`. LiteLLM translates the native
+protocols internally. To use another provider, change the same model setting in
+the profiles and set its credentials. A gateway can be configured in
+`model_kwargs`; see [profiles](../../docs/profiles.md).
 
 From the repository root:
 
@@ -71,7 +70,8 @@ same tested server version. All six use their actual native harnesses.
 
 ## Reproduce live acceptance checks
 
-With the same environment values and dependencies:
+The opt-in live acceptance suite uses a gateway fixture. Set `LITEAGENTS_MODEL`,
+`LITEAGENTS_API_BASE`, and `LITELLM_API_KEY` for that suite, then run:
 
 ```sh
 LITEAGENTS_LIVE=1 LANGSMITH_TRACING=false LANGCHAIN_TRACING_V2=false \

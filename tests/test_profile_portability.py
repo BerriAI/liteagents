@@ -59,6 +59,33 @@ def test_attached_opencode_keeps_native_server_control():
     assert get_capabilities(profile).execution_mode == "managed"
 
 
+def test_scoped_native_options_follow_selector_and_survive_files(tmp_path):
+    profile = ProfileOptions(
+        harness="deepagents", model="openai/test",
+        harness_options={
+            "interrupt_on": {"edit_file": True},
+            "deepagents": {"debug": True},
+            "pydantic-ai": {"tool_timeout": 30},
+            "opencode-v2": {"base_url": "http://127.0.0.1:4096"},
+        },
+    )
+    path = tmp_path / "agent.json"
+    path.write_text(profile.model_dump_json())
+    loaded = ProfileOptions.from_json(path)
+    assert loaded.native_options() == {"interrupt_on": {"edit_file": True}, "debug": True}
+    loaded.harness = "pydantic-ai"
+    assert loaded.native_options() == {"interrupt_on": {"edit_file": True}, "tool_timeout": 30}
+    assert profile.harness == "deepagents"
+    loaded.harness_options.pop("interrupt_on")
+    loaded.harness = "opencode-v2"
+    assert get_capabilities(loaded).execution_mode == "native"
+
+
+def test_invalid_scoped_native_options_fail_at_profile_creation():
+    with pytest.raises(ValidationError, match="must be a dictionary"):
+        ProfileOptions(harness="deepagents", model="openai/test", harness_options={"codex": True})
+
+
 @pytest.mark.parametrize("config", [
     {"url": "https://example.test", "allowed_tools": "read"},
     {"url": "https://example.test", "allowed_tools": ["read", "read"]},
