@@ -1,4 +1,8 @@
-# Try the SDK
+# Terminal recipes
+
+For the browser experience, use the [standalone Colab notebooks](../README.md).
+For a copyable SDK quickstart, see [Getting started](../../docs/getting-started.md).
+The scripts below are the checkout-based versions for terminal use.
 
 These recipes use the public SDK and your model gateway. Each creates a small
 workspace under `.liteagents/recipes/<recipe>/<harness>`; they do not edit your

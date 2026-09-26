@@ -36,31 +36,33 @@ the selected harness, and the model must support the requested settings and tool
 
 ## Install
 
-Python 3.11+; Python 3.12 is recommended. This checkout contains **0.3.0a2**.
-Install it from the repository root:
+Python 3.11+; Python 3.12 is recommended. Install the SDK and your first harness:
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install '.[deepagents]' -c constraints-tested.txt
+python -m pip install "liteagents[deepagents] ` https://github.com/BerriAI/liteagents/releases/download/v0.3.0a3/liteagents-0.3.0a3-py3-none-any.whl"
 ```
 
-This installs the first harness. A simple agent needs no Temporal or PostgreSQL
-service. Replace `[deepagents]` with `[all]` to compare all harnesses, or add the
-extras you need:
-`deepagents`, `pydantic-ai`, `claude-sdk`, `codex`,
-`mcp`, `temporal`, and `postgres`. The Claude and Codex extras supply their native
-runtimes. OpenCode additionally needs `npm install -g opencode-ai@1.18.29`.
+This **0.3.0a3 preview** uses a GitHub release wheel because the `liteagents`
+name on PyPI currently belongs to a different package. No checkout is needed.
+The [release](https://github.com/BerriAI/liteagents/releases/tag/v0.3.0a3)
+also provides `constraints-tested.txt` for reproducing the tested dependency versions.
 
-The `liteagents` name on PyPI currently serves a different package. To install
-without cloning, use the wheel and tested constraints from the
-[0.3.0a2 preview release](https://github.com/BerriAI/liteagents/releases/tag/v0.3.0a2).
-For a source checkout and the cookbooks, follow the
-[getting-started guide](docs/getting-started.md).
+Replace `[deepagents]` with `[all]` to install all Python integrations, or select
+the extras you need: `deepagents`, `pydantic-ai`, `claude-sdk`, `codex`, `mcp`,
+`temporal`, and `postgres`. Claude and Codex include their runtimes.
+OpenCode additionally needs `npm install -g opencode-ai`1.18.29`.
+A simple agent needs no Temporal or PostgreSQL service.
+
+**Try it without local setup:**
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb)
 
 ## Run an agent
 
-Set `OPENAI_API_KEY` for this example, then run:
+Set your OpenAI key, then run the Python example below:
+
+```sh
+export OPENAI_API_KEY="your-openai-key"
+```
 
 ```python
 import asyncio
@@ -89,25 +91,56 @@ Install each harness integration you want to use. After changing `harness`, run
 the same code again. LiteAgents selects the installed harness; it does not
 download one during a query or migrate a conversation between harnesses.
 
-With a LiteLLM gateway, use the model alias configured on your gateway and its
-endpoint and key:
+### Choose a model provider
+
+The same agent code works with these model settings. Set the matching key and
+change only `profile.model`; LiteLLM's Python SDK handles provider translation.
+
+| Provider | Example `model` | Key environment variable |
+| --- | --- | --- |
+| OpenAI | `openai/gpt-5.4-mini` | `OPENAI_API_KEY` |
+| Anthropic | `anthropic/claude-sonnet-4-6` | `ANTHROPIC_API_KEY` |
+| OpenRouter | `openrouter/anthropic/claude-sonnet-4.6` | `OPENROUTER_API_KEY` |
+| Google Gemini | `gemini/gemini-2.5-flash` | `GEMINI_API_KEY` |
+| Groq | `groq/llama-3.3-70b-versatile` | `GROQ_API_KEY` |
+| Mistral | `mistral/mistral-small-latest` | `MISTRAL_API_KEY` |
+| DeepSeek | `deepseek/deepseek-chat` | `DEEPSEEK_API_KEY` |
+| Together AI | `together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo` | `TOGETHERAI_API_KEY` |
+| xAI | `xai/grok-3-mini` | `XAI_API_KEY` |
+
+For example, set `ANTHROPIC_API_KEY` and use
+`profile.model = "anthropic/claude-sonnet-4-6"` with the same harness.
+Choose a model enabled for your account that supports the tools/settings you use.
+
+[Model setup](docs/models.md) includes copyable key setup for these providers,
+Azure OpenAI, Amazon Bedrock, Vertex AI, local Ollama, and optional gateway access.
+
+### Optional: use a LiteLLM Gateway
+
+Use its exact model alias, endpoint, and key. No provider keys or special
+environment variables are required in your application:
 
 ```python
+from getpass import getpass
+
 profile = ProfileOptions(
     harness="deepagents",
     model="my-model",
     model_kwargs={
         "api_base": "https://your-gateway.example/v1",
-        "api_key": "your-gateway-key",
+        "api_key": getpass("Gateway API key: "),
     },
 )
+options = LiteAgentOptions(profile=profile)
 ```
 
 LiteAgents sends `my-model` to that endpoint unchanged. No routing prefix is
 needed, including for aliases containing `/`. The gateway selects the provider.
 Without a gateway endpoint, use a `provider/model` name as in the first example;
 the LiteLLM library connects to that provider directly. Both paths use LiteLLM.
-See [getting started](docs/getting-started.md) for environment-variable setup.
+Use this profile with the same `query()` example above. See
+[getting started](docs/getting-started.md#optional-use-a-litellm-gateway)
+for the gateway setup option.
 
 ## Read responses and continue conversations
 
@@ -205,6 +238,11 @@ for equivalent JSON, MCP and Temporal configuration, and a
 [runnable example](cookbook/recipes/09_profile_files.py) with both file formats.
 
 ## Try the cookbooks
+
+The [Colab cookbooks](cookbook/README.md) run in your browser with no checkout.
+Start with [your first agent](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb),
+[switching harnesses](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/10_harness_switch.ipynb),
+or [comparing coding runs](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/compare_harnesses/compare.ipynb).
 
 The [guided recipes](cookbook/recipes/README.md) contain setup, runnable commands,
 and expected results. Every recipe accepts `--harness` so you can compare behavior.

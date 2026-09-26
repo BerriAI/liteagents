@@ -1,6 +1,6 @@
 [project]
 name = "liteagents"
-version = "0.3.0a2"
+version = "0.3.0a3"
 description = "A shared Python SDK for native agent harnesses and durable runs"
 readme = "README.md"
 license = {text = "MIT"}
@@ -20,7 +20,8 @@ legacy = ["litellm>=1.55.0"]
 opencode-v1 = []
 opencode-v2 = []
 mcp = ["mcp>=1.12,<3"]
-dev = ["liteagents[legacy]","pytest>=8", "pytest-asyncio>=0.23", "mypy>=1.8", "ruff>=0.4", "pytest-cov", "types-PyYAML", "build"]
+dev = ["liteagents[legacy]","pytest>=8", "pytest-asyncio>=0.23", "mypy>=1.8", "ruff>=0.4", "pytest-cov", "types-PyYAML", "build", "nbformat>=5.10,<6", "nbclient>=0.10,<1", "ipykernel>=6,<8"]
+notebooks = ["jupyterlab>=4,<5", "ipykernel>=6,<8"]
 deepagents = ["deepagents>=0.7.19,<0.8", "langchain-openai>=1.6.6,<2", "langgraph-checkpoint-sqlite>=3.1.1,<4"]
 pydantic-ai = ["pydantic-ai-slim[openai,anthropic,mcp]>=2.50,<3"]
 claude-sdk = ["claude-agent-sdk>=0.2.159,<0.3"]

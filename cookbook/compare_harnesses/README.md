@@ -1,5 +1,12 @@
 # Compare the native harnesses
 
+[Open the comparison in Colab](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/compare_harnesses/compare.ipynb)
+to edit the harness list and model, then inspect answers, diffs, and independent
+test results. It installs its own dependencies and includes the example files.
+See the [notebook index](../README.md).
+
+The instructions below use the terminal runner from a repository checkout.
+
 Install `liteagents[all]` from this checkout and OpenCode 1.18.29 as described in
 the repository README. The six profiles use environment references:
 

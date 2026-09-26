@@ -1,5 +1,10 @@
 # Start LiteAgents v2 with Temporal and DeepAgents
 
+For the current SDK in your browser, use the
+[durable-runs Colab notebook](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/06_durable.ipynb).
+It starts a demo Temporal service and separate worker, supports reconnecting to a run,
+and includes an optional worker crash/restart experiment.
+
 The public SDK now implements profiles, six harness names, and durable DeepAgents
 runs. Start with the [SDK quickstart](../../README.md) using `sdk_worker.py`,
 `sdk_client.py`, and `agent.yaml` in this directory.

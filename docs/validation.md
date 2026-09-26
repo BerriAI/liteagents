@@ -1,5 +1,26 @@
 # Release validation — September 25, 2026
 
+## 0.3.0a3 Colab cookbooks
+
+- Every notebook executes twice in the same disposable Python kernel, from a
+  directory outside the checkout. Fixture files, MCP servers, and worker scripts
+  come from its cells. Execution tests install dependencies ahead of time;
+  the notebook install cell is also checked separately in a clean environment
+  against the built wheel and tested constraints.
+- Model decisions are deterministic local fixtures. The SDK, all six installed
+  harness runtimes, workspace tools, stdio MCP, and Temporal workers are real.
+  Checks cover approvals and cancellation, follow-up history, tool retries,
+  model fallback, worker loss, and starting a notebook-owned Temporal service.
+- Credential setup covers provider environment variables, optional gateway
+  settings, Colab Secrets, missing/denied secret access, and hidden prompts.
+  Provider and gateway execution paths both run through notebook tests.
+- The built wheel runs a direct-provider first-agent example through all six
+  harness selectors in a clean environment. These fixtures do not establish
+  live acceptance of every provider/model listed in the model setup guide.
+- The runtime change fixes stdio MCP startup when a notebook's stderr stream
+  does not expose an operating-system file descriptor. A regression test starts
+  an actual MCP process with that kind of stderr.
+
 ## 0.3.0a1 portability preview
 
 The development version routes shared model configuration through LiteLLM 1.83.0

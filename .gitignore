@@ -11,3 +11,4 @@ build/
 .state/
 htmlcov/
 .coverage
+.ipynb_checkpoints/
