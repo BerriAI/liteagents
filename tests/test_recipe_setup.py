@@ -53,7 +53,7 @@ def test_example_profiles_load_without_gateway_environment(recipe_args):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("recipe", ["00_agent", "07_model_fallback", "08_application_tools", "09_profile_files"])
+@pytest.mark.parametrize("recipe", ["00_agent", "05_retries", "07_model_fallback", "08_application_tools", "09_profile_files"])
 async def test_terminal_recipe_with_only_provider_setup(recipe, tmp_path):
     pytest.importorskip("pydantic_ai")
     async with NotebookProvider().running() as provider:
@@ -75,7 +75,7 @@ async def test_terminal_recipe_with_only_provider_setup(recipe, tmp_path):
         assert process.returncode == 0, errors.decode()
         assert provider.requests
         assert b"synthetic-recipe-key" not in output + errors
-        expected = "USD 12" if recipe == "08_application_tools" else (
+        expected = "USD 12" if recipe in ("05_retries", "08_application_tools") else (
             "fallback-ready" if recipe == "07_model_fallback" else "READY"
         )
         assert expected in output.decode()
