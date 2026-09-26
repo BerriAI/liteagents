@@ -12,7 +12,7 @@ For a copyable Python snippet outside Colab, see [Getting started](../docs/getti
 
 | Notebook | What to try |
 | --- | --- |
-| [First agent](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb) | A guided first run, then switch DeepAgents to Pydantic AI |
+| [First agent](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb) | A guided first run, then switch Pydantic AI to Claude Agent SDK |
 | [Streaming and conversation](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/01_quickstart.ipynb) | Stream a response and ask a follow-up |
 | [Application tools](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/08_application_tools.ipynb) | Define a Python tool and inspect calls |
 | [MCP](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/02_mcp.ipynb) | Connect a demo server included in the notebook |

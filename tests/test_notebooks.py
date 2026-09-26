@@ -56,12 +56,13 @@ async def execute_notebook(
     path, tmp_path, *, harness="deepagents", approve=True, durable=False,
     direct=False, start_temporal=False,
 ):
-    if harness in ("deepagents", "pydantic-ai"):
+    if path.stem == "00_agent":
+        pytest.importorskip("pydantic_ai")
+        available("claude-sdk")
+    elif harness in ("deepagents", "pydantic-ai"):
         pytest.importorskip(harness.replace("-", "_"))
     else:
         available(harness)
-    if path.stem == "00_agent":
-        pytest.importorskip("pydantic_ai")
     pytest.importorskip("mcp")
     if durable:
         pytest.importorskip("temporalio")
