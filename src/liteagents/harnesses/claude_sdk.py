@@ -141,6 +141,12 @@ class ClaudeAdapter(HarnessAdapter):
             system_prompt=self.profile.system_prompt,
             max_turns=(self.profile.max_turns or 20),
             include_partial_messages=self.profile.features.streaming,
+            # Force Claude to adopt our chosen session id on a fresh session
+            # instead of minting its own; otherwise a later `resume=` targets
+            # an id Claude never wrote a transcript under, and (under managed
+            # execution, where CLAUDE_CONFIG_DIR is keyed by this same id)
+            # silently starts a brand-new, empty conversation.
+            session_id=None if self.resume_session else self.session_id,
             resume=self.session_id if self.resume_session else None,
             effort=kwargs.get("reasoning_effort"),
             **options,

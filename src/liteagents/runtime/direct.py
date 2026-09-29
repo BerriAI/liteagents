@@ -28,7 +28,7 @@ class DirectRuntime:
             profile,
             cwd=cwd,
             tools=tools,
-            session_id=session_id or uuid4().hex,
+            session_id=session_id or str(uuid4()),
             resume_session=session_id is not None,
         )
         self.history: list[Message] = []
@@ -207,7 +207,7 @@ class DirectRuntime:
                     next_name = fallbacks[index]
                     profile = fallback_profile(self.profile, next_name)
                     self.adapter = create_adapter(
-                        profile, cwd=self.cwd, tools=self.tools, session_id=uuid4().hex
+                        profile, cwd=self.cwd, tools=self.tools, session_id=str(uuid4())
                     )
                     await self.adapter.open()
                     await run.emit({"kind": "harness_fallback", "harness": next_name})
