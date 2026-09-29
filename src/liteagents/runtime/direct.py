@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator, Sequence
 from contextlib import aclosing
 from pathlib import Path
 from uuid import uuid4
@@ -19,7 +19,8 @@ from .fallback import fallback_profile
 
 class DirectRuntime:
     def __init__(
-        self, profile: ProfileOptions, *, cwd: Path, tools: list[Tool], session_id: str | None
+        self, profile: ProfileOptions, *, cwd: Path, tools: list[Tool], session_id: str | None,
+        history: Sequence[Message] = (),
     ):
         if not cwd.is_dir():
             raise ConfigurationError(f"Working directory does not exist: {cwd}")
@@ -30,8 +31,9 @@ class DirectRuntime:
             tools=tools,
             session_id=session_id or str(uuid4()),
             resume_session=session_id is not None,
+            history=list(history),
         )
-        self.history: list[Message] = []
+        self.history: list[Message] = list(history)
         self.runs: dict[str, LocalRun] = {}
         self._lock = asyncio.Lock()
         self._open = False
@@ -106,6 +108,10 @@ class DirectRuntime:
             results = await asyncio.gather(self.owner, return_exceptions=True)
             if isinstance(results[0], Exception):
                 raise results[0]
+
+    @property
+    def session_id(self) -> str | None:
+        return self.adapter.native_session_id or self.adapter.session_id
 
     async def get_run(self, run_id: str) -> LocalRun:
         if run_id not in self.runs:
