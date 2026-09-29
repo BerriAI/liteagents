@@ -8,6 +8,77 @@ through one Python SDK. Pick a harness and model, run your agent, then change
 [Website](https://www.litellm.ai/liteagents) ·
 [Getting started](docs/getting-started.md)
 
+## Demo
+
+[![LiteAgents demo](docs/assets/liteagents-demo.gif)](docs/assets/liteagents-demo.mp4)
+
+Pick a harness and a model, and your agent is live in Slack
+
+## Spin up an agent in 30 seconds
+
+Install the CLI with the harness you want (Python 3.11+):
+
+```sh
+python -m pip install "liteagents[claude-sdk] @ git+https://github.com/BerriAI/liteagents.git"
+liteagents init
+```
+
+It asks four things, one at a time. Arrow keys move, Enter picks, Esc goes back:
+
+```
+╭──────────────────────────────────────╮
+│ ✻ Welcome to LiteAgents              │
+│   Spin up an agent on any harness    │
+╰──────────────────────────────────────╯
+
+✔ What do you want to call your agent? viktor
+✔ Which harness? Claude Agent SDK
+✔ Which provider? LiteLLM AI Gateway
+✔ Which model? litellm_proxy/claude-sonnet-4-6
+✔ Where should your agent live? Terminal
+
+✓ Created ./viktor
+✓ Installed dependencies
+✓ Model access verified
+
+viktor is running
+
+> what can you do?
+I can answer questions, work through problems with you, and call the tools in ./viktor/agent/tools.
+```
+
+For the provider, pick Anthropic or OpenAI to use that API key directly, or LiteLLM AI Gateway to use any model your gateway serves. The gateway option asks for the base URL and key, then lets you type to filter its model list. Keys are written only to the project's gitignored `.env`
+
+Pick Slack instead of Terminal and it reuses `SLACK_BOT_TOKEN` and `SLACK_APP_TOKEN` if they're set, or prints a Slack app manifest to paste into api.slack.com and asks for the tokens. It uses Socket Mode, so there's no public URL to set up
+
+Skip the prompts with flags:
+
+```sh
+liteagents init viktor --harness claude-sdk --model anthropic/claude-sonnet-5-5 --channel terminal --yes
+```
+
+Stop it with Ctrl+C and start it again later from the project folder. Conversations pick up where they left off:
+
+```sh
+cd viktor && liteagents dev
+```
+
+Every project has the same layout:
+
+```
+viktor/
+  agent.toml          # name, harness, model, channel
+  agent/
+    core.py           # builds the profile and runs one turn
+    instructions.md   # system prompt, reloaded every turn
+    tools/            # Python functions the model can call
+    memory/           # saves each conversation's session so it survives restarts
+    channels/         # terminal and Slack
+    crons/            # prompts that run on a schedule
+```
+
+Change `harness` or `model` in `agent.toml` to switch frameworks without touching the code. The next message picks it up. A conversation started on one harness starts fresh on another, because native sessions don't move between frameworks. The agent runs locally and stops when the process stops
+
 ## Quickstart
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BerriAI/liteagents/blob/main/cookbook/recipes/00_agent.ipynb)
