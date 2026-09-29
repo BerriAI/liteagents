@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
 from pathlib import Path
 from uuid import uuid4
 
@@ -68,7 +68,8 @@ def queue_name(profile: ProfileOptions) -> str:
 
 class TemporalRuntime:
     def __init__(
-        self, profile: ProfileOptions, *, cwd: Path, tools: list[Tool], session_id: str | None
+        self, profile: ProfileOptions, *, cwd: Path, tools: list[Tool], session_id: str | None,
+        history: Sequence[Message] = (),
     ):
         if not get_capabilities(profile.harness).temporal:
             raise UnsupportedFeatureError(
@@ -81,7 +82,8 @@ class TemporalRuntime:
         self.profile = profile
         self.profile_id = profile.identity()
         self.store = run_store(profile, cwd)
-        self.history: list[Message] = []
+        self.history: list[Message] = list(history)
+        self.session_id: str | None = None
         self.client: Client | None = None
         self._query_active = False
         self._pending: tuple[TemporalRun, str] | None = None
