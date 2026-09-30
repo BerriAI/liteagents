@@ -20,6 +20,7 @@ class LiteAgentOptions:
     cwd: str | Path = "."
     tools: list[ToolInput] = field(default_factory=list)
     session_id: str | None = None
+    history: list[Message] = field(default_factory=list)
 
     def __post_init__(self):
         if not isinstance(self.profile, ProfileOptions):
@@ -31,17 +32,18 @@ class LiteAgentClient:
     def __init__(
         self, *, profile: ProfileOptions | None = None, cwd: str | Path | None = None,
         tools: list[ToolInput] | None = None, session_id: str | None = None,
-        options: LiteAgentOptions | None = None,
+        history: list[Message] | None = None, options: LiteAgentOptions | None = None,
     ):
         if options is not None:
-            if any(value is not None for value in (profile, cwd, tools, session_id)):
-                raise TypeError("Pass profile/cwd/tools/session_id or options, not both")
+            if any(value is not None for value in (profile, cwd, tools, session_id, history)):
+                raise TypeError("Pass profile/cwd/tools/session_id/history or options, not both")
         else:
             if profile is None:
                 raise TypeError("LiteAgentClient requires profile=ProfileOptions(...)")
             options = LiteAgentOptions(
                 profile=profile, cwd="." if cwd is None else cwd,
                 tools=[] if tools is None else tools, session_id=session_id,
+                history=[] if history is None else history,
             )
         self._options = options
         if options.profile.temporal:
@@ -63,6 +65,7 @@ class LiteAgentClient:
             cwd=Path(options.cwd).resolve(),
             tools=options.tools,
             session_id=options.session_id,
+            history=options.history,
         )
 
     async def __aenter__(self) -> Self:
@@ -90,6 +93,11 @@ class LiteAgentClient:
     @property
     def history(self) -> list[Message]:
         return list(self._runtime.history)
+
+    @property
+    def session_id(self) -> str | None:
+        """The native session ID to pass back as session_id to continue this conversation."""
+        return self._runtime.session_id
 
     async def get_run(self, run_id: str) -> Any:
         """Attach to an existing run without submitting a new query."""

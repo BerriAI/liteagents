@@ -55,7 +55,7 @@ async def run_tool_loop(
         request_kwargs = dict(model_kwargs or {})
         if stream:
             request_kwargs["stream"] = True
-        response = await litellm.anthropic_messages(
+        response: Any = await litellm.anthropic_messages(
             model=model,
             messages=list(history.raw()),
             system=system,

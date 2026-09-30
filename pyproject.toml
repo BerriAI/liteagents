@@ -13,7 +13,11 @@ dependencies = [
     "PyYAML>=6,<7",
     "filelock>=3.16,<4",
     "aiohttp>=3.10,<4",
+    "python-dotenv>=1,<2",
 ]
+
+[project.scripts]
+liteagents = "liteagents.cli:main"
 
 [project.optional-dependencies]
 legacy = ["litellm>=1.55.0"]
